@@ -1,0 +1,405 @@
+---
+title: "An EDA of the African Foreign Policy-Making Study Database"
+author: "Steven Pappas"
+format: 
+  pdf:
+    toc: false
+    number-sections: true
+    colorlinks: true
+editor: visual
+execute:
+  warning: false
+  message: false
+  echo: true
+  include: true
+---
+
+```{r, include=FALSE}
+
+library(tidyverse)
+
+masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+
+diplomaticrep = read_csv("data/Master 08-28-2025 AFP excel dataset-3_diplomatic_represetations.csv")
+
+masterset_adj = masterset %>%
+  mutate(across(where(is.numeric), ~ na_if(., -99)),
+         COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
+                             COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
+                             .default = COUNTRY))
+
+countrygrowth = masterset_adj %>%
+  select(COUNTRY, YEAR, IDEOLOGY, COLPAST2, AVLIFEEX, GNI_CAP, ODAGGTOT) %>%
+  mutate(IDEOLOGY = as.character(IDEOLOGY), ODAGGTOT = as.numeric(ODAGGTOT),
+         COL2 = ifelse(COLPAST2 != 9, "Colony", "Not Colony"))
+
+diplomaticrep_adj = list(
+  diplomaticrep %>%
+    select(-contains("...")) %>%
+    pivot_longer(cols = -c(CCODE, COUNTRY),
+                 names_to = "YEAR",
+                 values_to = "COUNT"),
+  masterset_adj %>%
+    select(COUNTRY, CCODE, REGION) %>%
+    filter(!is.na(REGION)) %>%
+    distinct()
+) %>% 
+  reduce(merge, by = c("COUNTRY", "CCODE"))
+
+```
+
+This data set details foreign aid to African countries, along with explanatory data about the country's colonization status and quality of life statistics. The primary variable of interest is total aid distributed through the Organization for Economic Co-operation and Development (OECD)'s official development assistance (ODA) program.
+
+The primary data set includes various ordinal variables explaining each country's attributes. For instance, there are indicators for a country's ideology, region, and democracy and autocracy score. We began by exploring the evolution of a country's ideology as measured in the data set. We created a stacked bar chart to visualize the number of countries per year broken up by ideology.
+
+```{r}
+
+countrygrowth %>% # Bar chart for ideology by year #
+  filter(!is.na(IDEOLOGY)) %>%
+  ggplot(aes(x = YEAR, fill = IDEOLOGY)) +
+  geom_bar(position = "stack", color = "black") +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(1950, 2020, by = 10)) +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, 55), breaks = seq(0, 50, by = 10)) +
+  scale_fill_manual(values = c("red", "blue", "green"), labels = c("Capitalist", "Socialist", "Marxist")) +
+  labs(title = "Progression of Ideology by Year in All African Countries",
+       x = "Year",
+       y = "Number of Measured African Countries",
+       fill = NULL) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "top", legend.text = element_text(face = "bold"))
+
+```
+
+The stacked bar chart displays an increased survey range for more current years. Since 2012, every country surveyed has been categorized as capitalist. Capitalism appears to be the predominant ideology in Africa, with leftist ideologies like socialism and Marxism peaking in the mid-1970s and 80s. Additionally, the number of Marxist countries has the smallest spread, suggesting its popularity was centralized in a certain group of countries or region for a short period of time.
+
+To show the progression of ideology within different countries, we created a scatter plot to show trends within the broader continent. Points, representing different ideologies, are filled with the same colors as the previous stacked bar chart.
+
+```{r}
+
+countrygrowth %>% # Scatter plot for progression of ideology in each country #
+  filter(!is.na(IDEOLOGY)) %>%
+  ggplot(x = YEAR, y = COUNTRY, fill = IDEOLOGY) +
+  geom_point(aes(x = YEAR, y = COUNTRY, fill = IDEOLOGY), size = 3, shape = 21, color = "black") +
+  scale_x_continuous(expand = c(0, 0), breaks = seq(1950, 2020, by = 10), limits = c(1950, 2026)) +
+  scale_fill_manual(values = c("red", "blue", "green"), labels = c("Capitalist", "Socialist", "Marxist")) +
+  labs(title = "Progression of Ideology by Year in Different African Countries",
+       x = "Year",
+       y = "African Country",
+       fill = NULL) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5),
+        legend.position = "top", legend.text = element_text(face = "bold"))
+
+```
+
+The scatter plot allows us to open up broader popularity trends with alternate ideologies to capitalism. Some ideologies align with the reign of long-standing leaders. For instance, Libya displays the longest reign of socialism from 1969 to 2011. This timeline largely aligns with the power stronghold held by Muammar Gaddafi, who ascribed to an Islamic socialist ideology and was removed from power in 2011.
+
+A secondary data set details the growth of the number of embassies associated with each African country for five and ten-year spans. We developed a function that creates a line chart visualizing this progression. For example, we visualized the growth of Angolan embassies below.
+
+```{r}
+
+embassyplot = function(name) { # Progression of embassies by each country #
+  
+  library(tidyverse)
+  
+  plottitle = paste0("Number of Embassies in ", name, " by Year")
+
+  diplomaticrep_adj %>%
+    filter(COUNTRY == name) %>%
+    ggplot(aes(x = YEAR, y = COUNT, group = COUNTRY)) +
+    geom_point(size = 3, shape = 21, color = "black", fill = "white") +
+    geom_line(color = "red") +
+    labs(title = plottitle,
+         x = "Year",
+         y = "Number of Measured Embassies") +
+    theme_bw()
+  
+}
+
+embassyplot("Angola")
+
+```
+
+Each country generally displays a constant or positive trend in the growth of their number of embassies. We are curious to explore if the rate of growing embassies correlates with growth in other quality of life or aid metrics. Additionally, we would like to isolate a geographical effect using the ordinal variable describing a country's region.
+
+We graphed the distribution of embassies in each five or ten-year span to show the growth of embassies from African countries overall below. They display a slight constant or increasing trend with each year.
+
+```{r}
+
+diplomaticrep_adj %>%
+  ggplot(aes(x = YEAR, y = COUNT)) +
+  geom_boxplot(outliers = T) +
+  stat_boxplot(geom = "errorbar", width = 0.25)
+
+```
+
+To prepare for a modeling setup, we joined the primary data set with the embassies data set. Each observation corresponds to a unique country year. For now, we've filled in missing years in the embassies data set with their previous defined value. For instance, the number of embassies in 1968 matches the number of embassies in 1965.
+
+```{r}
+
+library(zoo)
+library(lme4)
+
+modelset = list(
+  diplomaticrep_adj,
+  masterset_adj
+) %>% reduce(merge, by = c("COUNTRY", "CCODE", "YEAR", "REGION"), all = T) %>%
+  filter( COUNTRY != "South Sudan") %>%
+  mutate(YEAR = as.numeric(YEAR),
+         YEAR1965 = YEAR - 1965)
+
+modelset <- modelset %>% mutate(GNIsc = scale(GNI), POPULATNsc = scale(POPULATN), I_democracy = ifelse(IDEOLOGY == 1, 1, 0)) 
+
+  table(modelset$I_democracy, modelset$YEAR)
+```
+
+<!-- ```{r} -->
+
+<!-- #These are the democracy variables:  -->
+
+<!-- #POLLIB:v2x_LIBDEM -->
+
+<!-- modelset %>% select(POLLIB:v2x_LIBDEM) %>% summary() -->
+
+<!-- modelset %>% ggplot() + geom_line(aes(x = YEAR, y = v2x_LIBDEM, group = COUNTRY)) + geom_smooth(aes(x = YEAR, y = v2x_LIBDEM)) -->
+
+<!-- modelset %>% ggplot() + geom_line(aes(x = POLLIB, y = COUNT, group = COUNTRY))  -->
+
+<!-- modelset %>% filter(!is.na(COUNT)) %>% ggplot(aes(x = YEAR , y = COUNT, group = COUNTRY, color = v2x_LIBDEM)) + geom_point(show.legend = FALSE) -->
+
+<!-- ``` -->
+
+```{r}
+#create lag variables
+modelset <- modelset %>% group_by(COUNTRY) %>%
+  mutate(
+    POLLIB_lag1 = lag(POLLIB),
+    POLLIB_lag2 = lag(POLLIB, 2),
+    POLLIB_lag3 = lag(POLLIB, 3),
+    POLLIB_lag4 = lag(POLLIB, 4),
+    POLLIB_lag5 = lag(POLLIB, 5),
+    GNI_lag1 = lag(GNI, 1),
+    GNI_lag2 = lag(GNI, 2),
+    GNI_lag3 = lag(GNI, 3),
+    GNI_lag4 = lag(GNI, 4),
+    GNI_lag5 = lag(GNI, 5),
+    POLITY_lag1 = lag(POLITY, 1),
+    POLITY_lag2 = lag(POLITY, 2),
+    POLITY_lag3 = lag(POLITY, 3),
+    POLITY_lag4 = lag(POLITY, 4),
+    POLITY_lag5 = lag(POLITY, 5),
+    v2x_LIBDEM_lag1 = lag(v2x_LIBDEM, 1),
+    v2x_LIBDEM_lag2 = lag(v2x_LIBDEM, 2),
+    v2x_LIBDEM_lag3 = lag(v2x_LIBDEM, 3),
+    v2x_LIBDEM_lag4 = lag(v2x_LIBDEM, 4),
+    v2x_LIBDEM_lag5 = lag(v2x_LIBDEM, 5),
+    REGION_char = case_when(
+      REGION == 1 ~ "N",
+      REGION == 2 ~ "E",
+      REGION == 3 ~ "S",
+      REGION == 4 ~ "C",
+      REGION == 5 ~ "W"
+    )
+  ) %>% mutate(POLITY = ifelse(POLITY < -10, NA, POLITY), 
+               ODAGGTOT = as.numeric(ODAGGTOT),
+             ODAGDAC = as.numeric(ODAGDAC),
+             ODAGNOND = as.numeric(ODAGNOND),
+             ODAGMLTI = as.numeric(ODAGMLTI),
+             ) %>% select(
+    COUNT,
+    GNI,
+    COUNTRY,
+    YEAR,
+    POLLIB,
+    POLLIB_lag1:POLLIB_lag5,
+    GNI_lag1:GNI_lag5,
+    POLITY_lag1:POLITY_lag5,
+    v2x_LIBDEM_lag1:v2x_LIBDEM_lag5,
+    REGION_char, POLITY, POLLIB, v2x_LIBDEM,
+    ODAGGTOT,
+    ODAGDAC,
+    ODAGNOND,
+    ODAGMLTI,
+    REGION, POPULATN
+  ) 
+
+# cor(modelset$COUNT, modelset$POLLIB_lag1, use = "pairwise.complete")
+# cor(modelset$COUNT, modelset$POLLIB_lag2, use = "pairwise.complete")
+
+#modelset %>% filter(!is.na(COUNT)) %>% View()
+```
+
+# Modeling
+
+```{r}
+#STEVEN PAPPAS!
+#NOTE: Run a Polity model, POLLIB model, v2x_LIBDEM
+#summary and residual plots.  And then a blurb about what is interesting about the model.  Are these democratization variables related to count?  
+#Could also explore poisson model
+#Model log(COUNT + 1)
+modlmer <- lmer(COUNT ~ POLITY_lag1 + POLITY_lag2 + POLITY_lag3 + POLITY_lag4 + POLITY_lag5 + I(YEAR-1965) + log(GNI) + log(GNI_lag1) + log(GNI_lag2)  + log(POPULATN) + (1 |COUNTRY), data = modelset)
+summary(modlmer)
+
+modlmer <- glmer(COUNT ~ POLITY_lag1 + POLITY_lag2 + POLITY_lag3 + POLITY_lag4 + POLITY_lag5 + I(YEAR-1965) + log(GNI) + log(GNI_lag1) + log(GNI_lag2)  + log(POPULATN) + (1 |COUNTRY), data = modelset, family = "poisson")
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+#modelset %>% View()
+modelset_sub <- modelset %>% select(
+  COUNTRY,
+  YEAR,
+  REGION,
+  COUNT,
+  COLPAST1:POPULATN,
+  AVLIFEEX,
+  POLLIB:v2x_LIBDEM,
+  ODAGGTOT:ODAGDAC,
+  ODAGNOND,
+  ODAGMLTI,
+  TRDEXWLD,
+  TRDEXAFN,TRDEXENS,TRDEXASN,TRDEXMEN, TRDEXWHN,TRDEXNOS, TRDEXSC,
+  TRDIMWLD,
+  TRDIMAFN,TRDIMENS, TRDIMASN,TRDIMMEN, TRDIMWHN, TRDIMNOS, TRDIMSC
+)
+
+
+# 1=North Africa
+# 2=East Africa
+# 3=Southern Africa
+# 4=Central Africa
+# 5=West Africa
+```
+
+```{r}
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = as.factor(REGION_char))) + facet_wrap(~YEAR) + geom_boxplot()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = as.factor(COLPAST1))) + facet_wrap(~YEAR) + geom_boxplot()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = as.factor(COLPAST2))) + facet_wrap(~YEAR) + geom_boxplot()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(GNI))) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(GNI_CAP))) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(POPULATN))) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = AVLIFEEX)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = POLLIB)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = CIVLIB)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = TOTLIB1)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = POLITY)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = v2x_LIBDEM)) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(ODAGGTOT))) + facet_wrap(~YEAR) + geom_point() + geom_smooth()
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(ODAGDAC))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(ODAGNOND))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(ODAGMLTI))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXWLD))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXAFN))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXWHN))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXENS))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXASN))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDEXMEN))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDIMWLD))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+modelset_sub %>% filter(!is.na(COUNT)) %>% ggplot(aes(y = log(COUNT), x = log(TRDIMENS))) + facet_wrap(~YEAR) + geom_point() + geom_smooth() 
+
+```
+
+```{r}
+modpois <- glmer(COUNT ~ I(YEAR-1965) + log(GNI) + log(TRDIMWLD) + log(TRDEXWLD) + log(POPULATN) + (1 + I(YEAR-1965)|COUNTRY), data = modelset_sub, family = "poisson")
+
+modnb <- glmer.nb(COUNT ~ I(YEAR-1965) + log(GNI) + log(TRDIMWLD)*log(TRDEXWLD) + POLITY +  (1 + I(YEAR-1965)|COUNTRY), data = modelset_sub)
+summary(modnb)
+
+modnb <- glmer.nb(COUNT ~ I(YEAR-1965) + log(GNI) + log(TRDIMWLD)*log(TRDEXWLD) + POLLIB +  (1 + I(YEAR-1965)|COUNTRY), data = modelset_sub)
+summary(modnb)
+
+modnb <- glmer.nb(COUNT ~ I(YEAR-1965) + log(GNI) + log(TRDIMWLD)*log(TRDEXWLD) + v2x_LIBDEM +  (1 + I(YEAR-1965)|COUNTRY), data = modelset_sub)
+summary(modnb)
+
+cor(modelset_sub$POPULATN, modelset_sub$GNI, use = "pairwise.complete")
+cor(log(modelset_sub$POPULATN), log(modelset_sub$GNI), use = "pairwise.complete")
+```
+
+```{r}
+library(lme4)
+mod <- lmer(COUNT ~ POLLIB + 
+       POLLIB_lag1 + POLLIB_lag2 + 
+       (1|COUNTRY), data = modelset)
+summary(mod)
+
+
+library(splines)
+mod1 <- lmer(COUNT ~ poly(I(YEAR - 1965), 2, raw = TRUE) + v2x_LIBDEM + (1|COUNTRY), data = modelset %>% filter(!is.na(COUNT)))
+mod1 <- lmer(COUNT ~ poly(I(YEAR - 1965), 2, raw = TRUE) + POLLIB + (1|COUNTRY), data = modelset %>% filter(!is.na(COUNT)))
+summary(mod1)
+
+modelset %>% select(YEAR, COUNTRY, COUNT, v2x_LIBDEM) %>% View()
+
+```
+
+```{r}
+#Poisson model 
+mod1_pois = glmer(
+  COUNT ~ as.factor(IDEOLOGY == 1)  + GNIsc + POPULATNsc + YEAR1965 + (1|COUNTRY),
+  data = modelset %>% filter(YEAR <= 1985),
+  family = "poisson"
+)
+
+summary(mod1_pois)
+
+
+
+#I think this issue is because all the countries are basically democracies after 1995.  
+mod1 = glmer(COUNT ~ as.factor(IDEOLOGY) + (1 + YEAR1965|COUNTRY) + GNI + POPULATN + YEAR1965, 
+             modelset,
+             control = glmerControl(optimizer = "bobyqa", optCtrl = list(maxfun = 500000)))
+
+summary(mod1)
+
+plot(mod1)
+  
+  # group_by(COUNTRY, CCODE) %>%
+  # mutate(COUNT2 = na.approx(COUNT, x = YEAR)) %>%
+  # ungroup()
+
+modelset %>%
+  filter(COUNTRY == "Algeria", CCODE == "148") %>%
+  reframe(sum(is.na(COUNT)))
+
+```
+
+-   Interpolate embassy growth by year (so if a country had 30 embassies in 1965 and 50 in 1975, find the rate of change and fill in an expected embassy value)
+
+-   Random intercept for country in glmer with a Poisson family (count variable)
+
+-   Make note of missing embassy data in certain years and the lack of variance in ideology beyond 1985
+
+-   Incorporate VDEM scores into analysis
+
+-   Explore feature generation or derived variables for the mixed model (rate of change in democracy scores from 1955 to 1960 for instance)
+
+-   Add lags for GNI so that embassy count is predicted by GNI in year n-1, n-2, n-3
