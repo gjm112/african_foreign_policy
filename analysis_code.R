@@ -86,6 +86,7 @@
 ## Load in packages and data sets ##
 library(tidyverse)
 library(readxl)
+library(lme4)
 
 masterset = read_csv("./data/Master 08-28-2025 AFP excel dataset-3.xlsx - AFRSdata.csv")
 
@@ -129,8 +130,11 @@ modelset <- masterset %>% mutate(DEMOC = case_when(DEMOC < 0 ~ NA,.default = DEM
                                                     REGION == 2 ~ "East",
                                                     REGION == 3 ~ "South",
                                                     REGION == 4 ~ "Central",
-                                                    REGION == 5 ~ "West")) %>%
-  mutate(v2x_LIBDEM_lag1 = lag(v2x_LIBDEM,1),
+                                                    REGION == 5 ~ "West"))
+
+
+modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>% 
+                              mutate(v2x_LIBDEM_lag1 = lag(v2x_LIBDEM,1),
                                  v2x_LIBDEM_lag2 = lag(v2x_LIBDEM,2),
                                  v2x_LIBDEM_lag3 = lag(v2x_LIBDEM,3),
                                  DEMOC_lag1 = lag(DEMOC,1),
@@ -139,8 +143,7 @@ modelset <- masterset %>% mutate(DEMOC = case_when(DEMOC < 0 ~ NA,.default = DEM
                                  TOTLIB1_lag1 = lag(TOTLIB1,1),
                                  TOTLIB1_lag2 = lag(TOTLIB1,2),
                                  TOTLIB1_lag3 = lag(TOTLIB1,3)
-                                 ) %>%  
-  filter(YEAR %in% keep_years & !is.na(COUNTRY)) %>% 
+                                 ) %>%  ungroup() %>%   filter(YEAR %in% keep_years & !is.na(COUNTRY)) %>% 
   select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, DEMOC, TOTLIB1,
          CIVLIB, POLLIB,GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:TOTLIB1_lag3) %>% 
   mutate(AFR_HIST_PERIOD = case_when(YEAR <= 1989 ~ "Cold War",
@@ -167,9 +170,11 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_logGNI_PER_YEAR = DELTA_logGNI/DELTA_N_YEARS, 
          DELTA_logPOPULATN = logPOPULATN  - lag(logPOPULATN),
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
-                                                      )
-#modelset$REGION <- relevel(factor(modelset$REGION), ref = "North")
 
+modelset %>% group_by(YEAR, DEMOC) %>% summarize(n = n())
+modelset %>% ggplot(aes(x = factor(DEMOC))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
+modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
+modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw()
 
 
 
@@ -191,38 +196,215 @@ modelset %>% ggplot(aes(x = TOTLIB1_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +g
 modelset %>% ggplot(aes(x = TOTLIB1_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 
-################
+#Correlations
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
+
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,v2x_LIBDEM, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
+modelset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
+
+modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1)$p.val)
+modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag1)$p.val)
+modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag2)$p.val)
+modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag3)$p.val)
+
+
+################################################
 #Modeling 
-################
+################################################
 #Single measure of democracy models.  With random effect for country
-library(lme4)
-mod0_DEMOC <- glmer(N_EMBASSY ~ DEMOC + (1|COUNTRY), data = modelset, family = "poisson")
-mod0_DEMOC_lag1 <- glmer(N_EMBASSY ~ DEMOC_lag1 + (1|COUNTRY), data = modelset, family = "poisson")
-mod0_DEMOC_lag2 <- glmer(N_EMBASSY ~ DEMOC_lag2 + (1|COUNTRY), data = modelset, family = "poisson")
-mod0_DEMOC_lag3 <- glmer(N_EMBASSY ~ DEMOC_lag3 + (1|COUNTRY), data = modelset, family = "poisson")
+
+
+################################################
+#DEMOC
+################################################
+mod0_DEMOC <- glmer(N_EMBASSY ~ DEMOC + (1|COUNTRY) + (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_DEMOC_lag1 <- glmer(N_EMBASSY ~ DEMOC_lag1 + (1|COUNTRY) + (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_DEMOC_lag2 <- glmer(N_EMBASSY ~ DEMOC_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_DEMOC_lag3 <- glmer(N_EMBASSY ~ DEMOC_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 summary(mod0_DEMOC)
 summary(mod0_DEMOC_lag1)
 summary(mod0_DEMOC_lag2)
 summary(mod0_DEMOC_lag3)
 
-mod0_nb_DEMOC <- glmer.nb(N_EMBASSY ~ DEMOC + (1|COUNTRY), data = modelset)
-summary(mod0_DEMOC)
+mod0_DEMOC_lag123 <- glmer(N_EMBASSY ~ DEMOC + DEMOC_lag1  + DEMOC_lag2  + DEMOC_lag3 +  (1|COUNTRY) + (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+summary(mod0_DEMOC_lag123)
+
+# Perform the overdispersion test
+library(performance)
+check_overdispersion(mod0_DEMOC)
+check_overdispersion(mod0_DEMOC_lag1)
+check_overdispersion(mod0_DEMOC_lag2)
+check_overdispersion(mod0_DEMOC_lag3)
+
+#We see a lot of over disperion so we instead fit a negastive binomial model
+mod0_nb_DEMOC <- glmer.nb(N_EMBASSY ~ DEMOC + (1|COUNTRY) + (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_DEMOC_lag1 <- glmer.nb(N_EMBASSY ~ DEMOC_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_DEMOC_lag2 <- glmer.nb(N_EMBASSY ~ DEMOC_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_DEMOC_lag3 <- glmer.nb(N_EMBASSY ~ DEMOC_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
 summary(mod0_nb_DEMOC)
+summary(mod0_nb_DEMOC_lag1)
+summary(mod0_nb_DEMOC_lag2)
+summary(mod0_nb_DEMOC_lag3)
 getME(mod0_nb_DEMOC, "glmer.nb.theta")
+check_overdispersion(mod0_nb_DEMOC)
+check_overdispersion(mod0_nb_DEMOC_lag1)
+check_overdispersion(mod0_nb_DEMOC_lag2)
+check_overdispersion(mod0_nb_DEMOC_lag3)
 
-mod0_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + (1|COUNTRY), data = modelset, family = "poisson")
+
+################################################
+#v2x_LIBDEM
+################################################
+mod0_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag1 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag2 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag3 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+
 summary(mod0_v2x_LIBDEM)
+summary(mod0_v2x_LIBDEM_lag1)
+summary(mod0_v2x_LIBDEM_lag2)
+summary(mod0_v2x_LIBDEM_lag3)
 
-mod0_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1 + (1|COUNTRY), data = modelset, family = "poisson")
+# Perform the overdispersion test
+library(performance)
+check_overdispersion(mod0_v2x_LIBDEM)
+check_overdispersion(mod0_v2x_LIBDEM_lag1)
+check_overdispersion(mod0_v2x_LIBDEM_lag2)
+check_overdispersion(mod0_v2x_LIBDEM_lag3)
+
+#Overdispersion detected
+mod0_nb_v2x_LIBDEM <- glmer.nb(N_EMBASSY ~ v2x_LIBDEM + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_v2x_LIBDEM_lag1 <- glmer.nb(N_EMBASSY ~ v2x_LIBDEM_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_v2x_LIBDEM_lag2 <- glmer.nb(N_EMBASSY ~ v2x_LIBDEM_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_v2x_LIBDEM_lag3 <- glmer.nb(N_EMBASSY ~ v2x_LIBDEM_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+summary(mod0_nb_v2x_LIBDEM)
+summary(mod0_nb_v2x_LIBDEM_lag1)
+summary(mod0_nb_v2x_LIBDEM_lag2)
+summary(mod0_nb_v2x_LIBDEM_lag3)
+getME(mod0_nb_v2x_LIBDEM, "glmer.nb.theta")
+check_overdispersion(mod0_nb_v2x_LIBDEM)
+check_overdispersion(mod0_nb_v2x_LIBDEM_lag1)
+check_overdispersion(mod0_nb_v2x_LIBDEM_lag2)
+check_overdispersion(mod0_nb_v2x_LIBDEM_lag3)
+
+
+################################################
+#TOTLIB
+################################################
+mod0_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_TOTLIB1_lag1 <- glmer(N_EMBASSY ~ TOTLIB1_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_TOTLIB1_lag2 <- glmer(N_EMBASSY ~ TOTLIB1_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod0_TOTLIB1_lag3 <- glmer(N_EMBASSY ~ TOTLIB1_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+
 summary(mod0_TOTLIB1)
+summary(mod0_TOTLIB1_lag1)
+summary(mod0_TOTLIB1_lag2)
+summary(mod0_TOTLIB1_lag3)
 
+# Perform the overdispersion test
+library(performance)
+check_overdispersion(mod0_TOTLIB1)
+check_overdispersion(mod0_TOTLIB1_lag1)
+check_overdispersion(mod0_TOTLIB1_lag2)
+check_overdispersion(mod0_TOTLIB1_lag3)
+
+#Overdispersion detected
+mod0_nb_TOTLIB1 <- glmer.nb(N_EMBASSY ~ TOTLIB1 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_TOTLIB1_lag1 <- glmer.nb(N_EMBASSY ~ TOTLIB1_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_TOTLIB1_lag2 <- glmer.nb(N_EMBASSY ~ TOTLIB1_lag2 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+mod0_nb_TOTLIB1_lag3 <- glmer.nb(N_EMBASSY ~ TOTLIB1_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, control = glmerControl(optimizer = "bobyqa"))
+summary(mod0_nb_TOTLIB1)
+summary(mod0_nb_TOTLIB1_lag1)
+summary(mod0_nb_TOTLIB1_lag2)
+summary(mod0_nb_TOTLIB1_lag3)
+getME(mod0_nb_TOTLIB1, "glmer.nb.theta")
+check_overdispersion(mod0_nb_TOTLIB1)
+check_overdispersion(mod0_nb_TOTLIB1_lag1)
+check_overdispersion(mod0_nb_TOTLIB1_lag2)
+check_overdispersion(mod0_nb_TOTLIB1_lag3)
 
 #Multiple regression
-mod0_DEMOC <- glmer(N_EMBASSY ~ DEMOC + poly(YEAR1965,2, raw = T) + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (0 + YEAR1965|COUNTRY), data = modelset, family = "poisson")
-mod0_nb_DEMOC <- glmer.nb(N_EMBASSY ~ DEMOC  + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset)
-summary(mod0_DEMOC)
-summary(mod0_nb_DEMOC)
+################################################
+#DEMOC
+################################################
+library(lmerTest)
+mod1_DEMOC <- glmer(N_EMBASSY ~ DEMOC  + logGNI + 
+                            logPOPULATN  + REGION + COL2 + 
+                            factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                            (1|COUNTRY) + (1|YEAR), data = modelset, 
+                          control = glmerControl(optimizer = "bobyqa"), family = "poisson")
+
+mod1_nb_DEMOC <- glmer.nb(N_EMBASSY ~ DEMOC  + logGNI + 
+                            logPOPULATN  + REGION + COL2 + 
+                            factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                            (1|COUNTRY) + (1|YEAR), data = modelset, 
+                          control = glmerControl(optimizer = "bobyqa"))
+
+summary(mod1_nb_DEMOC)
+summary(mod1_DEMOC)
+
+
+mod1_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + logGNI + 
+                                 logPOPULATN  + REGION + COL2 + 
+                                 factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                                 (1|COUNTRY) + (1|YEAR), data = modelset, 
+                               control = glmerControl(optimizer = "bobyqa"), family = "poisson")
+
+
+mod1_nb_v2x_LIBDEM <- glmer.nb(N_EMBASSY ~ v2x_LIBDEM + logGNI + 
+                            logPOPULATN  + REGION + COL2 + 
+                            factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                            (1|COUNTRY) + (1|YEAR), data = modelset, 
+                          control = glmerControl(optimizer = "bobyqa"))
+summary(mod1_v2x_LIBDEM)
+summary(mod1_nb_v2x_LIBDEM)
+
+
+mod1_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1  + logGNI + 
+                              logPOPULATN  + REGION + COL2 + 
+                              factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                              (1|COUNTRY) + (1|YEAR), data = modelset, 
+                            control = glmerControl(optimizer = "bobyqa"), family = "poisson")
+
+
+mod1_nb_TOTLIB1 <- glmer.nb(N_EMBASSY ~ TOTLIB1  + logGNI + 
+                                 logPOPULATN  + REGION + COL2 + 
+                                 factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + 
+                                 (1|COUNTRY)+ (1|YEAR), data = modelset, 
+                               control = glmerControl(optimizer = "bobyqa"))
+summary(mod1_TOTLIB1)
+summary(mod1_nb_TOTLIB1)
+
+
+
+
+
+
+
+
+
+
+ 
+modelset %>% ungroup() %>% select(N_EMBASSY, DEMOC, YEAR1965, 
+                      logGNI ,logPOPULATN) %>% cor(use = "complete.obs")
+
+ggplot(aes(y = N_EMBASSY, x = DEMOC), data = modelset) + geom_point()
+ggplot(aes(y = N_EMBASSY, x = YEAR1965), data = modelset) + geom_point()
+ggplot(aes(y = N_EMBASSY, x = logGNI), data = modelset) + geom_point()
+ggplot(aes(y = N_EMBASSY, x = logPOPULATN), data = modelset) + geom_point()
+ggplot(aes(y = N_EMBASSY, x = REGION), data = modelset) + geom_boxplot()
+ggplot(aes(y = N_EMBASSY, x = COL2), data = modelset) + geom_boxplot()
+ggplot(aes(y = N_EMBASSY, x = factor(IDEOLOGY)), data = modelset) + geom_boxplot()
+ggplot(aes(y = N_EMBASSY, x = factor(AFR_HIST_PERIOD)), data = modelset) + geom_boxplot()
+
+
+summary(mod1_nb_DEMOC)
 
 
 mod0_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset, family = "poisson")
