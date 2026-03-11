@@ -420,19 +420,34 @@ summary(mod0_nb_TOTLIB1)
 
 
 #Change in embassy
-mod0_delta_DEMOC <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DELTA_DEMOC_PER_YEAR + 
-                           DELTA_logGNI + 
-                           DELTA_logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset)
-summary(mod0_delta_DEMOC) 
 
-mod0_delta_DEMOC <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DEMOC + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset)
-summary(mod0_delta_DEMOC) 
+mod0_delta_DEMOC_PER_YEAR <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DELTA_DEMOC_PER_YEAR + (1|COUNTRY), data = modelset)
+mod1_delta_DEMOC_PER_YEAR <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DELTA_DEMOC_PER_YEAR + DELTA_logGNI + DELTA_logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), 
+                                  data = modelset)
 
-mod0_delta_v2x_LIBDEM <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ v2x_LIBDEM + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset)
-summary(mod0_delta_v2x_LIBDEM)  
+summary(mod0_delta_DEMOC_PER_YEAR)
+summary(mod1_delta_DEMOC_PER_YEAR) 
 
-mod0_delta_TOTLIB1 <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ TOTLIB1 + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset)
-summary(mod0_delta)   
+mod0_delta_DEMOC <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DEMOC + (1|COUNTRY), data = modelset)
+mod1_delta_DEMOC <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DEMOC + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), 
+                         data = modelset)
+
+summary(mod0_delta_DEMOC)
+summary(mod1_delta_DEMOC)
+
+mod0_delta_v2x_LIBDEM <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ v2x_LIBDEM + (1|COUNTRY), data = modelset)
+mod1_delta_v2x_LIBDEM <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ v2x_LIBDEM + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), 
+                              data = modelset)
+
+summary(mod0_delta_v2x_LIBDEM)
+summary(mod1_delta_v2x_LIBDEM)
+
+mod0_delta_TOTLIB1 <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ TOTLIB1 + (1|COUNTRY), data = modelset)
+mod1_delta_TOTLIB1 <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ TOTLIB1 + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), 
+                           data = modelset)
+
+summary(mod0_delta_TOTLIB1) 
+summary(mod1_delta_TOTLIB1)
 
 
 
