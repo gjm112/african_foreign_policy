@@ -71,7 +71,7 @@
 # Level of democracy (Freedom House)
 # Level of democracy (Polity IV)
 # Level of democracy (V-dem) These are in the data set for the African countries, but need to be added for the rest of the world.
-# GNI 
+# GNI
 # GNI per capita
 # Population
 # Imports
@@ -80,7 +80,7 @@
 # 
 # FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBASSIES (ABOVE QUESTION #1 FIRST)
 #                                                                                      See attached results that I received in 2018 when initial work was done on an earlier data set.
-#                                                                                      
+
                                                                                      
                                                                                     
 ## Load in packages and data sets ##
@@ -115,7 +115,6 @@ masterset$POPULATN <- gsub(" ","",masterset$POPULATN) %>% as.numeric()
 #Count the embassies
 names(masterset)
 masterset <- masterset %>% mutate(N_EMBASSY = select(., C099:C572) %>% rowSums(na.rm = T))
-
 
 #Preparing data for modeling
 masterset <- masterset %>% mutate(YEAR1965 = YEAR - 1965)
