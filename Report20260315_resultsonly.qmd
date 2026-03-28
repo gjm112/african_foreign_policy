@@ -112,11 +112,11 @@ modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>%
                                  POLITY_lag3 = lag(POLITY,3)
                                  ) %>%  ungroup() %>%   filter(YEAR %in% keep_years & !is.na(COUNTRY)) %>% 
   select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, DEMOC, TOTLIB1, POLITY,
-         CIVLIB, POLLIB,GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:POLITY_lag3) %>% 
+         CIVLIB, POLLIB,GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:POLITY_lag3) %>%
   mutate(AFR_HIST_PERIOD = case_when(YEAR <= 1989 ~ "Cold War",
                                      YEAR >= 1990 ~ "Post-Cold War"), 
-         logGNI = log(GNI,10),
-         logPOPULATN = log(POPULATN,10),
+         logGNI = log(GNI, 10),
+         logPOPULATN = log(POPULATN, 10),
          COL2 = ifelse(COLPAST2 != 9, "Colony", "Not Colony"),
          REGION = relevel(factor(REGION), ref = "North"),
          YEAR1965 = YEAR-1965)
@@ -628,27 +628,211 @@ modelset_delta <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_N_EMBASSY_PER_YEAR = DELTA_N_EMBASSY/DELTA_N_YEARS,
          DELTA_POLITY = POLITY - lag(POLITY),
          DELTA_POLITY_PER_YEAR = DELTA_POLITY/DELTA_N_YEARS,
+         DELTA_POLITY_PER_YEAR_lag1 = lag(DELTA_POLITY_PER_YEAR),
+         DELTA_POLITY_PER_YEAR_lag2 = lag(DELTA_POLITY_PER_YEAR, 2),
+         DELTA_POLITY_PER_YEAR_lag3 = lag(DELTA_POLITY_PER_YEAR, 3),
          DELTA_v2x_LIBDEM = v2x_LIBDEM - lag(v2x_LIBDEM),
          DELTA_v2x_LIBDEM_PER_YEAR = DELTA_v2x_LIBDEM/DELTA_N_YEARS,
+         DELTA_v2x_LIBDEM_PER_YEAR_lag1 = lag(DELTA_v2x_LIBDEM_PER_YEAR),
+         DELTA_v2x_LIBDEM_PER_YEAR_lag2 = lag(DELTA_v2x_LIBDEM_PER_YEAR, 2),
+         DELTA_v2x_LIBDEM_PER_YEAR_lag3 = lag(DELTA_v2x_LIBDEM_PER_YEAR, 3),
          DELTA_TOTLIB1 = TOTLIB1 - lag(TOTLIB1),
          DELTA_TOTLIB1_PER_YEAR = DELTA_TOTLIB1/DELTA_N_YEARS,
+         DELTA_TOTLIB1_PER_YEAR_lag1 = lag(DELTA_TOTLIB1_PER_YEAR),
+         DELTA_TOTLIB1_PER_YEAR_lag2 = lag(DELTA_TOTLIB1_PER_YEAR, 2),
+         DELTA_TOTLIB1_PER_YEAR_lag3 = lag(DELTA_TOTLIB1_PER_YEAR, 3),
          DELTA_logGNI = logGNI - lag(logGNI),
          DELTA_logGNI_PER_YEAR = DELTA_logGNI/DELTA_N_YEARS, 
          DELTA_logPOPULATN = logPOPULATN  - lag(logPOPULATN),
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
 
-# Reduced Models #
+# Reduced Delta Models With Lags #
 
-mod0_delta_POLITY_PER_YEAR <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + (1|COUNTRY), data = modelset_delta)
-mod0_delta_POLITY <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ POLITY + (1|COUNTRY), data = modelset_delta)
-mod0_delta_v2x_LIBDEM <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ v2x_LIBDEM + (1|COUNTRY), data = modelset_delta)
-mod0_delta_TOTLIB1 <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ TOTLIB1 + (1|COUNTRY), data = modelset_delta)
+mod0_delta_POLITY_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_POLITY_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_POLITY_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_POLITY_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
 
-# Full Models #
+mod0_delta_v2x_LIBDEM_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
 
-mod1_delta_POLITY_PER_YEAR <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + DELTA_logGNI + DELTA_logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset_delta)
-mod1_delta_POLITY <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ POLITY + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset_delta)
-mod1_delta_v2x_LIBDEM <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ v2x_LIBDEM + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset_delta)
-mod1_delta_TOTLIB1 <- lmer(DELTA_N_EMBASSY_PER_YEAR ~ TOTLIB1 + logGNI + logPOPULATN + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY), data = modelset_delta)
+mod0_delta_TOTLIB1_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+mod0_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + (1|COUNTRY) + (1|YEAR), 
+  data = modelset_delta
+)
+
+# Full Models With Non-Delta Predictors (Besides Main Predictor) #
+
+mod1_delta_POLITY_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + logGNI + logPOPULATN + REGION + COL2 +
+  factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_v2x_LIBDEM_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + logGNI + logPOPULATN + REGION + 
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_TOTLIB1_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + logGNI + logPOPULATN + REGION + 
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+# Full Models With All Delta Predictors #
+
+mod1_delta_POLITY_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_v2x_LIBDEM_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_TOTLIB1_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+## GREG I REMOVED THE AFR_HIST_PERIOD FROM SOME MODELS BECAUSE THEY ONLY HAD ONE LEVEL FOR NON-NA DATA ##
 
 ```
