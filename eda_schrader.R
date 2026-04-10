@@ -145,3 +145,37 @@ plot(mod1)
 modelset %>%
   filter(COUNTRY == "Algeria", CCODE == "148") %>%
   reframe(sum(is.na(COUNT)))
+
+## WORK INVOLVING NOTES FROM 3-27-26 ##
+
+library(data.table)
+
+countrycodes <- list(
+  world = restofworld %>%
+    select(1:2) %>%
+    unique(),
+  africa = masterset %>%
+    select(1:2) %>%
+    mutate(CCODE = paste0("C", CCODE)) %>%
+    unique()
+) %>%
+  rbindlist()
+
+newdata <- masterset %>%
+  select(CCODE, COUNTRY, YEAR, TOTLIB1, POLLIB, v2x_LIBDEM, 614:812) %>%
+  mutate(CCODE = paste0("C", CCODE)) %>%
+  pivot_longer(!1:6, names_to = "CCODE_EXT", values_to = "CONNECTION") %>%
+  left_join(countrycodes, by = c("CCODE_EXT" = "CCODE"), relationship = "many-to-many") %>%
+  select(CONNECTION, CCODE_INT = CCODE, COUNTRY_INT = COUNTRY.x, CCODE_EXT, COUNTRY_EXT = COUNTRY.y, 
+         everything()) %>%
+  filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT)
+
+
+
+
+
+
+
+
+
+
