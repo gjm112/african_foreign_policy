@@ -387,7 +387,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"))
+                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
@@ -399,14 +400,19 @@ table_data %>%
     confidence = md("$\\beta: 95\\% CI$"),
     confidence_exp = md("$e^{\\beta}: 95\\% CI$")
   ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
   tab_header(
     title = md("Reduced Model Parameters for **Democracy Scores** and Their **Lags**")
-  ) 
+  ) %>%
+  gtsave("reducedmodel.png")
 ```
 
 ```{r echo = FALSE}
 library(data.table)
 library(gt)
+library(parameters)
 
 mod_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
@@ -418,11 +424,13 @@ totlib_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod_TOTLIB1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "TOTLIB1") %>%
-    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), 
+           pval = round(`Pr(>|z|)`, 3)),
   conf = data.frame(conf = confint(mod_TOTLIB1, parm = "TOTLIB1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
-    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
-           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), 
+           conf_exp_1 = round(exp(conf_1), 3), conf_exp_2 = round(exp(conf_2), 3), 
+           confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
   mutate(lag = "lag0") %>%
@@ -599,7 +607,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"))
+                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
@@ -611,9 +620,13 @@ table_data %>%
     confidence = md("$\\beta: 95\\% CI$"),
     confidence_exp = md("$e^{\\beta}: 95\\% CI$")
   ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
   tab_header(
     title = md("Full Model Parameters for **Democracy Scores** and Their **Lags**")
-  )
+  ) %>%
+  gtsave("fullmodel.png")
 ```
 
 ```{r}
@@ -646,7 +659,7 @@ modelset_delta <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_logPOPULATN = logPOPULATN  - lag(logPOPULATN),
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
 
-# Reduced Delta Models With Lags #
+## ---- Reduced Delta Models With Lags ----
 
 mod0_delta_POLITY_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + (1|COUNTRY) + (1|YEAR), 
@@ -699,7 +712,7 @@ mod0_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
   data = modelset_delta
 )
 
-# Full Models With Non-Delta Predictors (Besides Main Predictor) #
+## ---- Full Models With Non-Delta Predictors (Besides Main Predictor) ----
 
 mod1_delta_POLITY_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + logGNI + logPOPULATN + REGION + COL2 +
@@ -764,75 +777,675 @@ mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
   data = modelset_delta
 )
 
-# Full Models With All Delta Predictors #
+## ---- Full Models With All Delta Predictors ----
 
-mod1_delta_POLITY_PER_YEAR <- lmer(
+mod1_alldelta_POLITY_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
   REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_POLITY_PER_YEAR_lag1 <- lmer(
+mod1_alldelta_POLITY_PER_YEAR_lag1 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
   REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_POLITY_PER_YEAR_lag2 <- lmer(
+mod1_alldelta_POLITY_PER_YEAR_lag2 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
   REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_POLITY_PER_YEAR_lag3 <- lmer(
+mod1_alldelta_POLITY_PER_YEAR_lag3 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
   REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
 
-mod1_delta_v2x_LIBDEM_PER_YEAR <- lmer(
+mod1_alldelta_v2x_LIBDEM_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
   (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
   (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
   (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
 
-mod1_delta_TOTLIB1_PER_YEAR <- lmer(
+mod1_alldelta_TOTLIB1_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
   (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+mod1_alldelta_TOTLIB1_PER_YEAR_lag1 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+mod1_alldelta_TOTLIB1_PER_YEAR_lag2 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
-mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+mod1_alldelta_TOTLIB1_PER_YEAR_lag3 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
   DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
   data = modelset_delta
 )
 
 ## GREG I REMOVED THE AFR_HIST_PERIOD FROM SOME MODELS BECAUSE THEY ONLY HAD ONE LEVEL FOR NON-NA DATA ##
+
+## ---- Table Data (Reduced Delta Models With Lags) ----
+
+totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), 
+           pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_TOTLIB1_PER_YEAR, parm = "DELTA_TOTLIB1_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), 
+           conf_exp_1 = round(exp(conf_1), 3), conf_exp_2 = round(exp(conf_2), 3), 
+           confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_TOTLIB1_PER_YEAR_lag1, parm = "DELTA_TOTLIB1_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_TOTLIB1_PER_YEAR_lag2, parm = "DELTA_TOTLIB1_PER_YEAR_lag2", level = 0.95, method = "boot", nsim = 50)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_TOTLIB1_PER_YEAR_lag3, parm = "DELTA_TOTLIB1_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_v2x_LIBDEM_PER_YEAR, parm = "DELTA_v2x_LIBDEM_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_v2x_LIBDEM_PER_YEAR_lag1, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_v2x_LIBDEM_PER_YEAR_lag2, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod0_delta_v2x_LIBDEM_PER_YEAR_lag3, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3,
+  v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    Estimate = md("$\\beta$"),
+    Estimate_exp = md("$e^{\\beta}$"),
+    pval = md("$p$"),
+    confidence = md("$\\beta: 95\\% CI$"),
+    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Reduced Model Delta Parameters for **Democracy Scores** and Their **Lags**")
+  ) %>%
+  gtsave("deltareducedmodel.png")
+
+## ---- Table Data (Full Models With Non-Delta Predictors Besides Main)
+
+totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), 
+           pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_TOTLIB1_PER_YEAR, parm = "DELTA_TOTLIB1_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), 
+           conf_exp_1 = round(exp(conf_1), 3), conf_exp_2 = round(exp(conf_2), 3), 
+           confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_TOTLIB1_PER_YEAR_lag1, parm = "DELTA_TOTLIB1_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_TOTLIB1_PER_YEAR_lag2, parm = "DELTA_TOTLIB1_PER_YEAR_lag2", level = 0.95, method = "boot", nsim = 50)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_TOTLIB1_PER_YEAR_lag3, parm = "DELTA_TOTLIB1_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_v2x_LIBDEM_PER_YEAR, parm = "DELTA_v2x_LIBDEM_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_v2x_LIBDEM_PER_YEAR_lag1, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_v2x_LIBDEM_PER_YEAR_lag2, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_delta_v2x_LIBDEM_PER_YEAR_lag3, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3,
+  v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    Estimate = md("$\\beta$"),
+    Estimate_exp = md("$e^{\\beta}$"),
+    pval = md("$p$"),
+    confidence = md("$\\beta: 95\\% CI$"),
+    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Full Model Non-Delta Parameters for **Democracy Scores** and Their **Lags**")
+  ) %>%
+  gtsave("nondeltafullmodel.png")
+
+## ---- Table Data (Full Models With Delta Predictors) ----
+
+totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), 
+           pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_TOTLIB1_PER_YEAR, parm = "DELTA_TOTLIB1_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), 
+           conf_exp_1 = round(exp(conf_1), 3), conf_exp_2 = round(exp(conf_2), 3), 
+           confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_TOTLIB1_PER_YEAR_lag1, parm = "DELTA_TOTLIB1_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_TOTLIB1_PER_YEAR_lag2, parm = "DELTA_TOTLIB1_PER_YEAR_lag2", level = 0.95, method = "boot", nsim = 50)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_TOTLIB1_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_TOTLIB1_PER_YEAR_lag3, parm = "DELTA_TOTLIB1_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_v2x_LIBDEM_PER_YEAR, parm = "DELTA_v2x_LIBDEM_PER_YEAR", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag1", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag2", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "DELTA_v2x_LIBDEM_PER_YEAR_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
+  conf = data.frame(conf = confint(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3, parm = "DELTA_v2x_LIBDEM_PER_YEAR_lag3", level = 0.95)) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3") %>%
+  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3,
+  v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    Estimate = md("$\\beta$"),
+    Estimate_exp = md("$e^{\\beta}$"),
+    pval = md("$p$"),
+    confidence = md("$\\beta: 95\\% CI$"),
+    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Full Model Delta Parameters for **Democracy Scores** and Their **Lags**")
+  ) %>%
+  gtsave("deltafullmodel.png")
 
 ```
