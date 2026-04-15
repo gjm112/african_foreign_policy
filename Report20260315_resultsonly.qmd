@@ -1,8 +1,14 @@
 ---
-title: "Embassies and Democracy - Resutls Only"
+title: "Embassies and Democracy - Results Only"
 format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
 editor: visual
 ---
+
+# Summary
 
 # BROAD QUESTION
 
