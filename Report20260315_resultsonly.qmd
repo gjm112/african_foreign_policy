@@ -52,6 +52,7 @@ FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBA
 library(tidyverse)
 library(readxl)
 library(lme4)
+library(lmerTest)
 
 masterset = read_csv("./data/Master 08-28-2025 AFP excel dataset-3.xlsx - AFRSdata.csv")
 
@@ -405,8 +406,8 @@ table_data %>%
   ) %>%
   tab_header(
     title = md("Reduced Model Parameters for **Democracy Scores** and Their **Lags**")
-  ) %>%
-  gtsave("reducedmodel.png")
+  ) 
+#%>%  gtsave("reducedmodel.png")
 ```
 
 ```{r echo = FALSE}
@@ -625,11 +626,11 @@ table_data %>%
   ) %>%
   tab_header(
     title = md("Full Model Parameters for **Democracy Scores** and Their **Lags**")
-  ) %>%
-  gtsave("fullmodel.png")
+  ) 
+#%>% gtsave("fullmodel.png")
 ```
 
-```{r}
+```{r echo = FALSE}
 
 ## DELTA MODELS ##
 
@@ -941,7 +942,7 @@ POLITY_lag2 <- list(
     rownames_to_column(var = "var") %>%
     filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1044,9 +1045,9 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Reduced Model Delta Parameters for **Democracy Scores** and Their **Lags**")
-  ) %>%
-  gtsave("deltareducedmodel.png")
+    title = md("Delta Response Reduced Model for **Democracy Scores** and Their **Lags**")
+  )
+#%>% gtsave("deltareducedmodel.png")
 
 ## ---- Table Data (Full Models With Non-Delta Predictors Besides Main)
 
@@ -1141,7 +1142,7 @@ POLITY_lag2 <- list(
     rownames_to_column(var = "var") %>%
     filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_delta_POLITY_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1244,9 +1245,9 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Full Model Non-Delta Parameters for **Democracy Scores** and Their **Lags**")
-  ) %>%
-  gtsave("nondeltafullmodel.png")
+    title = md("Delta Response Full Model for **Democracy Scores** and Their **Lags**")
+  ) 
+#%>% gtsave("nondeltafullmodel.png")
 
 ## ---- Table Data (Full Models With Delta Predictors) ----
 
@@ -1341,7 +1342,7 @@ POLITY_lag2 <- list(
     rownames_to_column(var = "var") %>%
     filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1444,8 +1445,8 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Full Model Delta Parameters for **Democracy Scores** and Their **Lags**")
-  ) %>%
-  gtsave("deltafullmodel.png")
+    title = md("Delta Response Delta Predictors Full Model for **Democracy Scores** and Their **Lags**")
+  ) 
+#%>% gtsave("deltafullmodel.png")
 
 ```
