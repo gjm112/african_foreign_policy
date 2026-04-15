@@ -1,0 +1,54 @@
+
+  - Create lagged models for lmer with delta embassy by year
+
+Table
+
+  - Three seperate sections for each democracy variable
+  - Within each section, look at each lag
+  - Headers for the beta coefficient, exponentiated beta coefficient, p-value, and confidence interval
+    - For confidence interval, confint, and exponentiated for exp beta coef
+    
+3-18-26
+
+  - Create tables for the delta models
+  - Streamline tables for the full models since they take a billion years to load
+  
+3-27-26
+
+  - Create lags for the per year variables
+  - Create a variable for delta change in a variable by year in percentage
+  - Models we want (TRY TO GET IT DONE TODAY)
+    - Delta response ~ delta predictor + reduced
+      - With lags
+    - Delta response ~ delta predictor + full
+      - With lags
+    - Delta response ~ delta predictor + delta full
+      - With lags
+    - 36 total models
+  - Looking at the number of embassies by external country (if I'm the US how many African embassies do I have?)
+    - Evaluating specific country interactions (US-Angola, US-Benin, etc)
+    - Variables: connection (1 or 0 based on country interaction), African country, non-African country, year,
+                 non-African country democracy scores, African democracy scores, and additional characteristics of
+                 the non-African countries
+    - Logistic regression model with connection as the response and random intercepts for country, year,
+      and country:year
+    - Expand on African countries, non-African countries, and year
+    - Left join non-African and African country characteristics
+    - How do we add connections? Need to join a key of embassy connections by every possible pair
+    
+4-10-26
+
+  - Need to figure out what explanatory variables Schrader wants for non-African countries
+  - Do we want African countries with embassies in different African countries?
+  - All relevant tables in folder
+    - Reduced model for embassies by democracy score with lags
+      - reducedmodel.png
+    - Full model for embassies by democracy score with lags
+      - fullmodel.png
+    - Reduced model for delta embassies by delta democracy score with lags
+      - deltareducedmodel.png
+    - Full model for delta embassies by delta democracy score but non-delta additional predictors with lags
+      - nondeltafullmodel.png
+    - Full model for delta embassies by delta democracy score and additional predictors with lags
+      - deltafullmodel.png
+  
