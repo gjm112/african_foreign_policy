@@ -51,4 +51,11 @@ Table
       - nondeltafullmodel.png
     - Full model for delta embassies by delta democracy score and additional predictors with lags
       - deltafullmodel.png
+      
+4-15-26
+
+  - Write a report summarizing our work thus far (DONE)
+  - Change the bar charts that still have DEMOC
+  - Change the name of the full models so that they don't match reduced (DONE)
+  - Write out the model equations (DONE)
   

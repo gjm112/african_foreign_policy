@@ -54,6 +54,60 @@ For each of the three democracy variables, will do a series of 4 tests with lags
 
 FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBASSIES (ABOVE QUESTION #1 FIRST)
 
+## ANSWERING QUESTION #1
+
+To first evaluate this question, we created three sets of reduced and full models. Our reduced models sought to evaluate the relationship and its significance between a country's embassy count and its democracy score from Freedom House, Polity IV, and V-dem. In these models, democracy score was the only explanatory variable after controlling for the country and year. The model equation is given below, where $k$ represents the random effect $k$ for country and $t$ for year. We follow the same setup for the lagged models, which go back as far as three years for each democracy score.
+
+$$
+Y_{kt} \sim \text{Poisson}(\lambda_{kt})
+$$
+
+$$
+\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$
+
+As the tables show, none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. Polity IV's year $n$ democracy score is the closest, displaying a p-value of 0.069.
+
+The full models follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. This makes sense, as larger countries are scaled at a disproportionate rate from smaller countries. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year.
+
+$$
+Y_{kt} \sim \text{Poisson}(\lambda_{kt})
+$$
+
+$$
+\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{kt} + \ldots + \beta_7X_{7kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$
+
+Similar to the reduced models, none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level when accounting for additional factors. Additionally, none reached a p-value under 0.2.
+
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. We lagged this change from year $n$-1 to $n$-3. So, for example, a model displaying the lag $n$-1 would be the yearly change from $n$-2 to $n$-1 for the $n$-1 to $n$ change in embassy count. Our first set of models were reduced, so we only included the aforementioned random effects for country and year. The model equations follow the aforementioned reduced model setup.
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the unlagged democracy score from Polity IV, with a p-value of 0.140. 
+
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed that indicator in models where it could not explain any variation in our response variable. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the second lag for the democracy score from Freedom House, with a p-value of 0.102.
+
+Finally, we replicated the setup from our previous full model but applied the same yearly change to the log-transformed GNI and population variables in addition to the democracy score. However, we only lagged the democracy score, so every other variable matched the year the change in embassy was measured. We kept the same random variables for country and year.
+
+Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the nonlagged democracy score from V-Dem, with a p-value of 0.171.
+
 ```{r message = FALSE, warning=FALSE, echo = FALSE}
 library(tidyverse)
 library(readxl)
@@ -95,8 +149,7 @@ masterset <- masterset %>% mutate(YEAR1965 = YEAR - 1965)
 keep_years <- masterset %>% group_by(YEAR) %>% summarize(N_EMBASSY = sum(N_EMBASSY)) %>% filter(N_EMBASSY > 0) %>% pull(YEAR)
 
 #Define lagged variables
-modelset <- masterset %>% mutate(DEMOC = case_when(DEMOC < 0 ~ NA,.default = DEMOC),
-                                 GNI = case_when(GNI < 0 ~ NA,.default = GNI),
+modelset <- masterset %>% mutate(GNI = case_when(GNI < 0 ~ NA,.default = GNI),
                                  REGION = case_when(REGION == 1 ~ "North",
                                                     REGION == 2 ~ "East",
                                                     REGION == 3 ~ "South",
@@ -108,9 +161,9 @@ modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>%
                               mutate(v2x_LIBDEM_lag1 = lag(v2x_LIBDEM,1),
                                  v2x_LIBDEM_lag2 = lag(v2x_LIBDEM,2),
                                  v2x_LIBDEM_lag3 = lag(v2x_LIBDEM,3),
-                                 DEMOC_lag1 = lag(DEMOC,1),
-                                 DEMOC_lag2 = lag(DEMOC,2),
-                                 DEMOC_lag3 = lag(DEMOC,3),
+                                 POLLIB_lag1 = lag(POLLIB,1),
+                                 POLLIB_lag2 = lag(POLLIB,2),
+                                 POLLIB_lag3 = lag(POLLIB,3),
                                  TOTLIB1_lag1 = lag(TOTLIB1,1),
                                  TOTLIB1_lag2 = lag(TOTLIB1,2),
                                  TOTLIB1_lag3 = lag(TOTLIB1,3),
@@ -118,7 +171,7 @@ modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>%
                                  POLITY_lag2 = lag(POLITY,2),
                                  POLITY_lag3 = lag(POLITY,3)
                                  ) %>%  ungroup() %>%   filter(YEAR %in% keep_years & !is.na(COUNTRY)) %>% 
-  select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, DEMOC, TOTLIB1, POLITY,
+  select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, POLLIB, TOTLIB1, POLITY,
          CIVLIB, POLLIB,GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:POLITY_lag3) %>%
   mutate(AFR_HIST_PERIOD = case_when(YEAR <= 1989 ~ "Cold War",
                                      YEAR >= 1990 ~ "Post-Cold War"), 
@@ -134,8 +187,8 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
   mutate(DELTA_N_EMBASSY = N_EMBASSY - lag(N_EMBASSY),
          DELTA_N_YEARS = YEAR - lag(YEAR),
          DELTA_N_EMBASSY_PER_YEAR = DELTA_N_EMBASSY/DELTA_N_YEARS,
-         DELTA_DEMOC = DEMOC - lag(DEMOC),
-         DELTA_DEMOC_PER_YEAR = DELTA_DEMOC/DELTA_N_YEARS,
+         DELTA_POLLIB = POLLIB - lag(POLLIB),
+         DELTA_POLLIB_PER_YEAR = DELTA_POLLIB/DELTA_N_YEARS,
          DELTA_v2x_LIBDEM = v2x_LIBDEM - lag(v2x_LIBDEM),
          DELTA_v2x_LIBDEM_PER_YEAR = DELTA_v2x_LIBDEM/DELTA_N_YEARS,
          DELTA_TOTLIB1 = TOTLIB1 - lag(TOTLIB1),
@@ -145,8 +198,8 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_logPOPULATN = logPOPULATN  - lag(logPOPULATN),
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
 
-modelset %>% group_by(YEAR, DEMOC) %>% summarize(n = n())
-modelset %>% ggplot(aes(x = factor(DEMOC))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
+modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
+modelset %>% ggplot(aes(x = factor(POLLIB))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
 modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
 modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw()
 
@@ -160,10 +213,10 @@ modelset %>% ggplot(aes(x = v2x_LIBDEM_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR)
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 
-modelset %>% ggplot(aes(x = DEMOC, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = DEMOC_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = DEMOC_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = DEMOC_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLLIB, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLLIB_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLLIB_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLLIB_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 
 modelset %>% ggplot(aes(x = TOTLIB1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = TOTLIB1_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
@@ -172,13 +225,13 @@ modelset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +g
 
 #Correlations
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,DEMOC, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLLIB, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,DEMOC_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLLIB_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,DEMOC_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLLIB_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,DEMOC_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLLIB_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
 
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
@@ -201,6 +254,8 @@ modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>%
 ```
 
 ```{r echo = FALSE}
+
+library(lme4)
 library(data.table)
 library(gt)
 
@@ -401,11 +456,11 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    Estimate = md("$\\beta$"),
-    Estimate_exp = md("$e^{\\beta}$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\beta: 95\\% CI$"),
-    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -417,23 +472,23 @@ table_data %>%
 ```
 
 ```{r echo = FALSE}
+
 library(data.table)
 library(gt)
-library(parameters)
 
-mod_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_TOTLIB1 <- glmer(N_EMBASSY ~ TOTLIB1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
-mod_TOTLIB1_lag1 <- glmer(N_EMBASSY ~ TOTLIB1_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_TOTLIB1_lag2 <- glmer(N_EMBASSY ~ TOTLIB1_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_TOTLIB1_lag3 <- glmer(N_EMBASSY ~ TOTLIB1_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_TOTLIB1_lag1 <- glmer(N_EMBASSY ~ TOTLIB1_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_TOTLIB1_lag2 <- glmer(N_EMBASSY ~ TOTLIB1_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_TOTLIB1_lag3 <- glmer(N_EMBASSY ~ TOTLIB1_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
-totlib_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod_TOTLIB1))) %>%
+mod1_totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "TOTLIB1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), 
            pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_TOTLIB1, parm = "TOTLIB1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_TOTLIB1, parm = "TOTLIB1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), 
            conf_exp_1 = round(exp(conf_1), 3), conf_exp_2 = round(exp(conf_2), 3), 
@@ -443,12 +498,12 @@ totlib_nolag <- list(
   mutate(lag = "lag0") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-totlib_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag1))) %>%
+mod1_totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "TOTLIB1_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_TOTLIB1_lag1, parm = "TOTLIB1_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag1, parm = "TOTLIB1_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -457,12 +512,12 @@ totlib_lag1 <- list(
   mutate(lag = "lag1") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-totlib_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag2))) %>%
+mod1_totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag2))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "TOTLIB1_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_TOTLIB1_lag2, parm = "TOTLIB1_lag2", level = 0.95, method = "boot", nsim = 50)) %>%
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag2, parm = "TOTLIB1_lag2", level = 0.95, method = "boot", nsim = 50)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -471,12 +526,12 @@ totlib_lag2 <- list(
   mutate(lag = "lag2") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-totlib_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag3))) %>%
+mod1_totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag3))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "TOTLIB1_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_TOTLIB1_lag3, parm = "TOTLIB1_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag3, parm = "TOTLIB1_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -485,17 +540,17 @@ totlib_lag3 <- list(
   mutate(lag = "lag3") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-mod_POLITY <- glmer(N_EMBASSY ~ POLITY + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_POLITY_lag1 <- glmer(N_EMBASSY ~ POLITY_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_POLITY_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_POLITY_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY <- glmer(N_EMBASSY ~ POLITY + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY_lag1 <- glmer(N_EMBASSY ~ POLITY_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
-POLITY_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY))) %>%
+mod1_POLITY_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY, parm = "POLITY", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY, parm = "POLITY", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -504,12 +559,12 @@ POLITY_nolag <- list(
   mutate(lag = "lag0") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-POLITY_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag1))) %>%
+mod1_POLITY_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY_lag1, parm = "POLITY_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY_lag1, parm = "POLITY_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -518,12 +573,12 @@ POLITY_lag1 <- list(
   mutate(lag = "lag1") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-POLITY_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag2))) %>%
+mod1_POLITY_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag2))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY_lag2, parm = "POLITY_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY_lag2, parm = "POLITY_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -532,12 +587,12 @@ POLITY_lag2 <- list(
   mutate(lag = "lag2") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-POLITY_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag3))) %>%
+mod1_POLITY_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag3))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY_lag3, parm = "POLITY_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY_lag3, parm = "POLITY_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -546,17 +601,17 @@ POLITY_lag3 <- list(
   mutate(lag = "lag3") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-mod_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_v2x_LIBDEM_lag1 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_v2x_LIBDEM_lag2 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod_v2x_LIBDEM_lag3 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_v2x_LIBDEM_lag1 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_v2x_LIBDEM_lag2 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_v2x_LIBDEM_lag3 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
-v2x_LIBDEM_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM))) %>%
+mod1_v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "v2x_LIBDEM") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_v2x_LIBDEM, parm = "v2x_LIBDEM", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM, parm = "v2x_LIBDEM", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -565,12 +620,12 @@ v2x_LIBDEM_nolag <- list(
   mutate(lag = "lag0") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-v2x_LIBDEM_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag1))) %>%
+mod1_v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "v2x_LIBDEM_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_v2x_LIBDEM_lag1, parm = "v2x_LIBDEM_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag1, parm = "v2x_LIBDEM_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -579,12 +634,12 @@ v2x_LIBDEM_lag1 <- list(
   mutate(lag = "lag1") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-v2x_LIBDEM_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag2))) %>%
+mod1_v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag2))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "v2x_LIBDEM_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_v2x_LIBDEM_lag2, parm = "v2x_LIBDEM_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag2, parm = "v2x_LIBDEM_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -593,12 +648,12 @@ v2x_LIBDEM_lag2 <- list(
   mutate(lag = "lag2") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-v2x_LIBDEM_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag3))) %>%
+mod1_v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag3))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "v2x_LIBDEM_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_v2x_LIBDEM_lag3, parm = "v2x_LIBDEM_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag3, parm = "v2x_LIBDEM_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -608,8 +663,8 @@ v2x_LIBDEM_lag3 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
-  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3,
-  v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+  mod1_totlib_nolag, mod1_totlib_lag1, mod1_totlib_lag2, mod1_totlib_lag3, mod1_POLITY_nolag, mod1_POLITY_lag1, mod1_POLITY_lag2, mod1_POLITY_lag3,
+  mod1_v2x_LIBDEM_nolag, mod1_v2x_LIBDEM_lag1, mod1_v2x_LIBDEM_lag2, mod1_v2x_LIBDEM_lag3
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
@@ -621,11 +676,11 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    Estimate = md("$\\beta$"),
-    Estimate_exp = md("$e^{\\beta}$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\beta: 95\\% CI$"),
-    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -636,9 +691,7 @@ table_data %>%
 #%>% gtsave("fullmodel.png")
 ```
 
-```{r echo = FALSE}
-
-## DELTA MODELS ##
+```{r}
 
 # Data #
 
@@ -718,142 +771,6 @@ mod0_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + (1|COUNTRY) + (1|YEAR), 
   data = modelset_delta
 )
-
-## ---- Full Models With Non-Delta Predictors (Besides Main Predictor) ----
-
-mod1_delta_POLITY_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + logGNI + logPOPULATN + REGION + COL2 +
-  factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_POLITY_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_POLITY_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_POLITY_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-mod1_delta_v2x_LIBDEM_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + logGNI + logPOPULATN + REGION + 
-  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-mod1_delta_TOTLIB1_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + logGNI + logPOPULATN + REGION + 
-  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
-  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-## ---- Full Models With All Delta Predictors ----
-
-mod1_alldelta_POLITY_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
-  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_POLITY_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
-  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_POLITY_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
-  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_POLITY_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
-  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-mod1_alldelta_v2x_LIBDEM_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
-  (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
-  (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
-  (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-mod1_alldelta_TOTLIB1_PER_YEAR <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
-  (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_TOTLIB1_PER_YEAR_lag1 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_TOTLIB1_PER_YEAR_lag2 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-mod1_alldelta_TOTLIB1_PER_YEAR_lag3 <- lmer(
-  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
-  data = modelset_delta
-)
-
-## GREG I REMOVED THE AFR_HIST_PERIOD FROM SOME MODELS BECAUSE THEY ONLY HAD ONE LEVEL FOR NON-NA DATA ##
 
 ## ---- Table Data (Reduced Delta Models With Lags) ----
 
@@ -1041,11 +958,11 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    Estimate = md("$\\beta$"),
-    Estimate_exp = md("$e^{\\beta}$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\beta: 95\\% CI$"),
-    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -1054,6 +971,75 @@ table_data %>%
     title = md("Delta Response Reduced Model for **Democracy Scores** and Their **Lags**")
   )
 #%>% gtsave("deltareducedmodel.png")
+
+```
+
+```{r}
+
+## ---- Full Models With Non-Delta Predictors (Besides Main Predictor) ----
+
+mod1_delta_POLITY_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + logGNI + logPOPULATN + REGION + COL2 +
+  factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_POLITY_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_v2x_LIBDEM_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + logGNI + logPOPULATN + REGION + 
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_delta_TOTLIB1_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + logGNI + logPOPULATN + REGION + 
+  COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY) + (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY) + (1|YEAR),
+  data = modelset_delta
+)
+mod1_delta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + logGNI + logPOPULATN + REGION +
+  COL2 + factor(IDEOLOGY) + (1|COUNTRY) + (1|YEAR),
+  data = modelset_delta
+)
 
 ## ---- Table Data (Full Models With Non-Delta Predictors Besides Main)
 
@@ -1241,11 +1227,11 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    Estimate = md("$\\beta$"),
-    Estimate_exp = md("$e^{\\beta}$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\beta: 95\\% CI$"),
-    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -1254,6 +1240,79 @@ table_data %>%
     title = md("Delta Response Full Model for **Democracy Scores** and Their **Lags**")
   ) 
 #%>% gtsave("nondeltafullmodel.png")
+
+```
+
+```{r}
+
+## ---- Full Models With All Delta Predictors ----
+
+mod1_alldelta_POLITY_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_POLITY_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_POLITY_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_POLITY_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_POLITY_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR + DELTA_logPOPULATN_PER_YEAR +
+  REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_alldelta_v2x_LIBDEM_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+
+mod1_alldelta_TOTLIB1_PER_YEAR <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) +
+  (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_TOTLIB1_PER_YEAR_lag1 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag1 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_TOTLIB1_PER_YEAR_lag2 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag2 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
+mod1_alldelta_TOTLIB1_PER_YEAR_lag3 <- lmer(
+  DELTA_N_EMBASSY_PER_YEAR ~ DELTA_TOTLIB1_PER_YEAR_lag3 + DELTA_logGNI_PER_YEAR +
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  data = modelset_delta
+)
 
 ## ---- Table Data (Full Models With Delta Predictors) ----
 
@@ -1441,11 +1500,11 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    Estimate = md("$\\beta$"),
-    Estimate_exp = md("$e^{\\beta}$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\beta: 95\\% CI$"),
-    confidence_exp = md("$e^{\\beta}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
