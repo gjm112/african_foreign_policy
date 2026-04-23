@@ -12,7 +12,7 @@ editor: visual
 
 # BROAD QUESTION
 
-Broad question: Does the process of democratization within African countries affect the formulation and implementation of African foreignpolicies.
+Broad question: Does the process of democratization within African countries affect the formulation and implementation of African foreign policies.
 
 ## THERE ARE THREE DIFFERENT SETS OF STATISTICALLY BASED QUESTIONS (We address only question 1 here):
 
