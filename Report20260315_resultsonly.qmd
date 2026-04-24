@@ -235,13 +235,15 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
 ```
 
+# Exploratory Data Analysis
+
 Below are the distributions of the three democracy variables.  
 
 ```{r}
 #modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
-modelset %>% ggplot(aes(x = factor(POLLIB))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
-modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
-modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw()
+modelset %>% ggplot(aes(x = factor(POLLIB))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLLIB")
+modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("TOTLIB1") + scale_x_discrete(breaks = c(2, 5, 8, 11, 14, NA))
+modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw() + xlab("v2x_LIBDEM")
 ```
 
 
