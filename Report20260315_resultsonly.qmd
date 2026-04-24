@@ -79,7 +79,7 @@ $$
 $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$
-where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$.  We also considered models where the decomcracy score as a predictor was lagged by 1, 2, or 3 years (i.e.  for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
+where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$.  We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e.  for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
 
 As shown in Table 1, in these reduced models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. 
 
