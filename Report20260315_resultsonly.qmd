@@ -6,6 +6,8 @@ execute:
   message: false
   warning: false
 editor: visual
+authors: "Steven Pappas and Gregory J. Matthews"
+date: "April 20, 2026"
 ---
 
 # Summary
@@ -56,7 +58,11 @@ FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBA
 
 ## ANSWERING QUESTION #1
 
-To first evaluate this question, we created three sets of reduced and full models. Our reduced models sought to evaluate the relationship and its significance between a country's embassy count and its democracy score from Freedom House, Polity IV, and V-dem. In these models, democracy score was the only explanatory variable after controlling for the country and year. The model equation is given below, where $k$ represents the random effect $k$ for country and $t$ for year. We follow the same setup for the lagged models, which go back as far as three years for each democracy score.
+To evaluate this question we first created three sets of reduced and full models. Our reduced models sought to evaluate the relationship and the significance of the relationship between a country's embassy count and its democracy score from Freedom House, Polity IV, and V-dem. In these models, democracy score was the only explanatory variable after controlling for the country and year with random effects. The model equation is given below, where $\gamma_{0k}$ represents the random effect for country $k$ and $\gamma_{0t}$ is the random effect for year $t$. We follow the same setup for the lagged models, which go back as far as three years for each democracy score.
+
+# Number of embassy models
+
+## Reduced model
 
 $$
 Y_{kt} \sim \text{Poisson}(\lambda_{kt})
@@ -73,17 +79,20 @@ $$
 $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$
+where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$.  We also considered models where the decomcracy score as a predictor was lagged by 1, 2, or 3 years (i.e.  for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
 
-As the tables show, none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. Polity IV's year $n$ democracy score is the closest, displaying a p-value of 0.069.
+As shown in Table 1, in these reduced models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. 
 
-The full models follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. This makes sense, as larger countries are scaled at a disproportionate rate from smaller countries. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year.
+## Full model
+
+The full models (results in Table 2) follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year, repsectively.
 
 $$
 Y_{kt} \sim \text{Poisson}(\lambda_{kt})
 $$
 
 $$
-\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{kt} + \ldots + \beta_7X_{7kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1kt} + \ldots + \beta_7X_{7kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
 $$
 
 $$
@@ -94,19 +103,46 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$
 
-Similar to the reduced models, none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level when accounting for additional factors. Additionally, none reached a p-value under 0.2.
+where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$'s represent country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War.  We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e.  for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
 
-Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. We lagged this change from year $n$-1 to $n$-3. So, for example, a model displaying the lag $n$-1 would be the yearly change from $n$-2 to $n$-1 for the $n$-1 to $n$ change in embassy count. Our first set of models were reduced, so we only included the aforementioned random effects for country and year. The model equations follow the aforementioned reduced model setup.
+Similar to the reduced models, in the full models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level.  Additionally, none reached a p-value under 0.2.  Full results are shown in Table 2.  
 
-The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the unlagged democracy score from Polity IV, with a p-value of 0.140. 
+# Change in number of embassy models
 
-Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed that indicator in models where it could not explain any variation in our response variable. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
+## Reduced model
 
-The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the second lag for the democracy score from Freedom House, with a p-value of 0.102.
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score.  Once again, in this first set of models the random effects for country and year were included . The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies.  Therefore, a normal model was used instead of a Poisson model.  The details of the model are below:   
+
+$$
+\Delta_{kt} \sim \text{Normal}(\mu_{kt}, \sigma^2)
+$$
+
+$$
+\text{log}(\mu_{kt}) = \beta_0 + \beta_1X_{1kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$
+where $\Delta_{kt}$ is the change in the number of embassies from year $t-1$ to $t$, while $\gamma_{0k}$, $\gamma_{0t}$, and X_{1kt} and are the same as before.  
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the unlagged democracy score from Polity IV, with a p-value of 0.140. Full results are shown in table 3.  
+
+## Full Model 
+
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed the Cold War indicator in models where it could not explain any variation in our response variable. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the second lag for the democracy score from Freedom House, with a p-value of 0.102. Full results are shown in Table 4.  
+
+## Full model with differenced predictors
 
 Finally, we replicated the setup from our previous full model but applied the same yearly change to the log-transformed GNI and population variables in addition to the democracy score. However, we only lagged the democracy score, so every other variable matched the year the change in embassy was measured. We kept the same random variables for country and year.
 
-Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the nonlagged democracy score from V-Dem, with a p-value of 0.171.
+Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the nonlagged democracy score from V-Dem, with a p-value of 0.171.  Full results of these models are shown in Table 5.  
 
 ```{r message = FALSE, warning=FALSE, echo = FALSE}
 library(tidyverse)
@@ -197,17 +233,27 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_logGNI_PER_YEAR = DELTA_logGNI/DELTA_N_YEARS, 
          DELTA_logPOPULATN = logPOPULATN  - lag(logPOPULATN),
          DELTA_logPOPULATN_PER_YEAR = DELTA_logPOPULATN /DELTA_N_YEARS)
+```
 
-modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
+Below are the distributions of the three democracy variables.  
+
+```{r}
+#modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
 modelset %>% ggplot(aes(x = factor(POLLIB))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
 modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw()
 modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw()
+```
 
 
+The plot below is the number of embassies over time with each connected line representing a single country.  
 
+```{r}
 #EDA
 modelset %>% ggplot(aes(x = YEAR, y = N_EMBASSY, group = COUNTRY)) + geom_line() + geom_point() + theme_bw() 
+```
+Next, scatter plots of the number of the democracy variables versus the embassies are plotted and each plot includes a trend line of the relationship.  
 
+```{r}
 modelset %>% ggplot(aes(x = v2x_LIBDEM, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
@@ -222,7 +268,9 @@ modelset %>% ggplot(aes(x = TOTLIB1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_p
 modelset %>% ggplot(aes(x = TOTLIB1_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = TOTLIB1_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+```
 
+```{r echo = T}
 #Correlations
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,POLLIB, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
@@ -466,7 +514,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Reduced Model Parameters for **Democracy Scores** and Their **Lags**")
+    title = md("Table 1: Reduced Model Parameters for **Democracy Scores** and Their **Lags**")
   ) 
 #%>%  gtsave("reducedmodel.png")
 ```
@@ -686,7 +734,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Full Model Parameters for **Democracy Scores** and Their **Lags**")
+    title = md("Table 2: Full Model Parameters for **Democracy Scores** and Their **Lags**")
   ) 
 #%>% gtsave("fullmodel.png")
 ```
@@ -968,7 +1016,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Delta Response Reduced Model for **Democracy Scores** and Their **Lags**")
+    title = md("Table 3: Delta Response Reduced Model for **Democracy Scores** and Their **Lags**")
   )
 #%>% gtsave("deltareducedmodel.png")
 
@@ -1237,7 +1285,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Delta Response Full Model for **Democracy Scores** and Their **Lags**")
+    title = md("Table 4: Delta Response Full Model for **Democracy Scores** and Their **Lags**")
   ) 
 #%>% gtsave("nondeltafullmodel.png")
 
@@ -1510,8 +1558,40 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Delta Response Delta Predictors Full Model for **Democracy Scores** and Their **Lags**")
+    title = md("Table 5: Delta Response Delta Predictors Full Model for **Democracy Scores** and Their **Lags**")
   ) 
 #%>% gtsave("deltafullmodel.png")
 
 ```
+
+
+
+# Appendix 
+```{r echo = T}
+#Embassy models
+summary(mod_TOTLIB1)
+summary(mod1_TOTLIB1)
+
+summary(mod_POLITY)
+summary(mod1_POLITY)
+
+summary(mod_v2x_LIBDEM)
+summary(mod1_v2x_LIBDEM)
+
+#Change in Embassy Models
+summary(mod0_delta_POLITY_PER_YEAR)
+summary(mod1_delta_POLITY_PER_YEAR)
+
+summary(mod0_delta_TOTLIB1_PER_YEAR)
+summary(mod1_delta_TOTLIB1_PER_YEAR)
+
+summary(mod0_delta_v2x_LIBDEM_PER_YEAR)
+summary(mod1_delta_v2x_LIBDEM_PER_YEAR)
+
+
+```
+
+
+
+
+
