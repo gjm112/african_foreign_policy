@@ -197,9 +197,6 @@ modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>%
                               mutate(v2x_LIBDEM_lag1 = lag(v2x_LIBDEM,1),
                                  v2x_LIBDEM_lag2 = lag(v2x_LIBDEM,2),
                                  v2x_LIBDEM_lag3 = lag(v2x_LIBDEM,3),
-                                 POLLIB_lag1 = lag(POLLIB,1),
-                                 POLLIB_lag2 = lag(POLLIB,2),
-                                 POLLIB_lag3 = lag(POLLIB,3),
                                  TOTLIB1_lag1 = lag(TOTLIB1,1),
                                  TOTLIB1_lag2 = lag(TOTLIB1,2),
                                  TOTLIB1_lag3 = lag(TOTLIB1,3),
@@ -207,8 +204,8 @@ modelset <- modelset %>% arrange(COUNTRY, YEAR) %>% group_by(COUNTRY)  %>%
                                  POLITY_lag2 = lag(POLITY,2),
                                  POLITY_lag3 = lag(POLITY,3)
                                  ) %>%  ungroup() %>%   filter(YEAR %in% keep_years & !is.na(COUNTRY)) %>% 
-  select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, POLLIB, TOTLIB1, POLITY,
-         CIVLIB, POLLIB,GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:POLITY_lag3) %>%
+  select(COUNTRY, YEAR, N_EMBASSY, v2x_LIBDEM, TOTLIB1, POLITY,
+         CIVLIB, GNI_CAP,GNI, REGION, COLPAST2, IDEOLOGY, POPULATN, v2x_LIBDEM_lag1:POLITY_lag3) %>%
   mutate(AFR_HIST_PERIOD = case_when(YEAR <= 1989 ~ "Cold War",
                                      YEAR >= 1990 ~ "Post-Cold War"), 
          logGNI = log(GNI, 10),
@@ -223,8 +220,8 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
   mutate(DELTA_N_EMBASSY = N_EMBASSY - lag(N_EMBASSY),
          DELTA_N_YEARS = YEAR - lag(YEAR),
          DELTA_N_EMBASSY_PER_YEAR = DELTA_N_EMBASSY/DELTA_N_YEARS,
-         DELTA_POLLIB = POLLIB - lag(POLLIB),
-         DELTA_POLLIB_PER_YEAR = DELTA_POLLIB/DELTA_N_YEARS,
+         DELTA_POLITY = POLITY - lag(POLITY),
+         DELTA_POLITY_PER_YEAR = DELTA_POLITY/DELTA_N_YEARS,
          DELTA_v2x_LIBDEM = v2x_LIBDEM - lag(v2x_LIBDEM),
          DELTA_v2x_LIBDEM_PER_YEAR = DELTA_v2x_LIBDEM/DELTA_N_YEARS,
          DELTA_TOTLIB1 = TOTLIB1 - lag(TOTLIB1),
@@ -240,8 +237,8 @@ modelset <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
 Below are the distributions of the three democracy variables.  
 
 ```{r}
-#modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
-modelset %>% ggplot(aes(x = factor(POLLIB))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLLIB")
+#modelset %>% group_by(YEAR, POLITY) %>% summarize(n = n())
+modelset %>% ggplot(aes(x = factor(POLITY))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY")
 modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("TOTLIB1") + scale_x_discrete(breaks = c(2, 5, 8, 11, 14, NA))
 modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw() + xlab("v2x_LIBDEM")
 ```
@@ -261,10 +258,10 @@ modelset %>% ggplot(aes(x = v2x_LIBDEM_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR)
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = v2x_LIBDEM_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 
-modelset %>% ggplot(aes(x = POLLIB, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = POLLIB_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = POLLIB_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
-modelset %>% ggplot(aes(x = POLLIB_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLITY, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLITY_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLITY_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+modelset %>% ggplot(aes(x = POLITY_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 
 modelset %>% ggplot(aes(x = TOTLIB1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 modelset %>% ggplot(aes(x = TOTLIB1_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
@@ -274,14 +271,16 @@ modelset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +g
 
 ```{r echo = T}
 #Correlations
+
+# GETTING ERRORS FOR A LACK OF FINITE OBSERVATIONS BY GROUP IN POLITY #
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLLIB, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLITY, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLLIB_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLITY_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag1)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLLIB_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLITY_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag2)$p.val)
 modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLLIB_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
+  summarize(cor = cor(N_EMBASSY,POLITY_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag3)$p.val)
 
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
