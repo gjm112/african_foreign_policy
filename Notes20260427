@@ -1,0 +1,25 @@
+#Notes 4/27
+
+#Logistics regression
+Connection ~ Totlib (of external country) +
+population + wealth + 
+Imports + Exports + foreign aid + (Coldwar / post cold war?)
+(1|Africa Country) + (1|Year) + (1|Country?)
+
+Connection ~ v2x_libdem +
+population + wealth + 
+Imports + Exports + foreign aid +  (Coldwar / post cold war?)+ 
+(1|Africa Country) + (1|Year) + (1|Country?)
+
+Case Study: Ghana and Senegal
+
+
+
+
+
+
+
+
+
+
+
