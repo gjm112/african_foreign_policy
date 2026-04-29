@@ -386,7 +386,7 @@ mod_POLITY_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + (1|COUNTRY)+ (1|YEAR), data =
 mod_POLITY_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 POLITY_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY))) %>%
+  polity = as.data.frame(coef(summary(mod_POLITY))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -400,7 +400,7 @@ POLITY_nolag <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag1))) %>%
+  polity = as.data.frame(coef(summary(mod_POLITY_lag1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -414,7 +414,7 @@ POLITY_lag1 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag2))) %>%
+  polity = as.data.frame(coef(summary(mod_POLITY_lag2))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -428,7 +428,7 @@ POLITY_lag2 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY_lag3))) %>%
+  polity = as.data.frame(coef(summary(mod_POLITY_lag3))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -447,11 +447,11 @@ mod_POLITY2_lag2 <- glmer(N_EMBASSY ~ POLITY2_lag2 + (1|COUNTRY)+ (1|YEAR), data
 mod_POLITY2_lag3 <- glmer(N_EMBASSY ~ POLITY2_lag3 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 POLITY2_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY2))) %>%
+  polity2 = as.data.frame(coef(summary(mod_POLITY2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY") %>%
+    filter(var == "POLITY2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY2, parm = "POLITY", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod_POLITY2, parm = "POLITY2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -461,11 +461,11 @@ POLITY2_nolag <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY2_lag1))) %>%
+  polity2 = as.data.frame(coef(summary(mod_POLITY2_lag1))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag1") %>%
+    filter(var == "POLITY2_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY2_lag1, parm = "POLITY_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod_POLITY2_lag1, parm = "POLITY2_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -475,11 +475,11 @@ POLITY2_lag1 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY2_lag2))) %>%
+  polity2 = as.data.frame(coef(summary(mod_POLITY2_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag2") %>%
+    filter(var == "POLITY2_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY2_lag2, parm = "POLITY_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod_POLITY2_lag2, parm = "POLITY2_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -489,11 +489,11 @@ POLITY2_lag2 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod_POLITY2_lag3))) %>%
+  polity2 = as.data.frame(coef(summary(mod_POLITY2_lag3))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag3") %>%
+    filter(var == "POLITY2_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod_POLITY2_lag3, parm = "POLITY_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod_POLITY2_lag3, parm = "POLITY2_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -570,7 +570,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+                         str_detect(var, "LIBDEM") ~ "LIBDEM",
+                         str_detect(var, "POLITY2") ~ "POLITY2"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -667,7 +668,7 @@ mod1_POLITY_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + logGNI + logPOPULATN  + REGI
 mod1_POLITY_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 mod1_POLITY_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY))) %>%
+  polity = as.data.frame(coef(summary(mod1_POLITY))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -681,7 +682,7 @@ mod1_POLITY_nolag <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag1))) %>%
+  polity = as.data.frame(coef(summary(mod1_POLITY_lag1))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -695,7 +696,7 @@ mod1_POLITY_lag1 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag2))) %>%
+  polity = as.data.frame(coef(summary(mod1_POLITY_lag2))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -709,7 +710,7 @@ mod1_POLITY_lag2 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag3))) %>%
+  polity = as.data.frame(coef(summary(mod1_POLITY_lag3))) %>%
     rownames_to_column(var = "var") %>%
     filter(var == "POLITY_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
@@ -728,11 +729,11 @@ mod1_POLITY2_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + logGNI + logPOPULATN  + REG
 mod1_POLITY2_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 mod1_POLITY2_nolag <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
+  polity2 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY") %>%
+    filter(var == "POLITY2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod1_POLITY2, parm = "POLITY", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY2, parm = "POLITY2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -742,11 +743,11 @@ mod1_POLITY2_nolag <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag1 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
+  polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag1") %>%
+    filter(var == "POLITY2_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod1_POLITY2_lag1, parm = "POLITY_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY2_lag1, parm = "POLITY2_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -756,11 +757,11 @@ mod1_POLITY2_lag1 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag2 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
+  polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag2") %>%
+    filter(var == "POLITY2_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod1_POLITY2_lag2, parm = "POLITY_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY2_lag2, parm = "POLITY2_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -770,11 +771,11 @@ mod1_POLITY2_lag2 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag3 <- list(
-  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
+  polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "POLITY_lag3") %>%
+    filter(var == "POLITY2_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|z|)`, 3)),
-  conf = data.frame(conf = confint(mod1_POLITY2_lag3, parm = "POLITY_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_POLITY2_lag3, parm = "POLITY2_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -851,7 +852,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+                         str_detect(var, "LIBDEM") ~ "LIBDEM",
+                         str_detect(var, "POLITY2") ~ "POLITY2"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1090,9 +1092,9 @@ POLITY_lag3 <- list(
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR, parm = "DELTA_POLITY2_PER_YEAR", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1104,9 +1106,9 @@ POLITY2_nolag <- list(
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag1))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY2_PER_YEAR_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1118,9 +1120,9 @@ POLITY2_lag1 <- list(
 POLITY_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY2_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1132,9 +1134,9 @@ POLITY_lag2 <- list(
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag3))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY2_PER_YEAR_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1206,7 +1208,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+                         str_detect(var, "LIBDEM") ~ "LIBDEM",
+                         str_detect(var, "POLITY2") ~ "POLITY2"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1436,9 +1439,9 @@ POLITY_lag3 <- list(
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR, parm = "DELTA_POLITY2_PER_YEAR", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1450,9 +1453,9 @@ POLITY2_nolag <- list(
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag1))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY2_PER_YEAR_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1464,9 +1467,9 @@ POLITY2_lag1 <- list(
 POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY2_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1478,9 +1481,9 @@ POLITY2_lag2 <- list(
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag3))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_delta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY2_PER_YEAR_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1552,7 +1555,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+                         str_detect(var, "LIBDEM") ~ "LIBDEM",
+                         str_detect(var, "POLITY2") ~ "POLITY2"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1786,9 +1790,9 @@ POLITY_lag3 <- list(
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR, parm = "DELTA_POLITY_PER_YEAR", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR, parm = "DELTA_POLITY2_PER_YEAR", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1800,9 +1804,9 @@ POLITY2_nolag <- list(
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag1))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag1") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag1") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY_PER_YEAR_lag1", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag1, parm = "DELTA_POLITY2_PER_YEAR_lag1", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1814,9 +1818,9 @@ POLITY2_lag1 <- list(
 POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY2_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1828,9 +1832,9 @@ POLITY2_lag2 <- list(
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag3))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY_PER_YEAR_lag3") %>%
+    filter(var == "DELTA_POLITY2_PER_YEAR_lag3") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY_PER_YEAR_lag3", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod1_alldelta_POLITY2_PER_YEAR_lag3, parm = "DELTA_POLITY2_PER_YEAR_lag3", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1902,7 +1906,8 @@ table_data = list(
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
                          str_detect(var, "POLITY") ~ "POLITY",
-                         str_detect(var, "LIBDEM") ~ "LIBDEM"),
+                         str_detect(var, "LIBDEM") ~ "LIBDEM",
+                         str_detect(var, "POLITY2") ~ "POLITY2"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
