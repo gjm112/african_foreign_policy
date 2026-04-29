@@ -10,13 +10,10 @@ library(readxl)
 #1. Total number and diversification of African embassies maintained abroad.
 #2. Total amount and diversification of African trade imports and trade exports
 #3. Total amount and diversification of foreign aid received by African countries
-
 #setwd("schrader")
 setwd("/Users/gregorymatthews/Dropbox/CDSCpappasGit/schrader/")
 
 masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
-#masterset %>% select(COUNTRY, YEAR, v2x_LIBDEM, DEMOC, TOTLIB1,CIVLIB, POLITY, GNI_CAP, REGION, COLPAST2, IDEOLOGY ) 
-#Which variable is historical period? 
 
 # cbind(masterset$POLITY, masterset$POLITY2) %>% view()
 # out <- masterset %>% select(COUNTRY, YEAR, POLITY, POLITY2) %>% filter(POLITY != POLITY2) 
@@ -38,7 +35,11 @@ masterset = masterset %>%
                              .default = COUNTRY))
 
 
-restofworld <- restofworld %>%
+restofworld <- restofworld %>% 
+  mutate(GNI = as.numeric(GNI),
+         GNI_CAP = as.numeric(GNI_CAP),
+         AVLIFEEX = as.numeric(AVLIFEEX),
+         ENRGUSE = as.numeric(ENRGUSE)) %>% 
   mutate(across(where(is.numeric), ~ na_if(., -99)),
          across(where(is.numeric), ~ na_if(., -88)),
          across(where(is.numeric), ~ na_if(., -77)),
@@ -79,7 +80,11 @@ external_democracy <- list(
 
 #Make South Sudan Correct
 #Should be C099 instead of C99
-countrycodes <- countrycodes %>% mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
+countrycodes <- countrycodes %>% 
+  mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
+
+external_democracy <- external_democracy %>% 
+  mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
 
 #TOTLIB1, POLITY, v2x_LIBDEM 
 #Merge these on for the EXTERNAL country
@@ -136,8 +141,6 @@ trdim_data <- masterset %>%
          CCODE_INT = paste0("C", CCODE_INT)) %>% 
   filter(CCODE_INT != "CNA")
   
-  
-
 #merge on odag, trdex, trdim
 cleandata <- newdata %>% 
   left_join(odag_data %>% select(CCODE_INT,YEAR,CCODE_EXT,ODAG), 
@@ -157,6 +160,8 @@ cleandata <- newdata %>%
   arrange(-YEAR,.by_group = TRUE) %>%
   mutate(CONNECTIONlag1 = lag(CONNECTION))
 
+
+cleandata %>% view()
 
 
 #Data Viz
