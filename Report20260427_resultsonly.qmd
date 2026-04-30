@@ -284,37 +284,60 @@ modelset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +g
 
 ```{r echo = T}
 #Correlations
-modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLITY, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
-modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLITY_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
-modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLITY_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
-modelset %>% group_by(YEAR) %>%
-  summarize(cor = cor(N_EMBASSY,POLITY_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
+#Polity
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY)$p.val)
 
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag1)$p.val)
+
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag2)$p.val)
+
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY_lag3)$p.val)
+
+#Polity2
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY2)$p.val)
+
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY2_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY2_lag1)$p.val)
+
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY2_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY2_lag2)$p.val)
+
+modelset %>% filter(YEAR < 2020) %>% group_by(YEAR) %>%
+  summarize(cor = cor(N_EMBASSY,POLITY2_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,POLITY2_lag3)$p.val)
+
+#v2x_Libdem
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM)$p.val)
+
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag1)$p.val)
+
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag2)$p.val)
+
 modelset %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,v2x_LIBDEM_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,v2x_LIBDEM_lag3)$p.val)
 
 modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,TOTLIB1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1)$p.val)
+
 modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,TOTLIB1_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag1)$p.val)
+
 modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,TOTLIB1_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag2)$p.val)
+
 modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>%
   summarize(cor = cor(N_EMBASSY,TOTLIB1_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag3)$p.val)
 
 ```
 
 ```{r echo = FALSE}
-
 library(lme4)
 library(data.table)
 library(gt)
@@ -878,7 +901,6 @@ table_data %>%
 ```{r}
 
 # Data #
-
 modelset_delta <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>% 
   mutate(DELTA_N_EMBASSY = N_EMBASSY - lag(N_EMBASSY),
          DELTA_N_YEARS = YEAR - lag(YEAR),
@@ -888,6 +910,11 @@ modelset_delta <- modelset %>% group_by(COUNTRY) %>% arrange(YEAR) %>%
          DELTA_POLITY_PER_YEAR_lag1 = lag(DELTA_POLITY_PER_YEAR),
          DELTA_POLITY_PER_YEAR_lag2 = lag(DELTA_POLITY_PER_YEAR, 2),
          DELTA_POLITY_PER_YEAR_lag3 = lag(DELTA_POLITY_PER_YEAR, 3),
+         
+         DELTA_POLITY2_PER_YEAR_lag1 = lag(DELTA_POLITY2_PER_YEAR),
+         DELTA_POLITY2_PER_YEAR_lag2 = lag(DELTA_POLITY2_PER_YEAR, 2),
+         DELTA_POLITY2_PER_YEAR_lag3 = lag(DELTA_POLITY2_PER_YEAR, 3),
+         
          DELTA_v2x_LIBDEM = v2x_LIBDEM - lag(v2x_LIBDEM),
          DELTA_v2x_LIBDEM_PER_YEAR = DELTA_v2x_LIBDEM/DELTA_N_YEARS,
          DELTA_v2x_LIBDEM_PER_YEAR_lag1 = lag(DELTA_v2x_LIBDEM_PER_YEAR),
@@ -1940,18 +1967,23 @@ summary(mod1_TOTLIB1)
 summary(mod_POLITY)
 summary(mod1_POLITY)
 
+summary(mod_POLITY2)
+summary(mod1_POLITY2)
+
 summary(mod_v2x_LIBDEM)
 summary(mod1_v2x_LIBDEM)
 
 #Change in Embassy Models
-summary(mod0_delta_POLITY_PER_YEAR)
-summary(mod1_delta_POLITY_PER_YEAR)
-
 summary(mod0_delta_TOTLIB1_PER_YEAR)
 summary(mod1_delta_TOTLIB1_PER_YEAR)
 
+summary(mod0_delta_POLITY_PER_YEAR)
+summary(mod1_delta_POLITY_PER_YEAR)
+
+summary(mod0_delta_POLITY2_PER_YEAR)
+summary(mod1_delta_POLITY2_PER_YEAR)
+
 summary(mod0_delta_v2x_LIBDEM_PER_YEAR)
 summary(mod1_delta_v2x_LIBDEM_PER_YEAR)
-
 
 ```

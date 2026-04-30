@@ -35,6 +35,22 @@ masterset = masterset %>%
                              .default = COUNTRY))
 
 
+#Manuallty fixing names
+names(masterset)[which(names(masterset) == "TRDX352b")] <- "TRDEX352b"
+names(masterset)[which(names(masterset) == "TRDX200h")] <- "TRDEX200h"
+names(masterset)[which(names(masterset) == "TRDX200m")] <- "TRDEX200m"
+names(masterset)[which(names(masterset) == "TDX321sr")] <- "TRDEX321sr"
+names(masterset)[which(names(masterset) == "TDX321sm")] <- "TRDEX321sm"
+names(masterset)[which(names(masterset) == "TDX321yr")] <- "TRDEX321yr"
+names(masterset)[which(names(masterset) == "TRDI200h")] <- "TRDIM200h"
+names(masterset)[which(names(masterset) == "TRDI200m")] <- "TRDIM200m"
+
+names(masterset)[which(names(masterset) == "TDI321sr")] <- "TRDIM321sr"
+names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
+names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
+names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
+
+
 restofworld <- restofworld %>% 
   mutate(GNI = as.numeric(GNI),
          GNI_CAP = as.numeric(GNI_CAP),
@@ -120,7 +136,7 @@ trdex_data <- masterset %>%
   select(CCODE_INT = CCODE, 
          COUNTRY_INT = COUNTRY, 
          YEAR, 
-         matches("^TRDEX\\d{3}$")) %>% 
+         matches("^TRDEX\\d{3}")) %>% 
   mutate(across(TRDEX351:TRDEX203, as.numeric)) %>% 
   pivot_longer(cols = TRDEX351:TRDEX203, names_to ="CCODE_EXT", values_to = "TRDEX") %>% 
   mutate(CCODE_EXT = gsub( "TRDEX","",CCODE_EXT)) %>% 
