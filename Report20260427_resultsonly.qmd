@@ -1017,8 +1017,8 @@ totlib_nolag <- list(
            confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_delta_TOTLIB1_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag1))) %>%
@@ -1031,8 +1031,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_delta_TOTLIB1_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag2))) %>%
@@ -1045,8 +1045,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_delta_TOTLIB1_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_TOTLIB1_PER_YEAR_lag3))) %>%
@@ -1059,8 +1059,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_delta_TOTLIB1_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_nolag <- list(
   polity = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR))) %>%
@@ -1073,8 +1073,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_delta_POLITY_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   polity = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag1))) %>%
@@ -1087,8 +1087,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_delta_POLITY_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   polity = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag2))) %>%
@@ -1101,8 +1101,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_delta_POLITY_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   polity = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag3))) %>%
@@ -1115,8 +1115,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_delta_POLITY_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR))) %>%
@@ -1129,8 +1129,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_delta_POLITY2_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag1))) %>%
@@ -1143,8 +1143,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_delta_POLITY2_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag2))) %>%
@@ -1157,8 +1157,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_delta_POLITY_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag3))) %>%
@@ -1171,8 +1171,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_delta_POLITY2_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR))) %>%
@@ -1185,8 +1185,8 @@ v2x_LIBDEM_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_delta_v2x_LIBDEM_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
@@ -1199,8 +1199,8 @@ v2x_LIBDEM_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_delta_v2x_LIBDEM_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
@@ -1213,8 +1213,8 @@ v2x_LIBDEM_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_delta_v2x_LIBDEM_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_delta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
@@ -1227,8 +1227,8 @@ v2x_LIBDEM_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_delta_v2x_LIBDEM_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3,
@@ -1245,6 +1245,7 @@ table_data %>% select(var, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     pval = md("$p$"),
     confidence = md("$\\hat{\\beta}: 95\\% CI$")
@@ -1362,8 +1363,8 @@ totlib_nolag <- list(
            confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_delta_TOTLIB1_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag1))) %>%
@@ -1376,8 +1377,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_delta_TOTLIB1_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag2))) %>%
@@ -1390,8 +1391,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_delta_TOTLIB1_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_TOTLIB1_PER_YEAR_lag3))) %>%
@@ -1404,8 +1405,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_delta_TOTLIB1_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_nolag <- list(
   polity = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR))) %>%
@@ -1418,8 +1419,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_delta_POLITY_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   polity = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag1))) %>%
@@ -1432,8 +1433,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_delta_POLITY_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   polity = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag2))) %>%
@@ -1446,8 +1447,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_delta_POLITY_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   polity = as.data.frame(coef(summary(mod1_delta_POLITY_PER_YEAR_lag3))) %>%
@@ -1460,8 +1461,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_delta_POLITY_PER_YEAR_lag3)) %>%
+  select(var, lag, n,Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR))) %>%
@@ -1474,8 +1475,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_delta_POLITY2_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag1))) %>%
@@ -1488,8 +1489,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_delta_POLITY2_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag2))) %>%
@@ -1502,8 +1503,8 @@ POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_delta_POLITY2_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod1_delta_POLITY2_PER_YEAR_lag3))) %>%
@@ -1516,8 +1517,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_delta_POLITY2_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR))) %>%
@@ -1530,8 +1531,8 @@ v2x_LIBDEM_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_delta_v2x_LIBDEM_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
@@ -1544,8 +1545,8 @@ v2x_LIBDEM_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_delta_v2x_LIBDEM_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
@@ -1558,8 +1559,8 @@ v2x_LIBDEM_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_delta_v2x_LIBDEM_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_delta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
@@ -1572,8 +1573,8 @@ v2x_LIBDEM_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_delta_v2x_LIBDEM_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3,
@@ -1590,6 +1591,7 @@ table_data %>% select(var, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     pval = md("$p$"),
     confidence = md("$\\hat{\\beta}: 95\\% CI$")
@@ -1711,8 +1713,8 @@ totlib_nolag <- list(
            confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_alldelta_TOTLIB1_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag1))) %>%
@@ -1725,8 +1727,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_alldelta_TOTLIB1_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag2))) %>%
@@ -1739,8 +1741,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_alldelta_TOTLIB1_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_TOTLIB1_PER_YEAR_lag3))) %>%
@@ -1753,8 +1755,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_alldelta_TOTLIB1_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_nolag <- list(
   polity = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR))) %>%
@@ -1767,8 +1769,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_alldelta_POLITY_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   polity = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag1))) %>%
@@ -1781,8 +1783,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_alldelta_POLITY_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   polity = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag2))) %>%
@@ -1795,8 +1797,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_alldelta_POLITY_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   polity = as.data.frame(coef(summary(mod1_alldelta_POLITY_PER_YEAR_lag3))) %>%
@@ -1809,8 +1811,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_alldelta_POLITY_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR))) %>%
@@ -1823,8 +1825,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_alldelta_POLITY2_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag1))) %>%
@@ -1837,8 +1839,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_alldelta_POLITY2_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag2))) %>%
@@ -1851,8 +1853,8 @@ POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_alldelta_POLITY2_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod1_alldelta_POLITY2_PER_YEAR_lag3))) %>%
@@ -1865,8 +1867,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_alldelta_POLITY2_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR))) %>%
@@ -1879,8 +1881,8 @@ v2x_LIBDEM_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_alldelta_v2x_LIBDEM_PER_YEAR)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1))) %>%
@@ -1893,8 +1895,8 @@ v2x_LIBDEM_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2))) %>%
@@ -1907,8 +1909,8 @@ v2x_LIBDEM_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3))) %>%
@@ -1921,8 +1923,8 @@ v2x_LIBDEM_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3,
@@ -1939,6 +1941,7 @@ table_data %>% select(var, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     pval = md("$p$"),
     confidence = md("$\\hat{\\beta}: 95\\% CI$")
