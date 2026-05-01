@@ -80,7 +80,7 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$ where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
 
-As shown in Table 1, in these reduced models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level.
+As shown in Table 1, both POLITY and POLITY2 are highly significant (i.e p-value <0.001) for all lags.  Neither TOTLIB1 nor LIBDEM reaches significance at the $\alpha$ = 0.05 confidence level.
 
 ## Full model
 
@@ -104,7 +104,9 @@ $$
 
 where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$'s represent country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
 
-Similar to the reduced models, in the full models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. Additionally, none reached a p-value under 0.2. Full results are shown in Table 2.
+Similar to the reduced models, POLITY and POLITY2 are both significant at all lags with p-values all lower that 0.01.  In the reduced model, the coefficient estimates were between -0.015 and -0.011  across the lags, the full model produces estimates just slightly smaller between -0.01 and -0.009.  
+
+in the full models none of the democracy sare bothcores or their lags display significance at an $\alpha$ = 0.05 confidence level. Additionally, none reached a p-value under 0.2. Full results are shown in Table 2.
 
 # Change in number of embassy models
 
@@ -746,10 +748,10 @@ mod1_POLITY_lag3 <- list(
   mutate(lag = "lag3") %>%
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
-mod1_POLITY2 <- glmer(N_EMBASSY ~ POLITY + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod1_POLITY2_lag1 <- glmer(N_EMBASSY ~ POLITY_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod1_POLITY2_lag2 <- glmer(N_EMBASSY ~ POLITY_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
-mod1_POLITY2_lag3 <- glmer(N_EMBASSY ~ POLITY_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY2 <- glmer(N_EMBASSY ~ POLITY2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY2_lag1 <- glmer(N_EMBASSY ~ POLITY2_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY2_lag2 <- glmer(N_EMBASSY ~ POLITY2_lag2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
+mod1_POLITY2_lag3 <- glmer(N_EMBASSY ~ POLITY2_lag3 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 
 mod1_POLITY2_nolag <- list(
   polity2 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
@@ -1145,11 +1147,11 @@ POLITY2_lag1 <- list(
   select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
-  polity2 = as.data.frame(coef(summary(mod0_delta_POLITY2_PER_YEAR_lag2))) %>%
+  polity2 = as.data.frame(coef(summary(mod0_delta_POLITY_PER_YEAR_lag2))) %>%
     rownames_to_column(var = "var") %>%
-    filter(var == "DELTA_POLITY2_PER_YEAR_lag2") %>%
+    filter(var == "DELTA_POLITY_PER_YEAR_lag2") %>%
     mutate(Estimate = round(Estimate, 3), Estimate_exp = exp(Estimate), pval = round(`Pr(>|t|)`, 3)),
-  conf = data.frame(conf = confint(mod0_delta_POLITY2_PER_YEAR_lag2, parm = "DELTA_POLITY2_PER_YEAR_lag2", level = 0.95)) %>%
+  conf = data.frame(conf = confint(mod0_delta_POLITY_PER_YEAR_lag2, parm = "DELTA_POLITY_PER_YEAR_lag2", level = 0.95)) %>%
     rownames_to_column(var = "var") %>%
     mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
@@ -1980,4 +1982,10 @@ summary(mod1_delta_POLITY2_PER_YEAR)
 summary(mod0_delta_v2x_LIBDEM_PER_YEAR)
 summary(mod1_delta_v2x_LIBDEM_PER_YEAR)
 
+```
+
+
+# Random effects estimates
+```{r}
+data.frame(ranef(mod_POLITY)$YEAR)
 ```
