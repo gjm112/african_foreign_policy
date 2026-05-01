@@ -60,9 +60,9 @@ FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBA
 
 To evaluate this question we first created three sets of reduced and full models. Our reduced models sought to evaluate the relationship and the significance of the relationship between a country's embassy count and its democracy score from Freedom House, Polity IV, and V-dem. In these models, democracy score was the only explanatory variable after controlling for the country and year with random effects. The model equation is given below, where $\gamma_{0k}$ represents the random effect for country $k$ and $\gamma_{0t}$ is the random effect for year $t$. We follow the same setup for the lagged models, which go back as far as three years for each democracy score.
 
-# Number of embassy models
+# Number of Embassy Models
 
-## Reduced model
+## Reduced Model
 
 $$
 Y_{kt} \sim \text{Poisson}(\lambda_{kt})
@@ -80,11 +80,11 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$ where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
 
-As shown in Table 1, both POLITY and POLITY2 are highly significant (i.e p-value <0.001) for all lags.  Neither TOTLIB1 nor LIBDEM reaches significance at the $\alpha$ = 0.05 confidence level.
+As shown in Table 1, both POLITY and POLITY2 are highly significant (i.e. $p$ <0.001) for all lags.  Neither TOTLIB1 nor LIBDEM reaches significance at the $\alpha$ = 0.05 confidence level.
 
-## Full model
+## Full Model
 
-The full models (results in Table 2) follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year, repsectively.
+The full models (results in Table 2) follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, whether there was a colonial past after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year, respectively.
 
 $$
 Y_{kt} \sim \text{Poisson}(\lambda_{kt})
@@ -102,17 +102,15 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$
 
-where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$'s represent country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
+where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$s represent country's GNI, population, region, whether there was a colonial past after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
 
-Similar to the reduced models, POLITY and POLITY2 are both significant at all lags with p-values all lower that 0.01.  In the reduced model, the coefficient estimates were between -0.015 and -0.011  across the lags, the full model produces estimates just slightly smaller between -0.01 and -0.009.  
+Similar to the reduced models, POLITY and POLITY2 are both significant at all lags with $p$ all lower that 0.01. In the reduced model, the coefficient estimates were between -0.015 and -0.011  across the lags. The full model produces estimates just slightly smaller between -0.01 and -0.009.
 
-in the full models none of the democracy sare bothcores or their lags display significance at an $\alpha$ = 0.05 confidence level. Additionally, none reached a p-value under 0.2. Full results are shown in Table 2.
+# Change in Number of Embassy Models
 
-# Change in number of embassy models
+## Reduced Model
 
-## Reduced model
-
-Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. Once again, in this first set of models the random effects for country and year were included . The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies. Therefore, a normal model was used instead of a Poisson model. The details of the model are below:
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. Once again, in this first set of models the random effects for country and year were included . The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies. To reflect this change, we used a normal model instead of a Poisson model. The details of the normal model are below:
 
 $$
 \Delta_{kt} \sim \text{Normal}(\mu_{kt}, \sigma^2)
@@ -130,19 +128,19 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$ where $\Delta_{kt}$ is the change in the number of embassies from year $t-1$ to $t$, while $\gamma_{0k}$, $\gamma_{0t}$, and X\_{1kt} and are the same as before.
 
-The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the unlagged democracy score from Polity IV, with a p-value of 0.140. Full results are shown in table 3.
+The tables show significance for the unlagged POLITY and POLITY2 and two-year lagged POLITY2 at the $\alpha$ = 0.05 confidence level. Their $\hat_{\beta}$ coefficients were all negative, indicating that the change in embassy count decreased as these democracy scores increased. Their $\hat_{\beta}$ coefficients were -0.151, -0.152, and -0.012, respectively.
 
 ## Full Model
 
-Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed the Cold War indicator in models where it could not explain any variation in our response variable. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed the Cold War indicator in models where it could not explain any additional variation in our response variable. We commonly observed this in the two-year and three-year lagged models, as their first observed observation was after the Cold War. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
 
-The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the second lag for the democracy score from Freedom House, with a p-value of 0.102. Full results are shown in Table 4.
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the two-year lag for TOTLIB1, with a $p$ of 0.102. Full results are shown in Table 4.
 
-## Full model with differenced predictors
+## Full Model With Differenced Predictors
 
-Finally, we replicated the setup from our previous full model but applied the same yearly change to the log-transformed GNI and population variables in addition to the democracy score. However, we only lagged the democracy score, so every other variable matched the year the change in embassy was measured. We kept the same random variables for country and year.
+Finally, we replicated the setup from our previous full model but applied the same yearly change from embassy count to the log-transformed GNI and population variables. We lagged only the democracy score, so every other variable matched the year the change in embassy was measured. We kept the same random variables for country and year.
 
-Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the nonlagged democracy score from V-Dem, with a p-value of 0.171. Full results of these models are shown in Table 5.
+Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the two-year lagged TOTLIB1, with a $p$ of 0.082. Full results of these models are shown in Table 5.
 
 ```{r message = FALSE, warning=FALSE, echo = FALSE}
 library(tidyverse)
@@ -360,8 +358,8 @@ totlib_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag1))) %>%
@@ -374,8 +372,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag2))) %>%
@@ -388,8 +386,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod_TOTLIB1_lag3))) %>%
@@ -402,8 +400,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod_POLITY <- glmer(N_EMBASSY ~ POLITY + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod_POLITY_lag1 <- glmer(N_EMBASSY ~ POLITY_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -421,8 +419,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod_POLITY)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   polity = as.data.frame(coef(summary(mod_POLITY_lag1))) %>%
@@ -435,8 +433,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod_POLITY_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   polity = as.data.frame(coef(summary(mod_POLITY_lag2))) %>%
@@ -449,8 +447,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod_POLITY_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   polity = as.data.frame(coef(summary(mod_POLITY_lag3))) %>%
@@ -463,8 +461,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod_POLITY_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod_POLITY2 <- glmer(N_EMBASSY ~ POLITY2 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod_POLITY2_lag1 <- glmer(N_EMBASSY ~ POLITY2_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -482,8 +480,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod_POLITY2_lag1))) %>%
@@ -496,8 +494,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod_POLITY2_lag2))) %>%
@@ -510,8 +508,8 @@ POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod_POLITY2_lag3))) %>%
@@ -524,8 +522,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod_v2x_LIBDEM_lag1 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag1 + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -543,8 +541,8 @@ v2x_LIBDEM_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod_v2x_LIBDEM)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag1))) %>%
@@ -557,8 +555,8 @@ v2x_LIBDEM_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod_v2x_LIBDEM_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag2))) %>%
@@ -571,8 +569,8 @@ v2x_LIBDEM_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod_v2x_LIBDEM_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 v2x_LIBDEM_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod_v2x_LIBDEM_lag3))) %>%
@@ -585,8 +583,8 @@ v2x_LIBDEM_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod_v2x_LIBDEM_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3,
@@ -603,6 +601,7 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
@@ -642,8 +641,8 @@ mod1_totlib_nolag <- list(
            confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag1))) %>%
@@ -656,8 +655,8 @@ mod1_totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag2))) %>%
@@ -670,8 +669,8 @@ mod1_totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag3))) %>%
@@ -684,8 +683,8 @@ mod1_totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY <- glmer(N_EMBASSY ~ POLITY + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod1_POLITY_lag1 <- glmer(N_EMBASSY ~ POLITY_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -703,8 +702,8 @@ mod1_POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_POLITY)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag1 <- list(
   polity = as.data.frame(coef(summary(mod1_POLITY_lag1))) %>%
@@ -717,8 +716,8 @@ mod1_POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_POLITY_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag2 <- list(
   polity = as.data.frame(coef(summary(mod1_POLITY_lag2))) %>%
@@ -731,8 +730,8 @@ mod1_POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_POLITY_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY_lag3 <- list(
   polity = as.data.frame(coef(summary(mod1_POLITY_lag3))) %>%
@@ -745,8 +744,8 @@ mod1_POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_POLITY_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2 <- glmer(N_EMBASSY ~ POLITY2 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod1_POLITY2_lag1 <- glmer(N_EMBASSY ~ POLITY2_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -764,8 +763,8 @@ mod1_POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag1 <- list(
   polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
@@ -778,8 +777,8 @@ mod1_POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag2 <- list(
   polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
@@ -792,8 +791,8 @@ mod1_POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_POLITY2_lag3 <- list(
   polity2 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
@@ -806,8 +805,8 @@ mod1_POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_v2x_LIBDEM <- glmer(N_EMBASSY ~ v2x_LIBDEM + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
 mod1_v2x_LIBDEM_lag1 <- glmer(N_EMBASSY ~ v2x_LIBDEM_lag1 + logGNI + logPOPULATN  + REGION + COL2 + factor(IDEOLOGY) + factor(AFR_HIST_PERIOD) + (1|COUNTRY)+ (1|YEAR), data = modelset, family = "poisson", control = glmerControl(optimizer = "bobyqa"))
@@ -825,8 +824,8 @@ mod1_v2x_LIBDEM_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_v2x_LIBDEM)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_v2x_LIBDEM_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag1))) %>%
@@ -839,8 +838,8 @@ mod1_v2x_LIBDEM_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_v2x_LIBDEM_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_v2x_LIBDEM_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag2))) %>%
@@ -853,8 +852,8 @@ mod1_v2x_LIBDEM_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_v2x_LIBDEM_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 mod1_v2x_LIBDEM_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag3))) %>%
@@ -867,8 +866,8 @@ mod1_v2x_LIBDEM_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_v2x_LIBDEM_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   mod1_totlib_nolag, mod1_totlib_lag1, mod1_totlib_lag2, mod1_totlib_lag3, mod1_POLITY_nolag, mod1_POLITY_lag1, mod1_POLITY_lag2, mod1_POLITY_lag3, mod1_POLITY2_nolag, mod1_POLITY2_lag1, mod1_POLITY2_lag2, mod1_POLITY2_lag3,
@@ -885,6 +884,7 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$p$"),
     Estimate = md("$\\hat{\\beta}$"),
     Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
@@ -1652,7 +1652,7 @@ mod1_alldelta_POLITY2_PER_YEAR_lag3 <- lmer(
 
 mod1_alldelta_v2x_LIBDEM_PER_YEAR <- lmer(
   DELTA_N_EMBASSY_PER_YEAR ~ DELTA_v2x_LIBDEM_PER_YEAR + DELTA_logGNI_PER_YEAR +
-  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR),
+  DELTA_logPOPULATN_PER_YEAR + REGION + COL2 + factor(IDEOLOGY) + (1|COUNTRY)+ (1|YEAR) + factor(AFR_HIST_PERIOD),
   data = modelset_delta
 )
 mod1_alldelta_v2x_LIBDEM_PER_YEAR_lag1 <- lmer(
