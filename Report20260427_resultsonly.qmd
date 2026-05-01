@@ -1239,15 +1239,13 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>%
+table_data %>% select(var, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
     Estimate = md("$\\hat{\\beta}$"),
-    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
-    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -1586,15 +1584,13 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>%
+table_data %>% select(var, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
     Estimate = md("$\\hat{\\beta}$"),
-    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
-    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
@@ -1937,15 +1933,13 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>%
+table_data %>% select(var, lag, Estimate, pval, confidence) %>% 
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
     Estimate = md("$\\hat{\\beta}$"),
-    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
-    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
-    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
+    confidence = md("$\\hat{\\beta}: 95\\% CI$")
   ) %>%
   cols_align(
     align = "center"
