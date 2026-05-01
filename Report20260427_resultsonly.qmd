@@ -592,9 +592,9 @@ table_data = list(
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
-                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
                          str_detect(var, "LIBDEM") ~ "LIBDEM",
-                         str_detect(var, "POLITY2") ~ "POLITY2"),
+                         str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -874,9 +874,9 @@ table_data = list(
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
-                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
                          str_detect(var, "LIBDEM") ~ "LIBDEM",
-                         str_detect(var, "POLITY2") ~ "POLITY2"),
+                         str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1234,9 +1234,9 @@ table_data = list(
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
-                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
                          str_detect(var, "LIBDEM") ~ "LIBDEM",
-                         str_detect(var, "POLITY2") ~ "POLITY2"),
+                         str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1581,9 +1581,9 @@ table_data = list(
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
-                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
                          str_detect(var, "LIBDEM") ~ "LIBDEM",
-                         str_detect(var, "POLITY2") ~ "POLITY2"),
+                         str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
@@ -1932,9 +1932,9 @@ table_data = list(
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
-                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
                          str_detect(var, "LIBDEM") ~ "LIBDEM",
-                         str_detect(var, "POLITY2") ~ "POLITY2"),
+                         str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
 table_data %>%
