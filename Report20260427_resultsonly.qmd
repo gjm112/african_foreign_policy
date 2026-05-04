@@ -126,9 +126,9 @@ $$
 
 $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
-$$ where $\Delta_{kt}$ is the change in the number of embassies from year $t-1$ to $t$, while $\gamma_{0k}$, $\gamma_{0t}$, and X\_{1kt} and are the same as before.
+$$ where $\Delta_{kt}$ is the change in the number of embassies from year $t-1$ to $t$, while $\gamma_{0k}$, $\gamma_{0t}$, and $X_{1kt}$ and are the same as before.
 
-The tables show significance for the unlagged POLITY and POLITY2 and two-year lagged POLITY2 at the $\alpha$ = 0.05 confidence level. Their $\hat_{\beta}$ coefficients were all negative, indicating that the change in embassy count decreased as these democracy scores increased. Their $\hat_{\beta}$ coefficients were -0.151, -0.152, and -0.012, respectively.
+The tables show significance for the unlagged POLITY and POLITY2 and two-year lagged POLITY2 at the $\alpha$ = 0.05 confidence level. Their $\widehat{\beta}$ coefficients were all negative, indicating that the change in embassy count decreased as these democracy scores increased. Their $\widehat{\beta}$ coefficients were -0.151, -0.152, and -0.012, respectively.
 
 ## Full Model
 
@@ -884,7 +884,7 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
-    n = md("$p$"),
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
@@ -1241,7 +1241,7 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>% select(var, lag, Estimate, pval, confidence) %>%
+table_data %>% select(var,n, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
@@ -1587,7 +1587,7 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>% select(var, lag, Estimate, pval, confidence) %>%
+table_data %>% select(var, n, lag, Estimate, pval, confidence) %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
@@ -1937,7 +1937,7 @@ table_data = list(
                          str_detect(var, "POLITY") ~ "POLITY"),
          Estimate_exp = round(Estimate_exp, 3))
 
-table_data %>% select(var, lag, Estimate, pval, confidence) %>% 
+table_data %>% select(var, n, lag, Estimate, pval, confidence) %>% 
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
@@ -1988,7 +1988,9 @@ summary(mod1_delta_v2x_LIBDEM_PER_YEAR)
 ```
 
 
-# Random effects estimates
+# Random effects estimates from reduced POLITY model
 ```{r}
+
 data.frame(ranef(mod_POLITY)$YEAR)
+data.frame(ranef(mod_POLITY)$COUNTRY) %>% arrange(-X.Intercept.)
 ```
