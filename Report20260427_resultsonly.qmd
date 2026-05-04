@@ -78,7 +78,7 @@ $$
 
 $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
-$$ where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
+$$ where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
 
 As shown in Table 1, both POLITY and POLITY2 are highly significant (i.e. $p$ <0.001) for all lags.  Neither TOTLIB1 nor LIBDEM reaches significance at the $\alpha$ = 0.05 confidence level.
 
@@ -102,15 +102,15 @@ $$
 \gamma_{0t} \sim \text{N}(0, \sigma_t^2)
 $$
 
-where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$s represent country's GNI, population, region, whether there was a colonial past after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
+where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$s represent a country's GNI, population, region, whether there was a colonial past after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
 
-Similar to the reduced models, POLITY and POLITY2 are both significant at all lags with $p$ all lower that 0.01. In the reduced model, the coefficient estimates were between -0.015 and -0.011  across the lags. The full model produces estimates just slightly smaller between -0.01 and -0.009.
+Similar to the reduced models, POLITY and POLITY2 are both significant at all lags with $p$ all lower than 0.01. In the reduced model, the coefficient estimates were between -0.015 and -0.011  across the lags. The full model produces estimates just slightly smaller between -0.01 and -0.009.
 
 # Change in Number of Embassy Models
 
 ## Reduced Model
 
-Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. Once again, in this first set of models the random effects for country and year were included . The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies. To reflect this change, we used a normal model instead of a Poisson model. The details of the normal model are below:
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. Once again, in this first set of models the random effects for country and year were included. The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies. To reflect this change, we used a normal model instead of a Poisson model. The details of the normal model are below:
 
 $$
 \Delta_{kt} \sim \text{Normal}(\mu_{kt}, \sigma^2)
@@ -245,9 +245,13 @@ Below are the distributions of the three democracy variables.
 
 ```{r}
 #modelset %>% group_by(YEAR, POLLIB) %>% summarize(n = n())
-modelset %>% ggplot(aes(x = factor(POLITY))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY")
-modelset %>% ggplot(aes(x = factor(POLITY2))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY2")
-modelset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("TOTLIB1") + scale_x_discrete(breaks = c(2, 5, 8, 11, 14, NA))
+modelset %>% filter(YEAR < 2020) %>% ggplot(aes(x = factor(POLITY))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY") + scale_x_discrete(breaks = c(-10,-5,0, 5, 10, NA))
+
+modelset %>% filter(YEAR<2020) %>% ggplot(aes(x = factor(POLITY2))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY2") + scale_x_discrete(breaks = c(-10,-5,0, 5, 10, NA))
+
+modelset %>% filter(YEAR > 1965 & YEAR < 2024) %>%  ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("TOTLIB1") +
+  scale_x_discrete(breaks = c(2,5,8,11,14,NA))
+
 modelset %>% ggplot(aes(x = factor(YEAR), y = v2x_LIBDEM)) + geom_boxplot() +theme_bw() + xlab("v2x_LIBDEM")
 ```
 
