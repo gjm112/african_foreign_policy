@@ -197,6 +197,7 @@ newdata <- masterset %>%
 
 odag_data <- masterset %>% rename(ODAG251 = odag251) %>% 
   select(CCODE_INT = CCODE, COUNTRY_INT = COUNTRY, YEAR, ODAG201:ODAG643, ODAG251) %>% 
+  mutate(across(c(ODAG201:ODAG643,ODAG251), ~ gsub(",", ".", .x))) %>% 
   mutate(across(c(ODAG201:ODAG643,ODAG251), as.numeric)) %>% 
   pivot_longer(cols = c(ODAG201:ODAG643,ODAG251), names_to ="CCODE_EXT", values_to = "ODAG") %>% 
   mutate(CCODE_EXT = gsub( "ODAG","",CCODE_EXT)) %>%
@@ -209,6 +210,7 @@ trdex_data <- masterset %>%
          COUNTRY_INT = COUNTRY, 
          YEAR, 
          matches("^TRDEX\\d{3}")) %>% 
+  mutate(across(TRDEX351:TRDEX203, ~ gsub(",", ".", .x))) %>% 
   mutate(across(TRDEX351:TRDEX203, as.numeric)) %>% 
   mutate(TRDEX200 = ifelse((is.na(TRDEX200) &
                               is.na(TRDEX200h) &
@@ -233,6 +235,7 @@ trdim_data <- masterset %>%
          COUNTRY_INT = COUNTRY, 
          YEAR, 
          matches("^TRDIM\\d{3}")) %>% 
+  mutate(across(TRDIM351:TRDIM203, ~ gsub(",", ".", .x))) %>% 
   mutate(across(TRDIM351:TRDIM203, as.numeric)) %>% 
   mutate(TRDIM200 = ifelse((is.na(TRDIM200) &
                               is.na(TRDIM200h) &
@@ -271,9 +274,7 @@ cleandata <- newdata %>%
          logTRDEX = log(TRDEX+1,10),
          ODAG = ifelse(ODAG == -99, NA, ODAG),
          TRDIM = ifelse(TRDIM == -99, NA, TRDIM)) %>% 
-  filter(ODAG >= 0) %>% ungroup() %>% group_by(COUNTRY_INT, COUNTRY_EXT) %>%
-  arrange(-YEAR,.by_group = TRUE) %>%
-  mutate(CONNECTIONlag1 = lag(CONNECTION))
+  filter(ODAG >= 0) %>% ungroup()
 
 ```
 
