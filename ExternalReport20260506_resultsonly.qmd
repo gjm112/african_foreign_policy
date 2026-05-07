@@ -278,6 +278,11 @@ cleandata <- newdata %>%
 
 ```
 
+- Missing data stuff.  How many of each columns are missing?   
+- Add in density for the predictors on log scale.  
+- Summary for all varaibles in the models.  
+- Side by side boxplots.  
+
 ```{r}
 
 cleandata %>% ggplot(aes(x = POPULATN_EXT)) + geom_density(fill = "#7bffff")
@@ -285,7 +290,6 @@ cleandata %>% ggplot(aes(x = POPULATN_EXT)) + geom_density(fill = "#7bffff")
 cleandata %>% ggplot(aes(x = GNI_EXT)) + geom_density(fill = "#7bffff")
 
 cleandata %>% ggplot(aes(x = ODAG)) + geom_density(fill = "#7bffff")
-
 
 ```
 
