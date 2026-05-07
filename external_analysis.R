@@ -10,9 +10,10 @@ library(readxl)
 #2. Total amount and diversification of African trade imports and trade exports
 #3. Total amount and diversification of foreign aid received by African countries
 #setwd("schrader")
-setwd("/Users/gregorymatthews/Dropbox/CDSCpappasGit/schrader/")
+setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+#masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
 
 # cbind(masterset$POLITY, masterset$POLITY2) %>% view()
 # out <- masterset %>% select(COUNTRY, YEAR, POLITY, POLITY2) %>% filter(POLITY != POLITY2) 
@@ -21,6 +22,7 @@ masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
 #diplomaticrep = read_csv("data/Master 08-28-2025 AFP excel dataset-3_diplomatic_represetations.csv")
 
 restofworld = read_excel("data/Rest of the World.xlsx")
+#restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
 
 
 ## Cleaning data ##
@@ -117,8 +119,8 @@ external_democracy <- list(
     select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2,GNI, GNI_CAP, POPULATN) %>%
     mutate(CCODE = paste0("C", CCODE)) %>%
     unique()
-) %>%
-  rbindlist()
+) %>% rbindlist() 
+  
 
 #Make South Sudan Correct
 #Should be C099 instead of C99
@@ -126,7 +128,24 @@ countrycodes <- countrycodes %>%
   mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
 
 external_democracy <- external_democracy %>% 
-  mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
+  mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE)) %>%
+  rename_with(
+    .fn = ~ paste0(.x, "_EXT"),
+    .cols = -YEAR
+  ) %>%
+  arrange(CCODE_EXT, YEAR) %>% 
+  group_by(CCODE_EXT)  %>% 
+  mutate(TOTLIB1_EXT_lag1 = lag(TOTLIB1_EXT,1),
+         TOTLIB1_EXT_lag2 = lag(TOTLIB1_EXT,2),
+         TOTLIB1_EXT_lag3 = lag(TOTLIB1_EXT,3),
+         POLITY_EXT_lag1 = lag(POLITY_EXT,1),
+         POLITY_EXT_lag2 = lag(POLITY_EXT,2),
+         POLITY_EXT_lag3 = lag(POLITY_EXT,3),
+         POLITY2_EXT_lag1 = lag(POLITY2_EXT,1),
+         POLITY2_EXT_lag2 = lag(POLITY2_EXT,2),
+         POLITY2_EXT_lag3 = lag(POLITY2_EXT,3)
+  ) %>% 
+  ungroup()
 
 #TOTLIB1, POLITY, v2x_LIBDEM 
 #Merge these on for the EXTERNAL country
@@ -138,19 +157,14 @@ newdata <- masterset %>%
   select(CONNECTION, CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT = COUNTRY, 
          everything()) %>%
   filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT) %>% 
-  left_join(external_democracy, by = c("CCODE_EXT" = "CCODE","YEAR" = "YEAR")) %>% 
-  rename(POLITY_EXT = POLITY, 
-         POLITY2_EXT = POLITY2, 
-         TOTLIB1_EXT = TOTLIB1, 
-         GNI_EXT = GNI,
-         GNI_CAP_EXT = GNI_CAP, 
-         POPULATN_EXT = POPULATN) %>% 
+  left_join(external_democracy, by = c("CCODE_EXT" = "CCODE_EXT","YEAR" = "YEAR")) %>% 
   mutate(GNI_EXT = as.numeric(GNI_EXT),
          GNI_CAP_EXT = as.numeric(GNI_CAP_EXT))
 
 #create odag data
 odag_data <- masterset %>% rename(ODAG251 = odag251) %>% 
   select(CCODE_INT = CCODE, COUNTRY_INT = COUNTRY, YEAR, ODAG201:ODAG643, ODAG251) %>% 
+  mutate(across(c(ODAG201:ODAG643,ODAG251), ~ gsub(",", ".", .x))) %>% 
   mutate(across(c(ODAG201:ODAG643,ODAG251), as.numeric)) %>% 
   pivot_longer(cols = c(ODAG201:ODAG643,ODAG251), names_to ="CCODE_EXT", values_to = "ODAG") %>% 
   mutate(CCODE_EXT = gsub( "ODAG","",CCODE_EXT)) %>%
@@ -164,6 +178,7 @@ trdex_data <- masterset %>%
          COUNTRY_INT = COUNTRY, 
          YEAR, 
          matches("^TRDEX\\d{3}")) %>% 
+  mutate(across(TRDEX351:TRDEX203, ~ gsub(",", ".", .x))) %>% 
   mutate(across(TRDEX351:TRDEX203, as.numeric)) %>% 
   mutate(TRDEX200 = ifelse((is.na(TRDEX200) &
                               is.na(TRDEX200h) &
@@ -189,6 +204,7 @@ trdim_data <- masterset %>%
          COUNTRY_INT = COUNTRY, 
          YEAR, 
          matches("^TRDIM\\d{3}")) %>% 
+  mutate(across(TRDIM351:TRDIM203, ~ gsub(",", ".", .x))) %>% 
   mutate(across(TRDIM351:TRDIM203, as.numeric)) %>% 
   mutate(TRDIM200 = ifelse((is.na(TRDIM200) &
                               is.na(TRDIM200h) &
@@ -228,9 +244,7 @@ cleandata <- newdata %>%
          logTRDEX = log(TRDEX+1,10),
          ODAG = ifelse(ODAG == -99, NA, ODAG),
          TRDIM = ifelse(TRDIM == -99, NA, TRDIM)) %>% 
-  filter(ODAG >= 0) %>% ungroup() %>% group_by(COUNTRY_INT, COUNTRY_EXT) %>%
-  arrange(-YEAR,.by_group = TRUE) %>%
-  mutate(CONNECTIONlag1 = lag(CONNECTION))
+  filter(ODAG >= 0) %>% ungroup() 
 
 
 #Data Viz
