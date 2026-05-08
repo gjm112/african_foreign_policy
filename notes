@@ -58,4 +58,30 @@ Table
   - Change the bar charts that still have DEMOC
   - Change the name of the full models so that they don't match reduced (DONE)
   - Write out the model equations (DONE)
+
+5-5-26
+
+  - Run internal and external lags on masterset, not cleandata
+  - Models on POLITY, POLITY2, TOTLIB1, v2x_LIBDEM (not in there yet)
+  - Make tables on models
+    - Same models as internal
+    - Exponential of beta is odds ratio
+  - Draft a report
   
+5-7-26
+
+  - We should use imports instead of exports because our analysis focuses on external embassies in Africa, and 
+    imports reflects the specific need of that African country
+  - Justify random effects in report (DONE)
+  - Clarify wording in report (make it more direct) (DONE)
+  - Add logs and TRDIM to the EDA (DONE)
+  - Add side-by-side boxplots for democracy score (y-axis) split between connection (x-axis) and facet wrap by year
+    (DONE)
+  - Change model running from the external report to a save and load structure (DONE)
+    - save(obj, file = "/models_external/mod1_TOTLIB1.Rdata")
+    - load("/models_external/mod1_TOTLIB1.Rdata")
+  - Change odds ratio interpretation (DONE)
+  - Add a correlation table for every predictor in the unlagged model (DONE)
+  - Add n to the table (DONE)
+  - Should we consider multiple imputation since the trade data is largely missing?
+  - Ask Greg what he means by a summary of every predictor variable (TO DO)

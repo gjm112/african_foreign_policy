@@ -10,9 +10,11 @@ editor: visual
 date: "May 4, 2026"
 ---
 
-Our external analysis seeks to evaluate the relationship between an external country's democracy score and the likelihood of an embassy in an internal country in a given year. With the exception of official development assistance (ODA) aid, almost all modeled characteristics are independent of internal African countries. We used democracy scores from Freedom House (TOTLIB1) and the POLITY IV database (POLITY and POLITY2).
+Our external analysis seeks to evaluate the relationship between an external country's democracy score and the likelihood of an embassy in an internal country in a given year. We focused on democracy scores from Freedom House (TOTLIB1) and the POLITY IV database (POLITY and POLITY2).
 
-Our analysis is split into a reduced and full model. The former seeks to evaluate our model relationship without additional external country characteristics. It accounts for random effects in the internal and external countries and their interaction and the year. For the full model, we incorporated the external country's population, GNI, and ODA aid in addition to their democracy score and the same random effects. We applied a log transformation to each of these new variables to adjust for their right-skewed distribution. Finally, we applied this model framework to one to three-year lagged external democracy scores.
+Our analysis is split into a reduced and full model. The former seeks to evaluate our model relationship without additional external country characteristics. It accounts for random effects in the internal and external countries and their interaction and the year. These random effects shift their respective baseline to better account for differences across groups. For instance, it allows us to better evaluate a baseline for Angola in 2000 instead of assuming it's equivalent to Benin in 1995. 
+
+For the full model, we incorporated the external country's population, GNI, official development assistance gross (ODAG), and trade import gross (TRDIM) in addition to their democracy score and the same random effects. We applied a log transformation to each of these new variables to adjust for their right-skewed distribution. These distribution plots are displayed below in our exploratory data analysis. Finally, we applied this model framework to one to three-year lagged external democracy scores.
 
 # Reduced Model
 
@@ -42,7 +44,7 @@ $$
 
 Our reduced model equations are written above, where $Y_{ijk}$ is an indicator for an embassy connection between internal country $i$ and external country $j$ in year $k$. In lagged models, the year $k$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1ij(k-1)} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1ij(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
 
-As shown in Table 1, all external country democracy scores and their lags but the two-year lagged POLITY2 score show significance at the $\alpha$ = 0.05 level. Interestingly, each model's $\hat{\beta}$ coefficients indicate that the less democratic external country $j$ the more likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged TOTLIB1 increases the odds of an embassy relationship by 14.2 percent.
+As shown in Table 1, all external country democracy scores and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, each model's $\hat{\beta}$ coefficients indicate that the less democratic external country $j$ the more likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged TOTLIB1 (where a higher score indicates a less democratic country) increases the odds of an embassy relationship by a factor of 1.203.
 
 # Full Model
 
@@ -72,7 +74,7 @@ $$
 
 Our full model equations largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed external country characteristics.
 
-As shown in Table 2, the only significant variable at the $\alpha$ = 0.05 level is the unlagged POLITY score. Interestingly, despite the lack of significance among the democracy scores, their $\hat{\beta}$ coefficients display an inverse relationship to their reduced counterparts. In the unlagged POLITY score in the full model, a one-unit increase increases the odds of an embassy relationship by 1.6 percent. However, in the reduced model where it also displayed significance, a one-unit increase in the same variable decreases the odds of an embassy relationship by 6.4 percent.
+As shown in Table 2, the only significant variable at the $\alpha$ = 0.05 level is the two-year lagged TOTLIB1 score. Additionally, the democracy score's effect sizes, as shown by their $\hat{\beta}$ coefficients, are much smaller than their reduced model counterparts. For instance, a one-unit increase in the two-year lagged TOTLIB1 score decreases the odds of an embassy relationship by a factor of 0.983, or a 1.7 percent decrease. Interestingly, this relationship is the reverse of its reduced model counterpart. However, given the small effect size, it is better to conclude the relationship is minimal rather than opposite the reduced model.
 
 ```{r}
 
@@ -278,18 +280,216 @@ cleandata <- newdata %>%
 
 ```
 
-- Missing data stuff.  How many of each columns are missing?   
-- Add in density for the predictors on log scale.  
-- Summary for all varaibles in the models.  
-- Side by side boxplots.  
+```{r}
+
+cleandata %>% 
+  ggplot(aes(x = POPULATN_EXT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Population Density of External Countries",
+    x = "External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = logPOP_EXT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Population Density of External Countries",
+    x = "Log-Transformed External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = GNI_EXT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Gross National Income (GNI) Density of External Countries",
+    x = "External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = logGNI_EXT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Gross National Income (GNI) Density of External Countries",
+    x = "Log-Transformed External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = ODAG)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Official Development Assistance Gross (ODAG) Density of External Countries",
+    x = "External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = logODAG)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Official Development Assistance Gross (ODAG) Density of External Countries",
+    x = "Log-Transformed External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = TRDIM)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Total Import (TRDIM) Density of External Countries",
+    x = "External Country TRDIM"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>% 
+  ggplot(aes(x = logTRDIM)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Total Import (TRDIM) Density of External Countries",
+    x = "Log-Transformed External Country TRDIM"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+```
 
 ```{r}
 
-cleandata %>% ggplot(aes(x = POPULATN_EXT)) + geom_density(fill = "#7bffff")
+interaction <- cleandata %>%
+  group_by(CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT) %>%
+  reframe(N = n())
 
-cleandata %>% ggplot(aes(x = GNI_EXT)) + geom_density(fill = "#7bffff")
+interaction2 <- list(
+  world = restofworld %>%
+    select(CCODE_EXT = CCODE, COUNTRY_EXT = COUNTRY) %>%
+    unique(),
+  africa = masterset %>%
+    mutate(CCODE_INT = paste0("C", CCODE)) %>%
+    select(CCODE_INT, COUNTRY_INT = COUNTRY) %>%
+    unique()
+) %>%
+  reduce(merge, by = NULL) %>%
+  left_join(interaction, by = c("CCODE_INT", "COUNTRY_INT", "CCODE_EXT", "COUNTRY_EXT")) %>%
+  mutate(N = ifelse(is.na(N), 0, N))
 
-cleandata %>% ggplot(aes(x = ODAG)) + geom_density(fill = "#7bffff")
+table(interaction2$N)
+
+round(table(interaction2$N)/nrow(interaction2)*100, 1)
+
+```
+
+```{r}
+
+cleandata %>%
+  mutate(CONNECTION = as.factor(CONNECTION)) %>%
+  ggplot(aes(x = CONNECTION, y = TOTLIB1_EXT)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = c(0, 15)) +
+  facet_wrap(~YEAR) +
+  labs(
+    title = "Boxplot of External Country TOTLIB1 by External-Internal Country Connection and Year",
+    x = "External-Internal Country Connection",
+    y = "External Country TOTLIB1"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>%
+  mutate(CONNECTION = as.factor(CONNECTION)) %>%
+  ggplot(aes(x = CONNECTION, y = POLITY_EXT)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = c(-10, 10)) +
+  facet_wrap(~YEAR) +
+  labs(
+    title = "Boxplot of External Country POLITY by External-Internal Country Connection and Year",
+    x = "External-Internal Country Connection",
+    y = "External Country POLITY"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+cleandata %>%
+  mutate(CONNECTION = as.factor(CONNECTION)) %>%
+  ggplot(aes(x = CONNECTION, y = POLITY2_EXT)) +
+  geom_boxplot() +
+  scale_y_continuous(limits = c(0, 15)) +
+  facet_wrap(~YEAR) +
+  labs(
+    title = "Boxplot of External Country POLITY2 by External-Internal Country Connection and Year",
+    x = "External-Internal Country Connection",
+    y = "External Country POLITY2"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+
+```
+
+```{r}
+
+cordata <- cleandata %>%
+  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDIM, YEAR) %>%
+  drop_na()
+
+cat("Pearson Correlation")
+
+cor(cordata, method = "pearson")
+
+cat("Kendall-Tau Correlation")
+
+cor(cordata, method = "kendall")
+
+cat("Spearman Correlation")
+
+cor(cordata, method = "spearman")
 
 ```
 
@@ -297,20 +497,29 @@ cleandata %>% ggplot(aes(x = ODAG)) + geom_density(fill = "#7bffff")
 
 library(lme4)
 
-mod0_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+load("~/PeterSchraeder/externalmodels/mod0_TOTLIB1.RData")
 
-mod0_POLITY <- glmer(CONNECTION ~ POLITY_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod0_TOTLIB1_lag1.RData")
 
-mod0_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
-mod0_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod0_TOTLIB1_lag2.RData")
+
+load("externalmodels/mod0_TOTLIB1_lag3.Rdata")
+
+load("externalmodels/mod0_POLITY.Rdata")
+
+load("externalmodels/mod0_POLITY_lag1.Rdata")
+
+load("externalmodels/mod0_POLITY_lag2.Rdata")
+
+load("externalmodels/mod0_POLITY_lag3.Rdata")
+
+load("externalmodels/mod0_POLITY2.Rdata")
+
+load("externalmodels/mod0_POLITY2_lag1.Rdata")
+
+load("externalmodels/mod0_POLITY2_lag2.Rdata")
+
+load("externalmodels/mod0_POLITY2_lag3.Rdata")
 
 ```
 
@@ -329,8 +538,8 @@ totlib_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag1))) %>%
@@ -343,8 +552,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag2))) %>%
@@ -357,8 +566,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag3))) %>%
@@ -371,8 +580,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY))) %>%
@@ -385,8 +594,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_POLITY)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag1))) %>%
@@ -399,8 +608,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_POLITY_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag2))) %>%
@@ -413,8 +622,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_POLITY_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag3))) %>%
@@ -427,8 +636,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_POLITY_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY2))) %>%
@@ -441,8 +650,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod0_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag1))) %>%
@@ -455,8 +664,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod0_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag2))) %>%
@@ -469,8 +678,8 @@ POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod0_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag3))) %>%
@@ -483,8 +692,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod0_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3
@@ -499,6 +708,7 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
@@ -516,65 +726,29 @@ table_data %>%
 
 ```{r}
 
-mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                      family = "binomial", 
-                      data = cleandata, 
-                      control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_TOTLIB1.Rdata")
 
-mod1_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_TOTLIB1_lag1.Rdata")
 
-mod1_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_TOTLIB1_lag2.Rdata")
 
-mod1_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_TOTLIB1_lag3.Rdata")
 
-mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                      family = "binomial", 
-                      data = cleandata, 
-                      control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY.Rdata")
 
-mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY_lag1.Rdata")
 
-mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY_lag2.Rdata")
 
-mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY_lag3.Rdata")
 
-mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                      family = "binomial", 
-                      data = cleandata, 
-                      control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY2.Rdata")
 
-mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY2_lag1.Rdata")
 
-mod1_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY2_lag2.Rdata")
 
-mod1_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                           family = "binomial", 
-                           data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+load("externalmodels/mod1_POLITY2_lag3.Rdata")
 
 ```
 
@@ -591,8 +765,8 @@ totlib_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag1))) %>%
@@ -605,8 +779,8 @@ totlib_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag2))) %>%
@@ -619,8 +793,8 @@ totlib_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 totlib_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag3))) %>%
@@ -633,8 +807,8 @@ totlib_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY))) %>%
@@ -647,8 +821,8 @@ POLITY_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_POLITY)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag1))) %>%
@@ -661,8 +835,8 @@ POLITY_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_POLITY_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag2))) %>%
@@ -675,8 +849,8 @@ POLITY_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_POLITY_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY_lag3))) %>%
@@ -689,8 +863,8 @@ POLITY_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_POLITY_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_nolag <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
@@ -703,8 +877,8 @@ POLITY2_nolag <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag0") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag0", n = nobs(mod1_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag1 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
@@ -717,8 +891,8 @@ POLITY2_lag1 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag1") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag1", n = nobs(mod1_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag2 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
@@ -731,8 +905,8 @@ POLITY2_lag2 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag2") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag2", n = nobs(mod1_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 POLITY2_lag3 <- list(
   totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
@@ -745,8 +919,8 @@ POLITY2_lag3 <- list(
            conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
            confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
 ) %>% reduce(merge, by = "var") %>%
-  mutate(lag = "lag3") %>%
-  select(var, lag, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+  mutate(lag = "lag3", n = nobs(mod1_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
   totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3
@@ -761,6 +935,7 @@ table_data %>%
   gt(rowname_col = "var", groupname_col = "lag") %>%
   tab_options(row_group.as_column = T) %>%
   cols_label(
+    n = md("$n$"),
     Estimate = md("$\\hat{\\beta}$"),
     Estimate_exp = md("$e^{\\hat{\\beta}}$"),
     pval = md("$p$"),
@@ -773,5 +948,18 @@ table_data %>%
   tab_header(
     title = md("Table 2: Full Model Parameters for External **Democracy Scores** and Their **Lags**")
   )
+
+```
+
+```{r}
+
+summary(mod0_TOTLIB1)
+summary(mod1_TOTLIB1)
+
+summary(mod0_POLITY)
+summary(mod1_POLITY)
+
+summary(mod0_POLITY2)
+summary(mod1_POLITY2)
 
 ```
