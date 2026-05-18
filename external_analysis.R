@@ -12,8 +12,8 @@ library(readxl)
 #setwd("schrader")
 setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
-masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
-#masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+# masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
 
 # cbind(masterset$POLITY, masterset$POLITY2) %>% view()
 # out <- masterset %>% select(COUNTRY, YEAR, POLITY, POLITY2) %>% filter(POLITY != POLITY2) 
@@ -21,8 +21,8 @@ masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
 
 #diplomaticrep = read_csv("data/Master 08-28-2025 AFP excel dataset-3_diplomatic_represetations.csv")
 
-restofworld = read_excel("data/Rest of the World.xlsx")
-#restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
+# restofworld = read_excel("data/Rest of the World.xlsx")
+restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
 
 
 ## Cleaning data ##
@@ -68,6 +68,7 @@ names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
 
 restofworld <- restofworld %>% 
+  rename(v2x_LIBDEM = V2x_Libdem) %>%
   mutate(GNI = as.numeric(GNI),
          GNI_CAP = as.numeric(GNI_CAP),
          AVLIFEEX = as.numeric(AVLIFEEX),
@@ -307,12 +308,18 @@ save(mod0_POLITY2_lag1, file = "./externalmodels/mod0_POLITY2_lag1.RData")
 save(mod0_POLITY2_lag2, file = "./externalmodels/mod0_POLITY2_lag2.RData")
 save(mod0_POLITY2_lag3, file = "./externalmodels/mod0_POLITY2_lag3.RData")
 
+mod0_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+mod0_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+
+save(mod0_v2x_LIBDEM, file = "./externalmodels/mod0_v2x_LIBDEM.RData")
+save(mod0_v2x_LIBDEM_lag1, file = "./externalmodels/mod0_v2x_LIBDEM_lag1.RData")
+save(mod0_v2x_LIBDEM_lag2, file = "./externalmodels/mod0_v2x_LIBDEM_lag2.RData")
+save(mod0_v2x_LIBDEM_lag3, file = "./externalmodels/mod0_POLITY2_lag3.RData")
+
 #Full models 
-mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + 
-                        logGNI_EXT + 
-                        logPOP_EXT + 
-                        logODAG + 
-                        logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                       family = "binomial", 
                       data = cleandata, 
                       control = glmerControl(optimizer = "bobyqa"))
@@ -363,8 +370,6 @@ save(mod1_POLITY_lag1, file = "./externalmodels/mod1_POLITY_lag1.RData")
 save(mod1_POLITY_lag2, file = "./externalmodels/mod1_POLITY_lag2.RData")
 save(mod1_POLITY_lag3, file = "./externalmodels/mod1_POLITY_lag3.RData")
 
-
-
 mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                       family = "binomial", 
                       data = cleandata, 
@@ -390,7 +395,30 @@ save(mod1_POLITY2_lag1, file = "./externalmodels/mod1_POLITY2_lag1.RData")
 save(mod1_POLITY2_lag2, file = "./externalmodels/mod1_POLITY2_lag2.RData")
 save(mod1_POLITY2_lag3, file = "./externalmodels/mod1_POLITY2_lag3.RData")
 
+mod1_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                      family = "binomial", 
+                      data = cleandata, 
+                      control = glmerControl(optimizer = "bobyqa"))
 
+mod1_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                           family = "binomial", 
+                           data = cleandata, 
+                           control = glmerControl(optimizer = "bobyqa"))
+
+mod1_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                           family = "binomial", 
+                           data = cleandata, 
+                           control = glmerControl(optimizer = "bobyqa"))
+
+mod1_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                           family = "binomial", 
+                           data = cleandata, 
+                           control = glmerControl(optimizer = "bobyqa"))
+
+save(mod1_v2x_LIBDEM, file = "./externalmodels/mod1_v2x_LIBDEM.RData")
+save(mod1_v2x_LIBDEM_lag1, file = "./externalmodels/mod1_v2x_LIBDEM_lag1.RData")
+save(mod1_v2x_LIBDEM_lag2, file = "./externalmodels/mod1_v2x_LIBDEM_lag2.RData")
+save(mod1_v2x_LIBDEM_lag3, file = "./externalmodels/mod1_v2x_LIBDEM_lag3.RData")
 
 #Full models without ODAG
 mod1_TOTLIB1_noODAG <- glmer(CONNECTION ~ TOTLIB1_EXT + 
@@ -473,5 +501,34 @@ save(mod1_POLITY2_noODAG, file = "./externalmodels/mod1_POLITY2_noODAG.RData")
 save(mod1_POLITY2_lag1_noODAG, file = "./externalmodels/mod1_POLITY2_lag1_noODAG.RData")
 save(mod1_POLITY2_lag2_noODAG, file = "./externalmodels/mod1_POLITY2_lag2_noODAG.RData")
 save(mod1_POLITY2_lag3_noODAG, file = "./externalmodels/mod1_POLITY2_lag3_noODAG.RData")
+
+mod1_v2x_LIBDEM_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                             family = "binomial", 
+                             data = cleandata, 
+                             control = glmerControl(optimizer = "bobyqa"))
+
+mod1_v2x_LIBDEM_lag1_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                                  family = "binomial", 
+                                  data = cleandata, 
+                                  control = glmerControl(optimizer = "bobyqa"))
+
+mod1_v2x_LIBDEM_lag2_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                                  family = "binomial", 
+                                  data = cleandata, 
+                                  control = glmerControl(optimizer = "bobyqa"))
+
+mod1_v2x_LIBDEM_lag3_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+                                  family = "binomial", 
+                                  data = cleandata, 
+                                  control = glmerControl(optimizer = "bobyqa"))
+
+save(mod1_v2x_LIBDEM_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_noODAG.RData")
+save(mod1_v2x_LIBDEM_lag1_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag1_noODAG.RData")
+save(mod1_v2x_LIBDEM_lag2_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag2_noODAG.RData")
+save(mod1_v2x_LIBDEM_lag3_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag3_noODAG.RData")
+
+## ---- Testing New Data ----
+
+view(read_excel("data2026/Rest of the World - 5.6.2026.xlsx"))
 
 
