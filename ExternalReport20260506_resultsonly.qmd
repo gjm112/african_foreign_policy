@@ -86,9 +86,9 @@ library(tidyverse)
 library(readxl)
 library(data.table)
 
-masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.xlsx - AFRSdata.csv")
+masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
 
-restofworld = read_excel("data/Rest of the World.xlsx")
+restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
 
 masterset = masterset %>%
   mutate(across(where(is.numeric), ~ na_if(., -99)),
@@ -123,6 +123,7 @@ names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
 names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
 restofworld <- restofworld %>% 
+  rename(v2x_LIBDEM = V2x_Libdem) %>%
   mutate(GNI = as.numeric(GNI),
          GNI_CAP = as.numeric(GNI_CAP),
          AVLIFEEX = as.numeric(AVLIFEEX),
@@ -157,14 +158,14 @@ countrycodes <- list(
 
 external_democracy <- list(
   world = restofworld %>%
-    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2,GNI, GNI_CAP, POPULATN) %>%
+    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, v2x_LIBDEM, GNI, GNI_CAP, POPULATN) %>%
     unique(),
   africa = masterset %>%
-    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2,GNI, GNI_CAP, POPULATN) %>%
+    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, GNI, GNI_CAP, POPULATN) %>% # WHERE IS INTERNAL V2X?
     mutate(CCODE = paste0("C", CCODE)) %>%
     unique()
 ) %>%
-  rbindlist()
+  rbindlist(fill = T)
 
 countrycodes <- countrycodes %>% 
   mutate(CCODE = ifelse(CCODE == "C99","C099",CCODE))
@@ -185,7 +186,10 @@ external_democracy <- external_democracy %>%
          POLITY_EXT_lag3 = lag(POLITY_EXT,3),
          POLITY2_EXT_lag1 = lag(POLITY2_EXT,1),
          POLITY2_EXT_lag2 = lag(POLITY2_EXT,2),
-         POLITY2_EXT_lag3 = lag(POLITY2_EXT,3)
+         POLITY2_EXT_lag3 = lag(POLITY2_EXT,3),
+         v2x_LIBDEM_EXT_lag1 = lag(v2x_LIBDEM_EXT,1),
+         v2x_LIBDEM_EXT_lag2 = lag(v2x_LIBDEM_EXT,2),
+         v2x_LIBDEM_EXT_lag3 = lag(v2x_LIBDEM_EXT,3)
   ) %>% 
   ungroup()
 
@@ -382,7 +386,9 @@ cleandata %>%
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
+```
 
+```{r}
 cleandata %>% 
   ggplot(aes(x = TRDIM)) + 
   geom_density(fill = "#7bffff") +
@@ -412,7 +418,6 @@ cleandata %>%
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
-
 ```
 
 <!-- ```{r} -->
@@ -1197,6 +1202,7 @@ table_data %>%
 ```
 
 \newpage
+
 # Appendix
 
 ## Full Model Summaries 
@@ -1217,13 +1223,9 @@ summary(mod1_POLITY2)
 summary(mod1_POLITY2_noODAG)
 ```
 
+## Random Effect Estimates From the TOTLIB1 Full Model
 
-
-## Random effects estimates from the TOTLIB1 Full model.  
-
-Large positive values mean that a connection is more likely; Likewise, a large negative number means a connection is less likely.  Notice that as years increase the probability of a connection is more likely the more recent the data indicating more connections are made over time.  The random effects for COUNTRY_INT give the change in the baseline probability of a connection with an external country.   Egypt is the largest random effect indicating that the are the most likely to have a connection with an external country when all other factors are held constant. The largest effect for COUNTRY_EXT is the United States, indicating that African countries are most likely to have a connection with the United States with Belgium a close second.  
-
-
+Large positive values mean that a connection is more likely; Likewise, a large negative number means a connection is less likely.  Notice that as years increase the probability of a connection is more likely the more recent the data indicating more connections are made over time.  The random effects for COUNTRY_INT give the change in the baseline probability of a connection with an external country. Egypt is the largest random effect indicating that the are the most likely to have a connection with an external country when all other factors are held constant. The largest effect for COUNTRY_EXT is the United States, indicating that African countries are most likely to have a connection with the United States with Belgium a close second.  
 
 ```{r}
 ranef(mod1_TOTLIB1_noODAG)$YEAR
