@@ -148,13 +148,11 @@ restofworld$POPULATN <- gsub(" ","",restofworld$POPULATN) %>% as.numeric()
 countrycodes <- list(
   world = restofworld %>%
     select(CCODE:COUNTRY) %>%
-    unique() %>%
-    mutate(TYPE = "ROW"),
+    unique(),
   africa = masterset %>%
     select(CCODE:COUNTRY) %>%
     mutate(CCODE = paste0("C", CCODE)) %>%
-    unique() %>%
-    mutate(TYPE = "Africa")
+    unique()
 ) %>%
   rbindlist()
 
@@ -202,7 +200,7 @@ newdata <- masterset %>%
   left_join(countrycodes, by = c("CCODE_EXT" = "CCODE"), relationship = "many-to-many") %>%
   select(CONNECTION, CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT = COUNTRY, 
          everything()) %>%
-  filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT, TYPE != "Africa") %>% 
+  filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT) %>% 
   left_join(external_democracy, by = c("CCODE_EXT","YEAR" = "YEAR")) %>%
   mutate(GNI_EXT = as.numeric(GNI_EXT),
          GNI_CAP_EXT = as.numeric(GNI_CAP_EXT))
@@ -784,7 +782,7 @@ v2x_LIBDEM_lag3 <- list(
   select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
-  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+  TOTLIB1, TOTLIB1_lag1, TOTLIB1_lag2, TOTLIB1_lag3, POLITY, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
@@ -1077,7 +1075,7 @@ v2x_LIBDEM_lag3 <- list(
   select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
-  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+  TOTLIB1, TOTLIB1_lag1, TOTLIB1_lag2, TOTLIB1_lag3, POLITY, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
@@ -1369,7 +1367,7 @@ v2x_LIBDEM_lag3 <- list(
   select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
 
 table_data = list(
-  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+  TOTLIB1, TOTLIB1_lag1, TOTLIB1_lag2, TOTLIB1_lag3, POLITY, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
 ) %>%
   rbindlist() %>%
   mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",

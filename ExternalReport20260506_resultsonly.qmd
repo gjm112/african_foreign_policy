@@ -148,13 +148,11 @@ restofworld$POPULATN <- gsub(" ","",restofworld$POPULATN) %>% as.numeric()
 countrycodes <- list(
   world = restofworld %>%
     select(CCODE:COUNTRY) %>%
-    unique() %>%
-    mutate(TYPE = "ROW"),
+    unique(),
   africa = masterset %>%
     select(CCODE:COUNTRY) %>%
     mutate(CCODE = paste0("C", CCODE)) %>%
-    unique() %>%
-    mutate(TYPE = "Africa")
+    unique()
 ) %>%
   rbindlist()
 
@@ -202,7 +200,7 @@ newdata <- masterset %>%
   left_join(countrycodes, by = c("CCODE_EXT" = "CCODE"), relationship = "many-to-many") %>%
   select(CONNECTION, CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT = COUNTRY, 
          everything()) %>%
-  filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT, TYPE != "Africa") %>% 
+  filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT) %>% 
   left_join(external_democracy, by = c("CCODE_EXT","YEAR" = "YEAR")) %>%
   mutate(GNI_EXT = as.numeric(GNI_EXT),
          GNI_CAP_EXT = as.numeric(GNI_CAP_EXT))
