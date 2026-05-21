@@ -250,6 +250,23 @@ cleandataold <- newdata %>%
   ) %>% ungroup() 
 
 
+cleandataold <- newdata %>% 
+  left_join(odag_data %>% select(CCODE_INT,YEAR,CCODE_EXT,ODAG), 
+            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>%
+  left_join(trdex_data %>% select(CCODE_INT,YEAR,CCODE_EXT,TRDEX), 
+            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>%
+  left_join(trdim_data %>% select(CCODE_INT,YEAR,CCODE_EXT,TRDIM), 
+            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>% 
+mutate(logGNI_EXT = log(GNI_EXT, 10),
+       logPOP_EXT = log(POPULATN_EXT, 10),
+       logODAG = log(ODAG+1,10),
+       logTRDIM = log(TRDIM+1,10),
+       logTRDEX = log(TRDEX+1,10),
+       ODAG = ifelse(ODAG == -99, NA, ODAG),
+       TRDIM = ifelse(TRDIM == -99, NA, TRDIM)) %>% 
+  filter(ODAG >= 0) %>% ungroup()
+
+
 #Data Viz
 # ggplot(aes(y = logODAG), data = cleandata) + geom_boxplot()
 # ggplot(aes(y = logTRDEX), data = cleandata) + geom_boxplot()
@@ -277,7 +294,7 @@ library(lme4)
 #Base models 
 
 library(lme4)
-mod0_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
+mod0_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), family = "binomial", data = cleandataold, control = glmerControl(optimizer = "bobyqa"))
 mod0_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
 mod0_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
 mod0_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata, control = glmerControl(optimizer = "bobyqa"))
@@ -468,44 +485,44 @@ save(mod1_POLITY2_lag2_noODAG, file = "./externalmodels/mod1_POLITY2_lag2_noODAG
 save(mod1_POLITY2_lag3_noODAG, file = "./externalmodels/mod1_POLITY2_lag3_noODAG.RData")
 
 
-## ---- Trying Models with glmmTMB ----
+## ---- Trying Models with glmer ----
 
-library(glmmTMB)
+library(lme4)
 
-mod0_TOTLIB1 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), family = "binomial", data = cleandata)
-mod0_TOTLIB1_lag1 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag1  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
-mod0_TOTLIB1_lag2 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
-mod0_TOTLIB1_lag3 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), family = "binomial", data = cleandata)
+mod0_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
 
 save(mod0_TOTLIB1, file = "./externalmodels/mod0_TOTLIB1.RData")
 save(mod0_TOTLIB1_lag1, file = "./externalmodels/mod0_TOTLIB1_lag1.RData")
 save(mod0_TOTLIB1_lag2, file = "./externalmodels/mod0_TOTLIB1_lag2.RData")
 save(mod0_TOTLIB1_lag3, file = "./externalmodels/mod0_TOTLIB1_lag3.RData")
 
-mod0_POLITY <- glmmTMB(CONNECTION ~ POLITY_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY_lag1 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY_lag2 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY_lag3 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY <- glmer(CONNECTION ~ POLITY_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
 
 save(mod0_POLITY, file = "./externalmodels/mod0_POLITY.RData")
 save(mod0_POLITY_lag1, file = "./externalmodels/mod0_POLITY_lag1.RData")
 save(mod0_POLITY_lag2, file = "./externalmodels/mod0_POLITY_lag2.RData")
 save(mod0_POLITY_lag3, file = "./externalmodels/mod0_POLITY_lag3.RData")
 
-mod0_POLITY2 <- glmmTMB(CONNECTION ~ POLITY2_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY2_lag1 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY2_lag2 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_POLITY2_lag3 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
 
 save(mod0_POLITY2, file = "./externalmodels/mod0_POLITY2.RData")
 save(mod0_POLITY2_lag1, file = "./externalmodels/mod0_POLITY2_lag1.RData")
 save(mod0_POLITY2_lag2, file = "./externalmodels/mod0_POLITY2_lag2.RData")
 save(mod0_POLITY2_lag3, file = "./externalmodels/mod0_POLITY2_lag3.RData")
 
-mod0_v2x_LIBDEM <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
-mod0_v2x_LIBDEM_lag1 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_v2x_LIBDEM_lag2 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
-mod0_v2x_LIBDEM_lag3 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)  + (1|YEAR), family = "binomial", data = cleandata)
+mod0_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) +   (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
+mod0_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3  +  (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT)   + (1|YEAR), family = "binomial", data = cleandata)
 
 save(mod0_v2x_LIBDEM, file = "./externalmodels/mod0_v2x_LIBDEM.RData")
 save(mod0_v2x_LIBDEM_lag1, file = "./externalmodels/mod0_v2x_LIBDEM_lag1.RData")
@@ -513,19 +530,19 @@ save(mod0_v2x_LIBDEM_lag2, file = "./externalmodels/mod0_v2x_LIBDEM_lag2.RData")
 save(mod0_v2x_LIBDEM_lag3, file = "./externalmodels/mod0_v2x_LIBDEM_lag3.RData")
 
 #Full models
-mod1_TOTLIB1 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                       family = "binomial",
                       data = cleandata)
 
-mod1_TOTLIB1_lag1 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
-mod1_TOTLIB1_lag2 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
-mod1_TOTLIB1_lag3 <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
@@ -535,19 +552,19 @@ save(mod1_TOTLIB1_lag2, file = "./externalmodels/mod1_TOTLIB1_lag2.RData")
 save(mod1_TOTLIB1_lag3, file = "./externalmodels/mod1_TOTLIB1_lag3.RData")
 
 
-mod1_POLITY <- glmmTMB(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                      family = "binomial",
                      data = cleandata)
 
-mod1_POLITY_lag1 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                           family = "binomial",
                           data = cleandata)
 
-mod1_POLITY_lag2 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                           family = "binomial",
                           data = cleandata)
 
-mod1_POLITY_lag3 <- glmmTMB(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                           family = "binomial",
                           data = cleandata)
 
@@ -556,19 +573,19 @@ save(mod1_POLITY_lag1, file = "./externalmodels/mod1_POLITY_lag1.RData")
 save(mod1_POLITY_lag2, file = "./externalmodels/mod1_POLITY_lag2.RData")
 save(mod1_POLITY_lag3, file = "./externalmodels/mod1_POLITY_lag3.RData")
 
-mod1_POLITY2 <- glmmTMB(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                       family = "binomial",
                       data = cleandata)
 
-mod1_POLITY2_lag1 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
-mod1_POLITY2_lag2 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
-mod1_POLITY2_lag3 <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                            family = "binomial",
                            data = cleandata)
 
@@ -576,45 +593,45 @@ save(mod1_POLITY2, file = "./externalmodels/mod1_POLITY2.RData")
 save(mod1_POLITY2_lag1, file = "./externalmodels/mod1_POLITY2_lag1.RData")
 save(mod1_POLITY2_lag2, file = "./externalmodels/mod1_POLITY2_lag2.RData")
 save(mod1_POLITY2_lag3, file = "./externalmodels/mod1_POLITY2_lag3.RData")
-
-mod1_v2x_LIBDEM <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                         family = "binomial",
-                         data = cleandata)
-
-mod1_v2x_LIBDEM_lag1 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                              family = "binomial",
-                              data = cleandata)
-
-mod1_v2x_LIBDEM_lag2 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                              family = "binomial",
-                              data = cleandata)
-
-mod1_v2x_LIBDEM_lag3 <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                              family = "binomial",
-                              data = cleandata)
-
-save(mod1_v2x_LIBDEM, file = "./externalmodels/mod1_v2x_LIBDEM.RData")
-save(mod1_v2x_LIBDEM_lag1, file = "./externalmodels/mod1_v2x_LIBDEM_lag1.RData")
-save(mod1_v2x_LIBDEM_lag2, file = "./externalmodels/mod1_v2x_LIBDEM_lag2.RData")
-save(mod1_v2x_LIBDEM_lag3, file = "./externalmodels/mod1_v2x_LIBDEM_lag3.RData")
+# 
+# mod1_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                          family = "binomial",
+#                          data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                               family = "binomial",
+#                               data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                               family = "binomial",
+#                               data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                               family = "binomial",
+#                               data = cleandata)
+# 
+# save(mod1_v2x_LIBDEM, file = "./externalmodels/mod1_v2x_LIBDEM.RData")
+# save(mod1_v2x_LIBDEM_lag1, file = "./externalmodels/mod1_v2x_LIBDEM_lag1.RData")
+# save(mod1_v2x_LIBDEM_lag2, file = "./externalmodels/mod1_v2x_LIBDEM_lag2.RData")
+# save(mod1_v2x_LIBDEM_lag3, file = "./externalmodels/mod1_v2x_LIBDEM_lag3.RData")
 
 #Full models without ODAG
-mod1_TOTLIB1_noODAG <- glmmTMB(CONNECTION ~ TOTLIB1_EXT +
+mod1_TOTLIB1_noODAG <- glmer(CONNECTION ~ TOTLIB1_EXT +
                                logGNI_EXT +
                                logPOP_EXT +
                                logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                              family = "binomial",
                              data = cleandata)
 
-mod1_TOTLIB1_lag1_noODAG <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag1_noODAG <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
-mod1_TOTLIB1_lag2_noODAG <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag2_noODAG <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
-mod1_TOTLIB1_lag3_noODAG <- glmmTMB(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_TOTLIB1_lag3_noODAG <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
@@ -624,19 +641,19 @@ save(mod1_TOTLIB1_lag2_noODAG, file = "./externalmodels/mod1_TOTLIB1_lag2_noODAG
 save(mod1_TOTLIB1_lag3_noODAG, file = "./externalmodels/mod1_TOTLIB1_lag3_noODAG.RData")
 
 
-mod1_POLITY_noODAG <- glmmTMB(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT +  logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_noODAG <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT +  logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                             family = "binomial",
                             data = cleandata)
 
-mod1_POLITY_lag1_noODAG <- glmmTMB(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag1_noODAG <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                  family = "binomial",
                                  data = cleandata)
 
-mod1_POLITY_lag2_noODAG <- glmmTMB(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag2_noODAG <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                  family = "binomial",
                                  data = cleandata)
 
-mod1_POLITY_lag3_noODAG <- glmmTMB(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY_lag3_noODAG <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                  family = "binomial",
                                  data = cleandata)
 
@@ -647,19 +664,19 @@ save(mod1_POLITY_lag3_noODAG, file = "./externalmodels/mod1_POLITY_lag3_noODAG.R
 
 
 
-mod1_POLITY2_noODAG <- glmmTMB(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_noODAG <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                              family = "binomial",
                              data = cleandata)
 
-mod1_POLITY2_lag1_noODAG <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag1_noODAG <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
-mod1_POLITY2_lag2_noODAG <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag2_noODAG <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
-mod1_POLITY2_lag3_noODAG <- glmmTMB(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+mod1_POLITY2_lag3_noODAG <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
                                   family = "binomial",
                                   data = cleandata)
 
@@ -667,26 +684,26 @@ save(mod1_POLITY2_noODAG, file = "./externalmodels/mod1_POLITY2_noODAG.RData")
 save(mod1_POLITY2_lag1_noODAG, file = "./externalmodels/mod1_POLITY2_lag1_noODAG.RData")
 save(mod1_POLITY2_lag2_noODAG, file = "./externalmodels/mod1_POLITY2_lag2_noODAG.RData")
 save(mod1_POLITY2_lag3_noODAG, file = "./externalmodels/mod1_POLITY2_lag3_noODAG.RData")
-
-mod1_v2x_LIBDEM_noODAG <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                                family = "binomial",
-                                data = cleandata)
-
-mod1_v2x_LIBDEM_lag1_noODAG <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                                     family = "binomial",
-                                     data = cleandata)
-
-mod1_v2x_LIBDEM_lag2_noODAG <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                                     family = "binomial",
-                                     data = cleandata)
-
-mod1_v2x_LIBDEM_lag3_noODAG <- glmmTMB(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
-                                     family = "binomial",
-                                     data = cleandata)
-
-save(mod1_v2x_LIBDEM_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_noODAG.RData")
-save(mod1_v2x_LIBDEM_lag1_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag1_noODAG.RData")
-save(mod1_v2x_LIBDEM_lag2_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag2_noODAG.RData")
-save(mod1_v2x_LIBDEM_lag3_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag3_noODAG.RData")
+# 
+# mod1_v2x_LIBDEM_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                                 family = "binomial",
+#                                 data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag1_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                                      family = "binomial",
+#                                      data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag2_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2 + logGNI_EXT + logPOP_EXT + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                                      family = "binomial",
+#                                      data = cleandata)
+# 
+# mod1_v2x_LIBDEM_lag3_noODAG <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3 + logGNI_EXT + logPOP_EXT  + logTRDIM + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR),
+#                                      family = "binomial",
+#                                      data = cleandata)
+# 
+# save(mod1_v2x_LIBDEM_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_noODAG.RData")
+# save(mod1_v2x_LIBDEM_lag1_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag1_noODAG.RData")
+# save(mod1_v2x_LIBDEM_lag2_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag2_noODAG.RData")
+# save(mod1_v2x_LIBDEM_lag3_noODAG, file = "./externalmodels/mod1_v2x_LIBDEM_lag3_noODAG.RData")
 
 
