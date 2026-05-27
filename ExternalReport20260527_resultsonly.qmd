@@ -7,18 +7,22 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "May 27, 2026"
+date: "May 8, 2026"
 ---
+
+<!-- NOTE: for Totlib1 lower scores are MORE democracy -->
 
 This analysis seeks to evaluate the probability of a connection (i.e. an Embassy) between an African country and an external country, which could also be an African country as a function of democracy score.  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY and POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x\_libdem).
 
 This main analyses were split into two parts: a reduced model and a full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the internal country, the external country, their interaction, and the year. These random effects account for correlation between observations with in the structure of the data. 
 
-The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, official development assistance gross (ODAG), and trade import gross (TRDIM). We applied a log transformation to each of these new variables due to their fairly extreme right-skewness (shown below as density plots). We applied both of these model with lagged democracy scores of 1, 2, and 3 years. Finally, we fit the full model without the variable ODAG since there are many countries with missing ODAG and these were being dropped from the model.  
+The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, official development assistance gross (ODAG), and trade import gross (TRDIM). ODAG scores are only provided for non-African countries, meaning that models with ODAG as a predictor exclude a potential embassy relationship between two African countries. We applied a log transformation to each of these predictor variables due to their fairly extreme right-skewness (shown in the following density plots). We applied both of these model with lagged democracy scores of 1, 2, and 3 years. Finally, we fit the full model without the variable ODAG since there are many countries with missing ODAG and these were being dropped from the model.  
 
 # Reduced Model
 
-$Y_{ijk}$ is a 1 if there is a connection between African country $i$ and external country $j$ in year $k$ and 0 otherwise.  Then we build the following model with $X_{1jk}$ as the democracy score of external country $j$ in year $k$: 
+The reduced model equations are given below, where the response $Y_{ijk}$ is a 1 if there is a connection between African country $i$ and external country $j$ in year $k$ and 0 otherwise. The predictor $X_{1jk}$ represents the democracy score of external country $j$ in year $k$.
+
+In lagged models, the year $k$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
 
 $$
 Y_{ijk} \sim \text{Binomial}(1, p_{ijk})
@@ -44,11 +48,11 @@ $$
 \gamma_{0k} \sim \text{N}(0, \sigma_k^2)
 $$
 
-In lagged models, the year $k$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (i.e. year $k$-1).
-
-As shown in Table 1, all external country democracy scores and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, each model's $\hat{\beta}$ coefficients indicate that the more democratic external country $j$ is, the less likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged TOTLIB1 (where a higher score indicates a less democratic country) increases the odds of an embassy relationship by a factor of $e^{0.185}$ = 1.203, approximately a 20% increase in the odds of a embassy relationship.
+As shown in Table 1, the external country democracy scores from the POLITY IV database (POLITY and POLITY2) and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, these models' $\hat{\beta}$ coefficients indicate that the more democratic external country $j$ is, the less likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged POLITY (where a higher score indicates a more democratic country) decreases the odds of an embassy relationship by a factor of $e^{-0.045}$ = 0.956, approximately a 4.4 percent decrease in the odds of an embassy relationship.
 
 # Full Model
+
+Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed external country characteristics. In lagged models, we only lagged the external country's democracy score. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \ldots + \beta_4X_{4ijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
 
 $$
 Y_{ijk} \sim \text{Binomial}(1, p_{ijk})
@@ -74,11 +78,37 @@ $$
 \gamma_{0k} \sim \text{N}(0, \sigma_k^2)
 $$
 
-Our full model equations largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed external country characteristics.  Note that the external democracy score, the external country population, and the external country GNI are all attributes of the external country only, whereas ODAG, imports, and exports are attributes of the pair of countries.  
+As shown in Table 2, the two-year lagged democracy scores from the POLITY IV (POLITY) and V-Dem (v2x\_LIBDEM) databases are significant at the $\alpha$ = 0.05 level. The two-year lagged v2x\_LIBDEM has a much larger effect size than the significant variables up to this point. Its $\hat{\beta}$ coefficient is 0.566, meaning that, a one-unit increase in two-year lagged v2x_LIBDEM (where a higher score indicates a more democratic country) increases the odds of an embassy relationship by a factor of $e^{0.566}$ = 1.761, approximately a 76.1 percent increase in the odds of an embassy relationship. This interpretation suggests a temporal component, as the more democratic a country was two years ago, the greater the likelihood of an embassy relationship in the current year on average.
 
-As shown in Table 2, the only significant variable at the $\alpha$ = 0.05 level is the two-year lagged TOTLIB1 score. Additionally, the democracy score's effect sizes, as shown by their $\hat{\beta}$ coefficients, are much smaller than their reduced model counterparts and the single instance of significance (two-year lagged TOTLIB) is in the opposite direction of the reduced model. Specifically this means that a one-unit increase in the two-year lagged TOTLIB1 score (i.e. the country gets less democratic) decreases the odds of an embassy relationship by a factor of 0.983, or a 1.7 percent decrease in the odds.  
+# Full Model Without ODAG
 
-Table 3 shows results without ODAG included in the model. With the data that we have there is no ODAG values fro African external countries, and thus the only external countries included in the model are non-African countries.  Practically, this means that African-African connections are never considered. By dropping ODAG from the model, these possible connections are kept.  In this case, we have mony more complete observations and POLITY and POLITY2 show up as significant in the same direction as in the reduced model, though the effects sizes are smaller than the reduced model as the additional covariates explain significant amount of variability in the response.  
+Our full model equations without ODAG are given below. These models replicate our full models (including the lagged year setup) with the exception of log-transformed ODAG from external countries as a predictor variable. Since ODAG scores are only provided for non-African countries, these models consider more potential embassy relationships than the previous full models. This results in significantly larger sample sizes than their respective previous full model.
+
+$$
+Y_{ijk} \sim \text{Binomial}(1, p_{ijk})
+$$
+
+$$
+\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1jk} + \ldots + \beta_3X_{3ijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}
+$$
+
+$$
+\gamma_{0i} \sim \text{N}(0, \sigma_i^2)
+$$
+
+$$
+\gamma_{0j} \sim \text{N}(0, \sigma_j^2)
+$$
+
+$$
+\gamma_{0ij} \sim \text{N}(0, \sigma_{ij}^2)
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+As shown in Table 3, the unlagged external country democracy score from the V-Dem database (v2x_LIBDEM), the two-year lagged scores from the POLITY IV (POLITY and POLITY2) and V-Dem databases, and the three-year lagged score from the V-Dem database are significant at the $\alpha$ = 0.05 level. The effect sizes and directions are similar to the ones we observed in our reduced and full models.
 
 ```{r}
 
@@ -290,7 +320,8 @@ cleandata <- newdata %>%
         ) %>% ungroup() 
 
 ```
-Below we look at the distributions of predictor variables in the full model.  
+
+The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
 ```{r}
 cleandata %>% 
@@ -495,22 +526,23 @@ cleandata %>%
 <!--   ) -->
 
 <!-- ``` -->
-Below are the correlations between the predictors in the full model.  
+
+The correlations between each log-transformed predictor variable from the full model and year are given below using Pearson ($r$) and Spearman's rank ($\rho$) correlation coefficients and Kendall tau distance. Each coefficient ranges from -1 to 1, with values closer to these extremes indicating a stronger relationship in the negative or positive direction, respectively.
 
 ```{r}
 cordata <- cleandata %>%
   select(logPOP_EXT, logGNI_EXT, logODAG, logTRDIM, YEAR) %>%
   drop_na()
 
-cat("Pearson Correlation")
+cat("Pearson Correlation Coefficient")
 
 cor(cordata, method = "pearson")
 
-cat("Kendall-Tau Correlation")
+cat("Kendall Tau Distance")
 
 cor(cordata, method = "kendall")
 
-cat("Spearman Correlation")
+cat("Spearman's Rank Correlation Coefficient")
 
 cor(cordata, method = "spearman")
 
@@ -1400,7 +1432,7 @@ table_data %>%
 
 ## Full Model Summaries 
 
-The full summaries of the unlagged full and reduced models are shown below for three measures of democracy for a total of 6 models.  In the full models we observe that external countries with larger populations are much more likely to have a connection with the African country.  We also observe African countries are more likely to have connections with external countries when the African country has a larger value of imports from the external country, while the total GNI of the external does not appear to be significant in the presence of these other predictors. When ODAG is included in the model, which keeps only non-African countries as external possibilities, larger values of ODAG are associated with a greater likelihood of an embassy connection.  
+The model summaries for each unlagged democracy score in the reduced, full, and full without ODAG models are given below. In the full models, we observe that external countries with larger populations are more likely to have an embassy connection with an African country. We also observe that external countries with larger import volumes from trade are more likely to have an embassy connection with an African country. In most models, log-transformed GNI is not a significant predictor at the $\alpha$ = 0.05 level. When ODAG is included in the full model, which keeps only embassy relationships between an African and non-African country, we observe that external countries with larger ODAG scores are more likely to have an embassy connection with an African country.
 
 ```{r}
 summary(mod0_TOTLIB1)
@@ -1414,11 +1446,15 @@ summary(mod1_POLITY_noODAG)
 summary(mod0_POLITY2)
 summary(mod1_POLITY2)
 summary(mod1_POLITY2_noODAG)
+
+summary(mod0_v2x_LIBDEM)
+summary(mod1_v2x_LIBDEM)
+summary(mod1_v2x_LIBDEM_noODAG)
 ```
 
-## Random Effect Estimates From the TOTLIB1 Full Model
+## Random Effect Estimates From the Freedom House Database (TOTLIB1) Full Model
 
-Large positive values mean that a connection is more likely; Likewise, a large negative number means a connection is less likely.  Notice that as years increase the probability of a connection is more likely the more recent the data indicating more connections are made over time.  The random effects for COUNTRY_INT give the change in the baseline probability of a connection with an external country. Egypt is the largest random effect indicating that the are the most likely to have a connection with an external country when all other factors are held constant. The largest effect for COUNTRY_EXT is the United States, indicating that African countries are most likely to have a connection with the United States with Belgium a close second.  
+Large positive values mean that a connection is more likely. Likewise, a large negative number means a connection is less likely. The probability of a connection is more likely the more recent the data, indicating more connections are made over time. The random effects for COUNTRY_INT give the change in the baseline probability of a connection with an external country. Egypt is the largest random effect indicating that the are the most likely to have a connection with an external country when all other factors are held constant. The largest effect for COUNTRY_EXT is the United States, indicating that African countries are most likely to have a connection with the United States when all other factors are held constant. 
 
 ```{r}
 ranef(mod1_TOTLIB1_noODAG)$YEAR
