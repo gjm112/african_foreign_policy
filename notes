@@ -85,3 +85,23 @@ Table
   - Add n to the table (DONE)
   - Should we consider multiple imputation since the trade data is largely missing?
   - Ask Greg what he means by a summary of every predictor variable (TO DO)
+  
+5-27-26
+
+  - Why is the number of POLITY observations jumping up in the full model when introducing lags?
+  - Model needs to decrease its value
+  - Compile a list of models from externalmodels2026 that don't converge
+    - POLITY lag1 full model
+      - mod1_POLITY_lag1
+    - v2x_LIBDEM lag1 full model
+      - mod1_v2x_LIBDEM_lag1
+    - POLITY lag2 full model no ODAG
+      - mod1_POLITY_lag2_noODAG
+    - POLITY2 lag2 full model no ODAG
+      - mod1_POLITY2_lag2_noODAG
+    - v2x_LIBDEM lag0 full model no ODAG
+      - mod1_v2x_LIBDEM_noODAG
+    - v2x_LIBDEM lag2 full model no ODAG
+      - mod1_v2x_LIBDEM_lag2_noODAG
+    - v2x_LIBDEM lag3 full model no ODAG
+      - mod1_v2x_LIBDEM_lag3_noODAG
