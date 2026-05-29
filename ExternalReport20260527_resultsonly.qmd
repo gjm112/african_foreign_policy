@@ -11,6 +11,8 @@ date: "May 8, 2026"
 ---
 
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->
+<!-- summary(mod1_v2x_LIBDEM_lag1) -->
+<!-- v2x_Libdem lag 1 didn't converge -->
 
 This analysis seeks to evaluate the probability of a connection (i.e. an Embassy) between an African country and an external country, which could also be an African country as a function of democracy score.  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY and POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x\_libdem).
 
@@ -77,6 +79,8 @@ $$
 $$
 \gamma_{0k} \sim \text{N}(0, \sigma_k^2)
 $$
+
+<!-- We gotta fix this.  This isn't significant.  The model didn't converge.  You can tell this because the confidence interval is so narrow it's ridiculous and very different from the others.  -->
 
 As shown in Table 2, the two-year lagged democracy scores from the POLITY IV (POLITY) and V-Dem (v2x\_LIBDEM) databases are significant at the $\alpha$ = 0.05 level. The two-year lagged v2x\_LIBDEM has a much larger effect size than the significant variables up to this point. Its $\hat{\beta}$ coefficient is 0.566, meaning that, a one-unit increase in two-year lagged v2x_LIBDEM (where a higher score indicates a more democratic country) increases the odds of an embassy relationship by a factor of $e^{0.566}$ = 1.761, approximately a 76.1 percent increase in the odds of an embassy relationship. This interpretation suggests a temporal component, as the more democratic a country was two years ago, the greater the likelihood of an embassy relationship in the current year on average.
 
@@ -531,7 +535,7 @@ The correlations between each log-transformed predictor variable from the full m
 
 ```{r}
 cordata <- cleandata %>%
-  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDIM, YEAR) %>%
+  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDIM, YEAR, v2x_LIBDEM_EXT, TOTLIB1_EXT, POLITY_EXT) %>%
   drop_na()
 
 cat("Pearson Correlation Coefficient")
