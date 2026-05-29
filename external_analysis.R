@@ -749,4 +749,32 @@ summary(mod1_v2x_LIBDEM_lag1_noODAG)
 summary(mod1_v2x_LIBDEM_lag2_noODAG)
 summary(mod1_v2x_LIBDEM_lag3_noODAG)
 
+cleandata %>% 
+  filter(!is.na(POLITY_EXT_lag1), !is.na(logGNI_EXT), !is.na(logPOP_EXT), !is.na(logTRDIM),!is.na(COUNTRY_INT), 
+         !is.na(COUNTRY_EXT), !is.na(CONNECTION), !is.na(YEAR)) %>%
+  nrow()
 
+mod1_POLITY_lag1 %>% 
+  nobs() # DIFFERS FROM ABOVE
+
+cleandata %>% 
+  filter(!is.na(POLITY_EXT_lag2), !is.na(logGNI_EXT), !is.na(logPOP_EXT), !is.na(logTRDIM),!is.na(COUNTRY_INT), 
+         !is.na(COUNTRY_EXT), !is.na(CONNECTION), !is.na(YEAR)) %>%
+  nrow()
+
+mod1_POLITY_lag2 %>% 
+  nobs() # DIFFERS FROM ABOVE
+
+list(
+  cleandata %>% 
+    filter(!is.na(POLITY_EXT_lag2), !is.na(logGNI_EXT), !is.na(logPOP_EXT), !is.na(logTRDIM),!is.na(COUNTRY_INT), 
+           !is.na(COUNTRY_EXT), !is.na(CONNECTION), !is.na(YEAR)) %>%
+    group_by(YEAR) %>%
+    reframe(N_lag2 = n()),
+  cleandata %>% 
+    filter(!is.na(POLITY_EXT_lag1), !is.na(logGNI_EXT), !is.na(logPOP_EXT), !is.na(logTRDIM),!is.na(COUNTRY_INT), 
+           !is.na(COUNTRY_EXT), !is.na(CONNECTION), !is.na(YEAR)) %>%
+    group_by(YEAR) %>%
+    reframe(N_lag1 = n())
+) %>%
+  reduce(merge, by = "YEAR", all = T)
