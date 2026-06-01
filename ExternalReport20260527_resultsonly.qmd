@@ -7,7 +7,7 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "May 8, 2026"
+date: "May 30, 2026"
 ---
 
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->
@@ -82,7 +82,7 @@ $$
 
 <!-- We gotta fix this.  This isn't significant.  The model didn't converge.  You can tell this because the confidence interval is so narrow it's ridiculous and very different from the others.  -->
 
-As shown in Table 2, the two-year lagged democracy scores from the POLITY IV (POLITY) and V-Dem (v2x\_LIBDEM) databases are significant at the $\alpha$ = 0.05 level. The two-year lagged v2x\_LIBDEM has a much larger effect size than the significant variables up to this point. Its $\hat{\beta}$ coefficient is 0.566, meaning that, a one-unit increase in two-year lagged v2x_LIBDEM (where a higher score indicates a more democratic country) increases the odds of an embassy relationship by a factor of $e^{0.566}$ = 1.761, approximately a 76.1 percent increase in the odds of an embassy relationship. This interpretation suggests a temporal component, as the more democratic a country was two years ago, the greater the likelihood of an embassy relationship in the current year on average.
+As shown in Table 2, none of the democracy scores are significant at the $\alpha$ = 0.05 level. External population size, the amount of aid sent to an internal country (ODAG), and imports (TRDIM) are all highly significant and all show a positive relationship with the probability of a connection.  
 
 # Full Model Without ODAG
 
@@ -112,7 +112,7 @@ $$
 \gamma_{0k} \sim \text{N}(0, \sigma_k^2)
 $$
 
-As shown in Table 3, the unlagged external country democracy score from the V-Dem database (v2x_LIBDEM), the two-year lagged scores from the POLITY IV (POLITY and POLITY2) and V-Dem databases, and the three-year lagged score from the V-Dem database are significant at the $\alpha$ = 0.05 level. The effect sizes and directions are similar to the ones we observed in our reduced and full models.
+As shown in Table 3, scores from the POLITY IV (POLITY and POLITY2) database are  significant at several different lags at the $\alpha$ = 0.05 level. The effect sizes and directions are similar to the ones we observed in our reduced and full models.
 
 ```{r}
 
@@ -531,7 +531,7 @@ cleandata %>%
 
 <!-- ``` -->
 
-The correlations between each log-transformed predictor variable from the full model and year are given below using Pearson ($r$) and Spearman's rank ($\rho$) correlation coefficients and Kendall tau distance. Each coefficient ranges from -1 to 1, with values closer to these extremes indicating a stronger relationship in the negative or positive direction, respectively.
+The correlations between each log-transformed predictor variable from the full model and year are given below using Pearson ($r$) and Spearman's rank ($\rho$) correlation coefficients and Kendall's $\tau$. Each coefficient ranges from -1 to 1, with values closer to these extremes indicating a stronger relationship in the negative or positive direction, respectively.
 
 ```{r}
 cordata <- cleandata %>%
@@ -542,7 +542,7 @@ cat("Pearson Correlation Coefficient")
 
 cor(cordata, method = "pearson")
 
-cat("Kendall Tau Distance")
+cat("Kendall Tau")
 
 cor(cordata, method = "kendall")
 
@@ -1464,5 +1464,5 @@ Large positive values mean that a connection is more likely. Likewise, a large n
 ranef(mod1_TOTLIB1_noODAG)$YEAR
 ranef(mod1_TOTLIB1_noODAG)$COUNTRY_INT %>% arrange(-`(Intercept)`)
 ranef(mod1_TOTLIB1_noODAG)$COUNTRY_EXT %>% arrange(-`(Intercept)`)
-ranef(mod1_TOTLIB1_noODAG)$`COUNTRY_INT:COUNTRY_EXT` %>% arrange(-`(Intercept)`) %>% view()
+ranef(mod1_TOTLIB1_noODAG)$`COUNTRY_INT:COUNTRY_EXT` %>% arrange(-`(Intercept)`) 
 ```
