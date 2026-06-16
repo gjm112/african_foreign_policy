@@ -778,3 +778,46 @@ list(
     reframe(N_lag1 = n())
 ) %>%
   reduce(merge, by = "YEAR", all = T)
+
+## POLITY AND CONNECTIONS PLOT ##
+
+polity_connection <- cleandata %>%
+  group_by(CCODE_EXT, COUNTRY_EXT, YEAR) %>%
+  reframe(
+    connections = length(which(CONNECTION == 1)),
+    polity = POLITY_EXT,
+    polity2 = POLITY2_EXT
+  ) %>%
+  distinct()
+
+polity_connection %>% # POLITY PLOT
+  filter(!YEAR %in% c(2020, 2024)) %>%
+  ggplot(aes(x = polity, y = connections)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~YEAR) +
+  labs(
+    title = "Relationship Between POLITY Scores and Number of Connections for Each Year",
+    x = "POLITY",
+    y = "Number of Connections"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
+
+polity_connection %>% # POLITY2 PLOT
+  filter(!YEAR %in% c(2020, 2024)) %>%
+  ggplot(aes(x = polity2, y = connections)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_wrap(~YEAR) +
+  labs(
+    title = "Relationship Between POLITY2 Scores and Number of Connections for Each Year",
+    x = "POLITY2",
+    y = "Number of Connections"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(face = "bold", hjust = 0.5)
+  )
