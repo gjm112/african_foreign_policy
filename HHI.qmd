@@ -1,0 +1,80 @@
+---
+title: "HHI"
+format: pdf
+editor: visual
+---
+
+```{r echo = FALSE, message = FALSE, warning=FALSE}
+#Note original Hirschman ideas was the square root of the sum of squares of market share. 
+#HHI is now just the sum of squares.  
+
+library(tidyverse)
+library(readxl)
+
+setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
+
+#masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+
+#restofworldold = read_excel("data/Rest of the World.xlsx")
+restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
+
+
+## Cleaning data ##
+masterset = masterset %>%
+  mutate(across(where(is.numeric), ~ na_if(., -99)),
+         across(where(is.numeric), ~ na_if(., -88)),
+         across(where(is.numeric), ~ na_if(., -77)),
+         across(where(is.numeric), ~ na_if(., -66)),
+         COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
+                             COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
+                             .default = COUNTRY))
+
+#Convert commas to periods. 
+#it looks like commas are being used as the decimal.  
+#Fix the nonsense formatting from excel. 
+masterset$GNI <- gsub(",",".",masterset$GNI)
+masterset$GNI <- gsub(" ","",masterset$GNI)%>% as.numeric()
+
+masterset$GNI_CAP <- gsub(",",".",masterset$GNI_CAP)
+masterset$GNI_CAP <- gsub(" ","",masterset$GNI_CAP)%>% as.numeric()
+
+masterset$POPULATN <- gsub(",",".",masterset$POPULATN)
+masterset$POPULATN <- gsub(" ","",masterset$POPULATN) %>% as.numeric()
+
+#Manually fixing names
+names(masterset)[which(names(masterset) == "TRDX352b")] <- "TRDEX352b" #These years are getting dropped.  
+names(masterset)[which(names(masterset) == "TRDX200h")] <- "TRDEX200h"
+names(masterset)[which(names(masterset) == "TRDX200m")] <- "TRDEX200m"
+names(masterset)[which(names(masterset) == "TDX321sr")] <- "TRDEX321sr"
+names(masterset)[which(names(masterset) == "TDX321sm")] <- "TRDEX321sm"
+names(masterset)[which(names(masterset) == "TDX321yr")] <- "TRDEX321yr"
+
+names(masterset)[which(names(masterset) == "TRDI200h")] <- "TRDIM200h"
+names(masterset)[which(names(masterset) == "TRDI200m")] <- "TRDIM200m"
+names(masterset)[which(names(masterset) == "TDI321sr")] <- "TRDIM321sr"
+names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
+names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
+names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
+
+masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
+HHI <- masterset %>%
+  mutate(across(ODAG201:ODAG501, ~ replace_na(.x, 0))) %>% #replace NA with 0
+  mutate(across(ODAG201:ODAG501, ~ pmax(.x, 0))) %>% #no negative numbers
+  rowwise() %>% 
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
+  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
+  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_501, ODAG201:ODAG501) %>% 
+write.csv(file = "./HHI_20260818.csv", row.names = FALSE)
+```
+
+```{r fig.height=10, fig.width = 8, echo = FALSE, message = FALSE, warning=FALSE}
+HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw() + scale_x_continuous(
+    limits = c(1948,2025),                # Set min and max limits
+    breaks = c(1980, 2020),     # Set manual tick mark placement
+    labels = c(1980,  2020) 
+  )
+
+```
