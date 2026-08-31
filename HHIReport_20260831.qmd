@@ -1,0 +1,1069 @@
+---
+title: "HHI External Report"
+author: "Gregory J. Matthews and Steven Pappas"
+format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
+editor: visual
+date: "June 29, 2026"
+---
+
+---
+title: "External Report"
+author: "Gregory J. Matthews and Steven Pappas"
+format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
+editor: visual
+date: "June 29, 2026"
+---
+
+<!-- NOTE: for Totlib1 lower scores are MORE democracy -->
+
+<!-- summary(mod1_v2x_LIBDEM_lag1) -->
+
+<!-- v2x_Libdem lag 1 didn't converge -->
+
+This analysis seeks to evaluate the relationship between a country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI uses a country's official development assistance gross (ODAG) share from external countries. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY and POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x_libdem).
+
+This main analyses were split into two parts: a reduced model and a full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the internal country, the external country, their interaction, and the year. These random effects account for correlation between observations with in the structure of the data.
+
+The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, ODAG (Note: When ODAG is not observed it is set to 0 in the analysis), and total sum of trade import and export gross (TRDTOT). We applied a log transformation to each of these predictor variables due to their fairly extreme right-skewness (shown in the following density plots). We applied both of these model with lagged democracy scores of 1, 2, and 3 years. Finally, note that the POLITY model was dropped here as there were convergence issues in parameter estimation with the addition of TRDTOT and ODAG with a large number of zeroes. These convergence issues were not present when using POLITY2.
+
+# Reduced Model
+
+The reduced model equations are given below, where the response $Y_{ik}$ ranges from 1/$i$ to 1 for African country $i$ in year $k$. We applied a log transformation to HHI to fix its heavy non-constant variance, where the residuals increased in size as the fitted values increased. The predictor $X_{1ik}$ represents the democracy score of African country $i$ in year $k$.
+
+In lagged models, the year $k$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{ik}) = \beta_0 + \beta_1X_{1i(k-1)} + \gamma_{0i} + \gamma_{0k} + \epsilon_{ik}$, where $X_{1i(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
+
+$$Y_{ik} \sim \text{N}(\mu_{ik}, \sigma_{ik}^2)$$
+
+$\text{log}(HHI_{ik}) = \beta_0 + \beta_1X_{1i(k-1)} + \gamma_{0i} + \gamma_{0k} + \epsilon_{ik}$
+
+$$\gamma_{0i} \sim \text{N}(0, \sigma_i^2)$$
+
+$$\gamma_{0k} \sim \text{N}(0, \sigma_k^2)$$
+
+As shown in Table 1, the external country democracy scores from the POLITY IV database (POLITY and POLITY2) and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, these models' $\hat{\beta}$ coefficients indicate that the more democratic external country $j$ is, the less likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged POLITY (where a higher score indicates a more democratic country) decreases the odds of an embassy relationship by a factor of $e^{-0.045}$ = 0.956, approximately a 4.4 percent decrease in the odds of an embassy relationship.
+
+# Full Model
+
+Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{ik}) = \beta_0 + \beta_1X_{1j(k-1)} + \ldots + \beta_5X_{5ijk} + \gamma_{0i} + \gamma_{0k} + \epsilon_{ik}$, where $X_{1i(k-1)}$ is the country's democracy score in the prior year (year $k$-1).
+
+$$Y_{ik} \sim \text{N}(\mu_{ik}, \sigma_{ik}^2)$$
+
+$$\text{log}(HHI_{ik}) = \beta_0 + \beta_1X_{1jk} + \ldots + \beta_5X_{5ijk} + \gamma_{0i} + \gamma_{0k} + \epsilon_{ik}$$
+
+$$\gamma_{0i} \sim \text{N}(0, \sigma_i^2)$$
+
+$$\gamma_{0k} \sim \text{N}(0, \sigma_k^2)$$
+
+<!-- We gotta fix this.  This isn't significant.  The model didn't converge.  You can tell this because the confidence interval is so narrow it's ridiculous and very different from the others.  -->
+
+<!-- As shown in Table 2, none of the democracy scores are significant at the $\alpha$ = 0.05 level. External population size, the amount of aid sent to an internal country (ODAG), and imports (TRDIM) are all highly significant and all show a positive relationship with the probability of a connection.   -->
+
+As shown in Table 2, POLITY2 is highly significant in predicting an embassy relationship at all lags explored. The coefficient estimate is negative, indicating that the higher the POLITY2 score (i.e. more democratic) of the external country the lower the probability of an embassy connection. At lag 0, the odds ratio for POLITY2 is estimated to be 0.956 (95% CI: 0.931, 0.981) indicating about a 4.4% reduction in the odds of an embassy connection. This reduction is also fairly consistent across lags.
+
+For TOTLIB1, we observe that higher values of TOTLIB1 are associated with an increased probability of an embassy connection though this significance decreases over longer lags. Note that higher values of TOTLIB1 indicate LOWER democracy levels, so this relationship (i.e. lower external democracy levels are related to higher probability of an embassy connection) is consistent with what was observed with POLITY2.
+
+v2x_LIBDEM is nearly significant at the $\alpha = 0.05$ level for lag0 and not significant at all for any of the lags.
+
+```{r}
+
+library(tidyverse)
+library(readxl)
+
+#masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+
+#restofworldold = read_excel("data/Rest of the World.xlsx")
+restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
+
+
+## Cleaning data ##
+masterset = masterset %>%
+  mutate(across(where(is.numeric), ~ na_if(., -99)),
+         across(where(is.numeric), ~ na_if(., -88)),
+         across(where(is.numeric), ~ na_if(., -77)),
+         across(where(is.numeric), ~ na_if(., -66)),
+         COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
+                             COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
+                             .default = COUNTRY))
+
+#Convert commas to periods. 
+#it looks like commas are being used as the decimal.  
+#Fix the nonsense formatting from excel. 
+masterset$GNI <- gsub(",",".",masterset$GNI)
+masterset$GNI <- gsub(" ","",masterset$GNI)%>% as.numeric()
+
+masterset$GNI_CAP <- gsub(",",".",masterset$GNI_CAP)
+masterset$GNI_CAP <- gsub(" ","",masterset$GNI_CAP)%>% as.numeric()
+
+masterset$POPULATN <- gsub(",",".",masterset$POPULATN)
+masterset$POPULATN <- gsub(" ","",masterset$POPULATN) %>% as.numeric()
+
+#Manually fixing names
+names(masterset)[which(names(masterset) == "TRDX352b")] <- "TRDEX352b" #These years are getting dropped.  
+names(masterset)[which(names(masterset) == "TRDX200h")] <- "TRDEX200h"
+names(masterset)[which(names(masterset) == "TRDX200m")] <- "TRDEX200m"
+names(masterset)[which(names(masterset) == "TDX321sr")] <- "TRDEX321sr"
+names(masterset)[which(names(masterset) == "TDX321sm")] <- "TRDEX321sm"
+names(masterset)[which(names(masterset) == "TDX321yr")] <- "TRDEX321yr"
+
+names(masterset)[which(names(masterset) == "TRDI200h")] <- "TRDIM200h"
+names(masterset)[which(names(masterset) == "TRDI200m")] <- "TRDIM200m"
+names(masterset)[which(names(masterset) == "TDI321sr")] <- "TRDIM321sr"
+names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
+names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
+names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
+
+masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
+
+HHI <- masterset %>%
+  mutate(across(ODAG201:ODAG501, ~ replace_na(.x, 0))) %>% #replace NA with 0
+  mutate(across(ODAG201:ODAG501, ~ pmax(.x, 0))) %>% #no negative numbers
+  mutate(across(ODAG201:ODAG501, ~ as.numeric(.x))) %>% #make these variables numeric
+  rowwise() %>% 
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
+  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
+  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+## Prepare data for analysis. 
+HHI <- HHI %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>% 
+  mutate(across(TRDIM351:TRDIM203, ~ as.numeric(.x))) %>% 
+  mutate(TRDEXtot = rowSums(pick(TRDEX351:TRDEX250, 
+                                 TRDEX300:TRDEX285, 
+                                 TRDEX280:TRDEX415,
+                                 TRDEX100:TRDEX147,
+                                 TRDEX577:TRDEX551,
+                                 TRDEX563:TRDEX203),na.rm = TRUE),
+         TRDIMtot = rowSums(pick(TRDIM351:TRDIM250,
+                                 TRDIM300:TRDIM285,
+                                 TRDIM280:TRDIM415,
+                                 TRDIM100:TRDIM147,
+                                 TRDIM577:TRDIM551,
+                                 TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
+  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T)) %>% 
+  mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
+         logGNI = log(GNI, 10),
+         logPOP = log(POPULATN,10),
+         logTRDIMtot = log(TRDIMtot + 1,10),
+         logTRDEXtot = log(TRDEXtot + 1,10), 
+         logODAGtot = log(ODAGtot + 1, 10)) 
+
+#Now create the lag variables
+HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>% 
+  mutate(TOTLIB1_lag1 = lag(TOTLIB1,1),
+         TOTLIB1_lag2 = lag(TOTLIB1,2),
+         TOTLIB1_lag3 = lag(TOTLIB1,3),
+         POLITY_lag1 = lag(POLITY,1),
+         POLITY_lag2 = lag(POLITY,2),
+         POLITY_lag3 = lag(POLITY,3),
+         POLITY2_lag1 = lag(POLITY2,1),
+         POLITY2_lag2 = lag(POLITY2,2),
+         POLITY2_lag3 = lag(POLITY2,3)
+  ) %>% 
+  ungroup() %>% mutate(logitHHI = log(ifelse(HHI == 1,0.999,HHI)/(1-ifelse(HHI == 1,0.999,HHI))))
+
+```
+
+The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = POPULATN)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Population Density\n of External Countries",
+    x = "External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logPOP)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Population\n Density of External Countries",
+    x = "Log-Transformed External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = GNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Gross National Income (GNI)\n Density of External Countries",
+    x = "External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logGNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Gross National Income (GNI)\n Density of External Countries",
+    x = "Log-Transformed External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = ODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Official Development Assistance Gross (ODAG)\n Density of External Countries",
+    x = "External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Official Development Assistance Gross\n (ODAG) Density of External Countries",
+    x = "Log-Transformed External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% filter(ODAG > 0) %>%
+  ggplot(aes(x = logODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Official Development Assistance Gross\n (ODAG) Density of External Countries where ODAG is positive",
+    x = "Log-Transformed External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = TRDTOT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Total Total (TRDIM + TRDEX)\n Density of External Countries",
+    x = "External Country TRDTOT"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+cleandata %>% 
+  ggplot(aes(x = logTRDTOT)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Total Trade (TRDIM + TRDEX)\n Density of External Countries",
+    x = "External Country logTRDTOT"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+<!-- ```{r} -->
+
+<!-- cleandata %>%  -->
+
+<!--   ggplot(aes(x = logTRDIM)) +  -->
+
+<!--   geom_density(fill = "#7bffff") + -->
+
+<!--   scale_x_continuous(expand = c(0, 0)) + -->
+
+<!--   scale_y_continuous(expand = c(0, 0)) + -->
+
+<!--   labs( -->
+
+<!--     title = "Log-Transformed Total Import (TRDIM)\n Density of External Countries", -->
+
+<!--     x = "Log-Transformed External Country TRDIM" -->
+
+<!--   ) + -->
+
+<!--   theme_bw() + -->
+
+<!--   theme( -->
+
+<!--     plot.title = element_text(hjust = 0.5, face = "bold") -->
+
+<!--   ) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- interaction <- cleandata %>% -->
+
+<!--   group_by(CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT) %>% -->
+
+<!--   reframe(N = n()) -->
+
+<!-- interaction2 <- list( -->
+
+<!--   world = restofworld %>% -->
+
+<!--     select(CCODE_EXT = CCODE, COUNTRY_EXT = COUNTRY) %>% -->
+
+<!--     unique(), -->
+
+<!--   africa = masterset %>% -->
+
+<!--     mutate(CCODE_INT = paste0("C", CCODE)) %>% -->
+
+<!--     select(CCODE_INT, COUNTRY_INT = COUNTRY) %>% -->
+
+<!--     unique() -->
+
+<!-- ) %>% -->
+
+<!--   reduce(merge, by = NULL) %>% -->
+
+<!--   left_join(interaction, by = c("CCODE_INT", "COUNTRY_INT", "CCODE_EXT", "COUNTRY_EXT")) %>% -->
+
+<!--   mutate(N = ifelse(is.na(N), 0, N)) -->
+
+<!-- table(interaction2$N) -->
+
+<!-- round(table(interaction2$N)/nrow(interaction2)*100, 1) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- cleandata %>% -->
+
+<!--   mutate(CONNECTION = as.factor(CONNECTION)) %>% -->
+
+<!--   ggplot(aes(x = CONNECTION, y = TOTLIB1_EXT)) + -->
+
+<!--   geom_boxplot() + -->
+
+<!--   scale_y_continuous(limits = c(0, 15)) + -->
+
+<!--   facet_wrap(~YEAR) + -->
+
+<!--   labs( -->
+
+<!--     title = "Boxplot of External Country TOTLIB1 by External-Internal Country Connection and Year", -->
+
+<!--     x = "External-Internal Country Connection", -->
+
+<!--     y = "External Country TOTLIB1" -->
+
+<!--   ) + -->
+
+<!--   theme_bw() + -->
+
+<!--   theme( -->
+
+<!--     plot.title = element_text(hjust = 0.5, face = "bold") -->
+
+<!--   ) -->
+
+<!-- cleandata %>% -->
+
+<!--   mutate(CONNECTION = as.factor(CONNECTION)) %>% -->
+
+<!--   ggplot(aes(x = CONNECTION, y = POLITY_EXT)) + -->
+
+<!--   geom_boxplot() + -->
+
+<!--   scale_y_continuous(limits = c(-10, 10)) + -->
+
+<!--   facet_wrap(~YEAR) + -->
+
+<!--   labs( -->
+
+<!--     title = "Boxplot of External Country POLITY by External-Internal Country Connection and Year", -->
+
+<!--     x = "External-Internal Country Connection", -->
+
+<!--     y = "External Country POLITY" -->
+
+<!--   ) + -->
+
+<!--   theme_bw() + -->
+
+<!--   theme( -->
+
+<!--     plot.title = element_text(hjust = 0.5, face = "bold") -->
+
+<!--   ) -->
+
+<!-- cleandata %>% -->
+
+<!--   mutate(CONNECTION = as.factor(CONNECTION)) %>% -->
+
+<!--   ggplot(aes(x = CONNECTION, y = POLITY2_EXT)) + -->
+
+<!--   geom_boxplot() + -->
+
+<!--   scale_y_continuous(limits = c(0, 15)) + -->
+
+<!--   facet_wrap(~YEAR) + -->
+
+<!--   labs( -->
+
+<!--     title = "Boxplot of External Country POLITY2 by External-Internal Country Connection and Year", -->
+
+<!--     x = "External-Internal Country Connection", -->
+
+<!--     y = "External Country POLITY2" -->
+
+<!--   ) + -->
+
+<!--   theme_bw() + -->
+
+<!--   theme( -->
+
+<!--     plot.title = element_text(hjust = 0.5, face = "bold") -->
+
+<!--   ) -->
+
+<!-- ``` -->
+
+The correlations between each log-transformed predictor variable from the full model and year are given below using Pearson ($r$) and Spearman's rank ($\rho$) correlation coefficients and Kendall's $\tau$. Each coefficient ranges from -1 to 1, with values closer to these extremes indicating a stronger relationship in the negative or positive direction, respectively.
+
+```{r}
+cordata <- cleandata %>%
+  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDTOT, YEAR, v2x_LIBDEM_EXT, TOTLIB1_EXT, POLITY_EXT) %>%
+  drop_na()
+
+cat("Pearson Correlation Coefficient")
+
+cor(cordata, method = "pearson")
+
+cat("Kendall Tau")
+
+cor(cordata, method = "kendall")
+
+cat("Spearman's Rank Correlation Coefficient")
+
+cor(cordata, method = "spearman")
+
+```
+
+```{r echo = FALSE}
+library(lme4)
+
+load("externalmodels2026/mod0_TOTLIB1.RData")
+
+load("externalmodels2026/mod0_TOTLIB1_lag1.RData")
+
+load("externalmodels2026/mod0_TOTLIB1_lag2.RData")
+
+load("externalmodels2026/mod0_TOTLIB1_lag3.Rdata")
+
+load("externalmodels2026/mod0_POLITY.Rdata")
+
+load("externalmodels2026/mod0_POLITY_lag1.Rdata")
+
+load("externalmodels2026/mod0_POLITY_lag2.Rdata")
+
+load("externalmodels2026/mod0_POLITY_lag3.Rdata")
+
+load("externalmodels2026/mod0_POLITY2.Rdata")
+
+load("externalmodels2026/mod0_POLITY2_lag1.Rdata")
+
+load("externalmodels2026/mod0_POLITY2_lag2.Rdata")
+
+load("externalmodels2026/mod0_POLITY2_lag3.Rdata")
+
+load("externalmodels2026/mod0_v2x_LIBDEM.Rdata")
+
+load("externalmodels2026/mod0_v2x_LIBDEM_lag1.Rdata")
+
+load("externalmodels2026/mod0_v2x_LIBDEM_lag2.Rdata")
+
+load("externalmodels2026/mod0_v2x_LIBDEM_lag3.Rdata")
+
+```
+
+```{r}
+library(gt)
+
+totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1))) %>% rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_TOTLIB1, parm = "TOTLIB1_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod0_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_TOTLIB1_lag1, parm = "TOTLIB1_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod0_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_TOTLIB1_lag2, parm = "TOTLIB1_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod0_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_TOTLIB1_lag3, parm = "TOTLIB1_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod0_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY, parm = "POLITY_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod0_POLITY)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY_lag1, parm = "POLITY_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod0_POLITY_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY_lag2, parm = "POLITY_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod0_POLITY_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY_lag3, parm = "POLITY_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod0_POLITY_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY2, parm = "POLITY2_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod0_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY2_lag1, parm = "POLITY2_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod0_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY2_lag2, parm = "POLITY2_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod0_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_POLITY2_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_POLITY2_lag3, parm = "POLITY2_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod0_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_v2x_LIBDEM))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_v2x_LIBDEM, parm = "v2x_LIBDEM_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod0_v2x_LIBDEM)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_v2x_LIBDEM_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_v2x_LIBDEM_lag1, parm = "v2x_LIBDEM_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod0_v2x_LIBDEM_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_v2x_LIBDEM_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_v2x_LIBDEM_lag2, parm = "v2x_LIBDEM_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod0_v2x_LIBDEM_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod0_v2x_LIBDEM_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod0_v2x_LIBDEM_lag3, parm = "v2x_LIBDEM_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod0_v2x_LIBDEM_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY_nolag, POLITY_lag1, POLITY_lag2, POLITY_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
+                         str_detect(var, "POLITY") ~ "POLITY",
+                         str_detect(var, "v2x_LIBDEM") ~ "v2x_LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    n = md("$n$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
+    pval = md("$p$"),
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Table 1: Reduced Model Parameters for External **Democracy Scores** and Their **Lags**")
+  )
+
+```
+
+```{r}
+
+load("externalmodels2026/mod1_TOTLIB1.Rdata")
+
+load("externalmodels2026/mod1_TOTLIB1_lag1.Rdata")
+
+load("externalmodels2026/mod1_TOTLIB1_lag2.Rdata")
+
+load("externalmodels2026/mod1_TOTLIB1_lag3.Rdata")
+
+load("externalmodels2026/mod1_POLITY.Rdata")
+
+load("externalmodels2026/mod1_POLITY_lag1.Rdata")
+
+load("externalmodels2026/mod1_POLITY_lag2.Rdata")
+
+load("externalmodels2026/mod1_POLITY_lag3.Rdata")
+
+load("externalmodels2026/mod1_POLITY2.Rdata")
+
+load("externalmodels2026/mod1_POLITY2_lag1.Rdata")
+
+load("externalmodels2026/mod1_POLITY2_lag2.Rdata")
+
+load("externalmodels2026/mod1_POLITY2_lag3.Rdata")
+
+load("externalmodels2026/mod1_v2x_LIBDEM.Rdata")
+
+load("externalmodels2026/mod1_v2x_LIBDEM_lag1.Rdata")
+
+load("externalmodels2026/mod1_v2x_LIBDEM_lag2.Rdata")
+
+load("externalmodels2026/mod1_v2x_LIBDEM_lag3.Rdata")
+
+```
+
+```{r}
+
+totlib_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_TOTLIB1, parm = "TOTLIB1_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod1_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag1, parm = "TOTLIB1_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod1_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag2, parm = "TOTLIB1_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod1_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+totlib_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_TOTLIB1_lag3, parm = "TOTLIB1_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod1_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+
+
+POLITY2_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_POLITY2, parm = "POLITY2_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod1_POLITY2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_POLITY2_lag1, parm = "POLITY2_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod1_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_POLITY2_lag2, parm = "POLITY2_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod1_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+POLITY2_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_POLITY2_lag3, parm = "POLITY2_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod1_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_nolag <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM, parm = "v2x_LIBDEM_EXT", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag0", n = nobs(mod1_v2x_LIBDEM)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag1 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag1") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag1, parm = "v2x_LIBDEM_EXT_lag1", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag1", n = nobs(mod1_v2x_LIBDEM_lag1)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag2 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag2") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag2, parm = "v2x_LIBDEM_EXT_lag2", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag2", n = nobs(mod1_v2x_LIBDEM_lag2)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+v2x_LIBDEM_lag3 <- list(
+  totlib1 = as.data.frame(coef(summary(mod1_v2x_LIBDEM_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "v2x_LIBDEM_EXT_lag3") %>%
+    mutate(Estimate_exp = exp(Estimate), Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|z|)`,digits = 3, eps = 1e-5)),
+  conf = data.frame(conf = confint(mod1_v2x_LIBDEM_lag3, parm = "v2x_LIBDEM_EXT_lag3", level = 0.95, method = "Wald")) %>%
+    rownames_to_column(var = "var") %>%
+    mutate(conf_1 = round(conf.2.5.., 3), conf_2 = round(conf.97.5.., 3), conf_exp_1 = round(exp(conf_1), 3), 
+           conf_exp_2 = round(exp(conf_2), 3), confidence = paste0(conf_1, ", ", conf_2),
+           confidence_exp = paste0(conf_exp_1, ", ", conf_exp_2))
+) %>% reduce(merge, by = "var") %>%
+  mutate(lag = "lag3", n = nobs(mod1_v2x_LIBDEM_lag3)) %>%
+  select(var, lag, n, Estimate, Estimate_exp, pval, confidence, confidence_exp)
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, v2x_LIBDEM_nolag, v2x_LIBDEM_lag1, v2x_LIBDEM_lag2, v2x_LIBDEM_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
+                         str_detect(var, "v2x_LIBDEM") ~ "v2x_LIBDEM"),
+         Estimate_exp = round(Estimate_exp, 3))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    n = md("$n$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    Estimate_exp = md("$e^{\\hat{\\beta}}$"),
+    pval = md("$p$"),
+    confidence = md("$\\hat{\\beta}: 95\\% CI$"),
+    confidence_exp = md("$e^{\\hat{\\beta}}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Table 2: Full Model Parameters for External **Democracy Scores** and Their **Lags**")
+  )
+
+```
+
+\newpage
+
+# Appendix
+
+## Full Model Summaries
+
+The model summaries for each unlagged democracy score in the reduced and full models are given below. Previously, in the full models, we had observed that external countries with larger populations are more likely to have an embassy connection with an African country. However, with the change in the coding for ODAG (i.e. unobserved values are now zeroes) and the addition of the TRDTOT predictor (i.e. sum of TRDIM and TRDEX), the significance of population disappears. We now observe TRDTOT and ODAG (both logged) to be highly significant.
+
+```{r}
+summary(mod0_TOTLIB1)
+summary(mod1_TOTLIB1)
+
+summary(mod0_POLITY2)
+summary(mod1_POLITY2)
+
+summary(mod0_v2x_LIBDEM)
+summary(mod1_v2x_LIBDEM)
+```
+
+### Model summary with no democracy scores
+
+Below are the results for the model with no democracy score included as a predictor, but with all of the other fixed and random effects of the full model included.
+
+```{r}
+load("./externalmodels2026/mod1_no_democracy_score.RData")
+summary(mod1_no_democracy_score)
+```
+
+## Random Effect Estimates From the Freedom House Database (POLITY2) Full Model
+
+Large positive values mean that a connection is more likely. Likewise, a large negative number means a connection is less likely. The probability of a connection is more likely the more recent the data, indicating more connections are made over time. The random effects for COUNTRY_INT give the change in the baseline probability of a connection with an external country. Egypt is the largest random effect indicating that the are the most likely to have a connection with an external country when all other factors are held constant. The largest effect for COUNTRY_EXT is the United States, indicating that African countries are most likely to have a connection with the United States when all other factors are held constant.
+
+```{r}
+ranef(mod1_POLITY2)$YEAR
+ranef(mod1_POLITY2)$COUNTRY_INT %>% arrange(-`(Intercept)`)
+ranef(mod1_POLITY2)$COUNTRY_EXT %>% arrange(-`(Intercept)`)
+```
