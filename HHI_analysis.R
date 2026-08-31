@@ -119,7 +119,7 @@ HHI %>% ggplot(aes(x = logODAGtot, y = (HHI))) + geom_point() + geom_smooth(se =
 #HHI = 1 if there is a monopoly
 #Smaller HHI 
 library(lme4) 
-a <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
+a <- lmer((HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
 b <- lmer(log(HHI) ~ POLITY2 + logPOP + (1|CCODE) + (1|YEAR), data = HHI)
 
 AIC(a,b,c)
