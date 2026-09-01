@@ -9,7 +9,7 @@ setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
 
 #restofworldold = read_excel("data/Rest of the World.xlsx")
-restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
+#restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
 
 
 ## Cleaning data ##
@@ -104,46 +104,105 @@ HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
   ) %>% 
   ungroup() %>% mutate(logitHHI = log(ifelse(HHI == 1,0.999,HHI)/(1-ifelse(HHI == 1,0.999,HHI))))
   
+
+#
+
 #Summary stuff
-HHI %>% ggplot(aes(x = POLITY2, y = (HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = POLITY2, y = (HHI))) + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI), color = YEAR, group = YEAR)) + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = POLITYlag1, y = log(HHI), color = YEAR, group = YEAR)) + geom_smooth(se = F)  + theme_bw()
-
+HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T)) 
+HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T))  %>% ggplot(aes(x = YEAR, y = meanHHI)) + geom_point() + geom_line() + theme_bw()
 HHI %>% ggplot(aes(x = YEAR, y = log(HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = YEAR, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = HHI)) + geom_density() + theme_bw()
 
+
+#
+HHI %>% ggplot(aes(x = POLITY2, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = POLITY, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logODAGtot, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = logGNI, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+
 
 #Build some models
 #HHI = 1 if there is a monopoly
 #Smaller HHI 
-library(lme4) 
-a <- lmer((HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
-b <- lmer(log(HHI) ~ POLITY2 + logPOP + (1|CCODE) + (1|YEAR), data = HHI)
+library(lme4)
+library(lmerTest)
+library(splines)
+mod0_POLITY2 <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_POLITY2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
 
-AIC(a,b,c)
-test <- lmer(log(HHI) ~ POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + logODAGtot + (1|CCODE) + (1|YEAR), data = HHI)
-summary(test)
-plot(test)
+mod0_POLITY <- lmer(log(HHI) ~ POLITY  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_POLITY <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+mod0_TOTLIB1 <- lmer(log(HHI) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+save(mod0_POLITY2, file = "./HHImodels/mod0_POLITY2.RData")
+save(mod1_POLITY2, file = "./HHImodels/mod1_POLITY2.RData")
+
+save(mod0_POLITY, file = "./HHImodels/mod0_POLITY.RData")
+save(mod1_POLITY, file = "./HHImodels/mod1_POLITY.RData")
+
+save(mod0_TOTLIB1, file = "./HHImodels/mod0_TOTLIB1.RData")
+save(mod1_TOTLIB1, file = "./HHImodels/mod1_TOTLIB1.RData")
+
+
+#############################################
+#Appendix
+#############################################
+#Build some models
+#HHI = 1 if there is a monopoly
+#Smaller HHI 
+library(lme4)
+library(lmerTest)
+library(splines)
+mod0_POLITY2 <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_POLITY2_1 <- lmer(log(HHI) ~  POLITY2  + logPOP  + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2)  + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_3 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+AIC(mod0_POLITY2,mod1_POLITY2_1, mod1_POLITY2_2, mod1_POLITY2_3)
+summary(mod1_POLITY2)
+plot(mod1_POLITY2@frame$POLITY2, predict(mod1_POLITY2))
+
+mod0_POLITY <- lmer(log(HHI) ~ POLITY  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_POLITY <- lmer(log(HHI) ~  POLITY + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_1 <- lmer(log(HHI) ~  POLITY  + logPOP  + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_2 <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2)  + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_3 <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+AIC(mod0_POLITY,mod1_POLITY_1, mod1_POLITY_2, mod1_POLITY_3)
+summary(mod1_POLITY)
+
+mod0_TOTLIB1 <- lmer(log(HHI) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_TOTLIB1_1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP  + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_2 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_3 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+AIC(mod0_TOTLIB1,mod1_TOTLIB1_1, mod1_TOTLIB1_2, mod1_TOTLIB1_3)
+summary(mod1_TOTLIB1)
+plot(mod1_TOTLIB1)
+
+data.frame(x = mod1_TOTLIB1@frame$`log(HHI)`, resid = residuals(mod1_TOTLIB1)) %>% 
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+
+test <- lmer(log(HHI) ~  TOTLIB1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
 #The plot of y vs resid
 data.frame(x = test@frame$`log(HHI)`, resid = residuals(test)) %>% 
   ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
 
 data.frame(x = test@frame$logGNI, resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)", se = F)
 data.frame(x = test@frame$logPOP, resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)",se = F)
 data.frame(x = test@frame$logTRDIMtot, resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)",se = F)
 data.frame(x = test@frame$logTRDEXtot, resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)",se = F)
 #This looks quadratic
 data.frame(x = test@frame$logODAGtot, resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)",se = F)
 
 data.frame(x = predict(test), resid = residuals(test)) %>% 
-  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(se = F)
+  ggplot(aes(x = x, y = resid)) + geom_point() + geom_smooth(method = "lm", formula =  "y~x + I(x^2)",se = F)
 
 
 test <- lmer(log(HHI) ~ POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR), data = HHI)
