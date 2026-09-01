@@ -6,7 +6,8 @@ library(readxl)
 setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 #masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
-masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+#masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
 
 #restofworldold = read_excel("data/Rest of the World.xlsx")
 #restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
@@ -60,6 +61,9 @@ HHI <- masterset %>%
   mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
   mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
 
+#Output HHI file
+HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_501, ODAG201:ODAG501) %>% 
+  write.csv(file = "./HHI_20260901.csv", row.names = FALSE)
 
 #HHI values over time
 #HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_500, ODAG201:ODAG416) %>% write.csv(file = "./HHI.csv", row.names = FALSE)
@@ -100,12 +104,16 @@ HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
          POLITY_lag3 = lag(POLITY,3),
          POLITY2_lag1 = lag(POLITY2,1),
          POLITY2_lag2 = lag(POLITY2,2),
-         POLITY2_lag3 = lag(POLITY2,3)
+         POLITY2_lag3 = lag(POLITY2,3),
+         V2x_Libdem_lag1 = lag(V2x_Libdem,1),
+         V2x_Libdem_lag2 = lag(V2x_Libdem,2),
+         V2x_Libdem_lag3 = lag(V2x_Libdem,3)
+         
   ) %>% 
-  ungroup() %>% mutate(logitHHI = log(ifelse(HHI == 1,0.999,HHI)/(1-ifelse(HHI == 1,0.999,HHI))))
+  ungroup() 
   
 
-#
+
 
 #Summary stuff
 HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T)) 
@@ -118,6 +126,7 @@ HHI %>% ggplot(aes(x = HHI)) + geom_density() + theme_bw()
 HHI %>% ggplot(aes(x = POLITY2, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = POLITY, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = V2x_Libdem, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logODAGtot, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logGNI, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
@@ -129,24 +138,92 @@ HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F) 
 library(lme4)
 library(lmerTest)
 library(splines)
+#Polity2
 mod0_POLITY2 <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
 mod1_POLITY2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+mod0_POLITY2_lag1 <- lmer(log(HHI) ~ POLITY2_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_POLITY2_lag2 <- lmer(log(HHI) ~ POLITY2_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_POLITY2_lag3 <- lmer(log(HHI) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
+
+mod1_POLITY2_lag1 <- lmer(log(HHI) ~  POLITY2_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_lag2 <- lmer(log(HHI) ~  POLITY2_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_lag3 <- lmer(log(HHI) ~  POLITY2_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
 
 mod0_POLITY <- lmer(log(HHI) ~ POLITY  + (1|CCODE) + (1|YEAR), data = HHI)
 mod1_POLITY <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
 
+#Polity
+mod0_POLITY_lag1 <- lmer(log(HHI) ~ POLITY_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_POLITY_lag2 <- lmer(log(HHI) ~ POLITY_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_POLITY_lag3 <- lmer(log(HHI) ~ POLITY_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
+
+mod1_POLITY_lag1 <- lmer(log(HHI) ~  POLITY_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_lag2 <- lmer(log(HHI) ~  POLITY_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_lag3 <- lmer(log(HHI) ~  POLITY_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+
 mod0_TOTLIB1 <- lmer(log(HHI) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
 mod1_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
 
+mod0_TOTLIB1_lag1 <- lmer(log(HHI) ~ TOTLIB1_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_TOTLIB1_lag2 <- lmer(log(HHI) ~ TOTLIB1_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_TOTLIB1_lag3 <- lmer(log(HHI) ~ TOTLIB1_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
+
+mod1_TOTLIB1_lag1 <- lmer(log(HHI) ~  TOTLIB1_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_lag2 <- lmer(log(HHI) ~  TOTLIB1_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_lag3 <- lmer(log(HHI) ~  TOTLIB1_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+
+mod0_V2x_Libdem <- lmer(log(HHI) ~ V2x_Libdem  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_V2x_Libdem <- lmer(log(HHI) ~  V2x_Libdem + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+mod0_V2x_Libdem_lag1 <- lmer(log(HHI) ~ V2x_Libdem_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_V2x_Libdem_lag2 <- lmer(log(HHI) ~ V2x_Libdem_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_V2x_Libdem_lag3 <- lmer(log(HHI) ~ V2x_Libdem_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
+
+mod1_V2x_Libdem_lag1 <- lmer(log(HHI) ~  V2x_Libdem_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem_lag2 <- lmer(log(HHI) ~  V2x_Libdem_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem_lag3 <- lmer(log(HHI) ~  V2x_Libdem_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+
+
+
 save(mod0_POLITY2, file = "./HHImodels/mod0_POLITY2.RData")
 save(mod1_POLITY2, file = "./HHImodels/mod1_POLITY2.RData")
+save(mod0_POLITY2_lag1, file = "./HHImodels/mod0_POLITY2_lag1.RData")
+save(mod0_POLITY2_lag2, file = "./HHImodels/mod0_POLITY2_lag2.RData")
+save(mod0_POLITY2_lag3, file = "./HHImodels/mod0_POLITY2_lag3.RData")
+save(mod1_POLITY2_lag1, file = "./HHImodels/mod1_POLITY2_lag1.RData")
+save(mod1_POLITY2_lag2, file = "./HHImodels/mod1_POLITY2_lag2.RData")
+save(mod1_POLITY2_lag3, file = "./HHImodels/mod1_POLITY2_lag3.RData")
+
 
 save(mod0_POLITY, file = "./HHImodels/mod0_POLITY.RData")
 save(mod1_POLITY, file = "./HHImodels/mod1_POLITY.RData")
+save(mod0_POLITY_lag1, file = "./HHImodels/mod0_POLITY_lag1.RData")
+save(mod0_POLITY_lag2, file = "./HHImodels/mod0_POLITY_lag2.RData")
+save(mod0_POLITY_lag3, file = "./HHImodels/mod0_POLITY_lag3.RData")
+save(mod1_POLITY_lag1, file = "./HHImodels/mod1_POLITY_lag1.RData")
+save(mod1_POLITY_lag2, file = "./HHImodels/mod1_POLITY_lag2.RData")
+save(mod1_POLITY_lag3, file = "./HHImodels/mod1_POLITY_lag3.RData")
 
 save(mod0_TOTLIB1, file = "./HHImodels/mod0_TOTLIB1.RData")
 save(mod1_TOTLIB1, file = "./HHImodels/mod1_TOTLIB1.RData")
+save(mod0_TOTLIB1_lag1, file = "./HHImodels/mod0_TOTLIB1_lag1.RData")
+save(mod0_TOTLIB1_lag2, file = "./HHImodels/mod0_TOTLIB1_lag2.RData")
+save(mod0_TOTLIB1_lag3, file = "./HHImodels/mod0_TOTLIB1_lag3.RData")
+save(mod1_TOTLIB1_lag1, file = "./HHImodels/mod1_TOTLIB1_lag1.RData")
+save(mod1_TOTLIB1_lag2, file = "./HHImodels/mod1_TOTLIB1_lag2.RData")
+save(mod1_TOTLIB1_lag3, file = "./HHImodels/mod1_TOTLIB1_lag3.RData")
 
+save(mod0_V2x_Libdem, file = "./HHImodels/mod0_V2x_Libdem.RData")
+save(mod1_V2x_Libdem, file = "./HHImodels/mod1_V2x_Libdem.RData")
+save(mod0_V2x_Libdem_lag1, file = "./HHImodels/mod0_V2x_Libdem_lag1.RData")
+save(mod0_V2x_Libdem_lag2, file = "./HHImodels/mod0_V2x_Libdem_lag2.RData")
+save(mod0_V2x_Libdem_lag3, file = "./HHImodels/mod0_V2x_Libdem_lag3.RData")
+save(mod1_V2x_Libdem_lag1, file = "./HHImodels/mod1_V2x_Libdem_lag1.RData")
+save(mod1_V2x_Libdem_lag2, file = "./HHImodels/mod1_V2x_Libdem_lag2.RData")
+save(mod1_V2x_Libdem_lag3, file = "./HHImodels/mod1_V2x_Libdem_lag3.RData")
 
 #############################################
 #Appendix

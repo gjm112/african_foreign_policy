@@ -7,7 +7,7 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "August 31, 2026"
+date: "September 1, 2026"
 ---
 
 
@@ -42,7 +42,9 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
 # Full Model
 
-Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots + \beta_5X_{5it} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
+Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
+
+Additional covariates in this model include GNI, Population, and total ODAG all transformed on the log scale.  In addition, quadratic terms were included for log GNI and log total ODAG while log Population was included with a quadratic and cubic terms.  
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
@@ -58,15 +60,17 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
 
 ```{r}
-#Note original Hirschman ideas was the sqaure root of the sum of squres of market share. 
+#Note original Hirschman ideas was the square root of the sum of squres of market share. 
 #HHI is now just the sum of squares.  
 library(tidyverse)
 library(readxl)
+library(gt)
+library(data.table)
 
 setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 #masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
-masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
 
 #restofworldold = read_excel("data/Rest of the World.xlsx")
 #restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
@@ -124,7 +128,7 @@ HHI <- masterset %>%
 #HHI values over time
 #HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_500, ODAG201:ODAG416) %>% write.csv(file = "./HHI.csv", row.names = FALSE)
 
-HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw()
+#HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() + facet_wrap(~COUNTRY) + theme_bw()
 
 
 ## Prepare data for analysis. 
@@ -160,11 +164,26 @@ HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
          POLITY_lag3 = lag(POLITY,3),
          POLITY2_lag1 = lag(POLITY2,1),
          POLITY2_lag2 = lag(POLITY2,2),
-         POLITY2_lag3 = lag(POLITY2,3)
+         POLITY2_lag3 = lag(POLITY2,3),
+         V2x_Libdem_lag1 = lag(V2x_Libdem,1),
+         V2x_Libdem_lag2 = lag(V2x_Libdem,2),
+         V2x_Libdem_lag3 = lag(V2x_Libdem,3)
+         
   ) %>% 
-  ungroup() %>% mutate(logitHHI = log(ifelse(HHI == 1,0.999,HHI)/(1-ifelse(HHI == 1,0.999,HHI))))
+  ungroup() 
+  
   
 ```
+
+```{r fig.height=10, fig.width = 8, echo = FALSE, message = FALSE, warning=FALSE}
+HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw() + scale_x_continuous(
+    limits = c(1948,2025),                # Set min and max limits
+    breaks = c(1980, 2020),     # Set manual tick mark placement
+    labels = c(1980,  2020) 
+  )
+
+```
+
 
 ```{r echo = FALSE}
 #Summary stuff
@@ -178,6 +197,7 @@ HHI %>% ggplot(aes(x = HHI)) + geom_density() + theme_bw()
 HHI %>% ggplot(aes(x = POLITY2, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = POLITY, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = V2x_Libdem, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logODAGtot, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logGNI, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
@@ -203,23 +223,365 @@ mod1_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + 
 
 ```{r echo = FALSE}
 load("./HHImodels/mod0_POLITY2.RData")
+load("./HHImodels/mod0_POLITY2_lag1.RData")
+load("./HHImodels/mod0_POLITY2_lag2.RData")
+load("./HHImodels/mod0_POLITY2_lag3.RData")
 load("./HHImodels/mod1_POLITY2.RData")
+load("./HHImodels/mod1_POLITY2_lag1.RData")
+load("./HHImodels/mod1_POLITY2_lag2.RData")
+load("./HHImodels/mod1_POLITY2_lag3.RData")
 
 load("./HHImodels/mod0_POLITY.RData")
+load("./HHImodels/mod0_POLITY_lag1.RData")
+load("./HHImodels/mod0_POLITY_lag2.RData")
+load("./HHImodels/mod0_POLITY_lag3.RData")
 load("./HHImodels/mod1_POLITY.RData")
+load("./HHImodels/mod1_POLITY_lag1.RData")
+load("./HHImodels/mod1_POLITY_lag2.RData")
+load("./HHImodels/mod1_POLITY_lag3.RData")
 
 load("./HHImodels/mod0_TOTLIB1.RData")
+load("./HHImodels/mod0_TOTLIB1_lag1.RData")
+load("./HHImodels/mod0_TOTLIB1_lag2.RData")
+load("./HHImodels/mod0_TOTLIB1_lag3.RData")
 load("./HHImodels/mod1_TOTLIB1.RData")
+load("./HHImodels/mod1_TOTLIB1_lag1.RData")
+load("./HHImodels/mod1_TOTLIB1_lag2.RData")
+load("./HHImodels/mod1_TOTLIB1_lag3.RData")
+
+load("./HHImodels/mod0_V2x_Libdem.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag1.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag2.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag3.RData")
+load("./HHImodels/mod1_V2x_Libdem.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag1.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag2.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag3.RData")
 ```
+
+
+```{r}
+totlib_nolag <- (
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_TOTLIB1, parm = "TOTLIB1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod0_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag1 <- (
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_TOTLIB1_lag1, parm = "TOTLIB1_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod0_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag2 <- (
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_TOTLIB1_lag2, parm = "TOTLIB1_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod0_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag3 <- (
+  totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_TOTLIB1_lag3, parm = "TOTLIB1_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod0_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_nolag <- (
+  POLITY2 = as.data.frame(coef(summary(mod0_POLITY2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_POLITY2, parm = "POLITY2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod0_POLITY2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag1 <- (
+  POLITY2 = as.data.frame(coef(summary(mod0_POLITY2_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_POLITY2_lag1, parm = "POLITY2_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod0_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag2 <- (
+  POLITY2 = as.data.frame(coef(summary(mod0_POLITY2_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_POLITY2_lag2, parm = "POLITY2_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod0_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag3 <- (
+  POLITY2 = as.data.frame(coef(summary(mod0_POLITY2_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_POLITY2_lag3, parm = "POLITY2_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod0_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+
+
+V2x_Libdem_nolag <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod0_V2x_Libdem))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_V2x_Libdem, parm = "V2x_Libdem", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod0_V2x_Libdem)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag1 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod0_V2x_Libdem_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_V2x_Libdem_lag1, parm = "V2x_Libdem_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod0_V2x_Libdem_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag2 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod0_V2x_Libdem_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_V2x_Libdem_lag2, parm = "V2x_Libdem_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod0_V2x_Libdem_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag3 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod0_V2x_Libdem_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod0_V2x_Libdem_lag3, parm = "V2x_Libdem_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod0_V2x_Libdem_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+
+
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, V2x_Libdem_nolag, V2x_Libdem_lag1, V2x_Libdem_lag2, V2x_Libdem_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
+                         str_detect(var, "V2x_Libdem") ~ "V2x_Libdem"))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    n = md("$n$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    pval = md("$p$"),
+    confidence = md("$\\hat{\\beta}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Table 1: Reduced Model Parameters for **Democracy variables** and Their **Lags**")
+  )
+
+```
+
+
+```{r echo = FALSE}
+totlib_nolag <- (
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_TOTLIB1, parm = "TOTLIB1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod1_TOTLIB1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag1 <- (
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_TOTLIB1_lag1, parm = "TOTLIB1_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod1_TOTLIB1_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag2 <- (
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_TOTLIB1_lag2, parm = "TOTLIB1_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod1_TOTLIB1_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+totlib_lag3 <- (
+  totlib1 = as.data.frame(coef(summary(mod1_TOTLIB1_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "TOTLIB1_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_TOTLIB1_lag3, parm = "TOTLIB1_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod1_TOTLIB1_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_nolag <- (
+  POLITY2 = as.data.frame(coef(summary(mod1_POLITY2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_POLITY2, parm = "POLITY2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod1_POLITY2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag1 <- (
+  POLITY2 = as.data.frame(coef(summary(mod1_POLITY2_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_POLITY2_lag1, parm = "POLITY2_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod1_POLITY2_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag2 <- (
+  POLITY2 = as.data.frame(coef(summary(mod1_POLITY2_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_POLITY2_lag2, parm = "POLITY2_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod1_POLITY2_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+POLITY2_lag3 <- (
+  POLITY2 = as.data.frame(coef(summary(mod1_POLITY2_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "POLITY2_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_POLITY2_lag3, parm = "POLITY2_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod1_POLITY2_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+
+
+V2x_Libdem_nolag <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod1_V2x_Libdem))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_V2x_Libdem, parm = "V2x_Libdem", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag0", n = nobs(mod1_V2x_Libdem)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag1 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod1_V2x_Libdem_lag1))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag1") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_V2x_Libdem_lag1, parm = "V2x_Libdem_lag1", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag1", n = nobs(mod1_V2x_Libdem_lag1)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag2 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod1_V2x_Libdem_lag2))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag2") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_V2x_Libdem_lag2, parm = "V2x_Libdem_lag2", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag2", n = nobs(mod1_V2x_Libdem_lag2)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+V2x_Libdem_lag3 <- (
+  V2x_Libdem = as.data.frame(coef(summary(mod1_V2x_Libdem_lag3))) %>%
+    rownames_to_column(var = "var") %>%
+    filter(var == "V2x_Libdem_lag3") %>%
+    mutate(Estimate = round(Estimate, 3), pval = format.pval(`Pr(>|t|)`,digits = 3, eps = 1e-5), conf = confint(mod1_V2x_Libdem_lag3, parm = "V2x_Libdem_lag3", level = 0.95, method = "Wald")) %>%
+    mutate(conf_1 = round(conf[1], 3), conf_2 = round(conf[2], 3), confidence = paste0(conf_1, ", ", conf_2)) %>% 
+  mutate(lag = "lag3", n = nobs(mod1_V2x_Libdem_lag3)) %>%
+  select(var, lag, n, Estimate, pval, confidence))
+
+
+
+
+table_data = list(
+  totlib_nolag, totlib_lag1, totlib_lag2, totlib_lag3, POLITY2_nolag, POLITY2_lag1, POLITY2_lag2, POLITY2_lag3, V2x_Libdem_nolag, V2x_Libdem_lag1, V2x_Libdem_lag2, V2x_Libdem_lag3
+) %>%
+  rbindlist() %>%
+  mutate(var = case_when(str_detect(var, "TOTLIB1") ~ "TOTLIB1",
+                         str_detect(var, "POLITY2") ~ "POLITY2",
+                         str_detect(var, "V2x_Libdem") ~ "V2x_Libdem"))
+
+table_data %>%
+  gt(rowname_col = "var", groupname_col = "lag") %>%
+  tab_options(row_group.as_column = T) %>%
+  cols_label(
+    n = md("$n$"),
+    Estimate = md("$\\hat{\\beta}$"),
+    pval = md("$p$"),
+    confidence = md("$\\hat{\\beta}: 95\\% CI$")
+  ) %>%
+  cols_align(
+    align = "center"
+  ) %>%
+  tab_header(
+    title = md("Table 2: Full Model Parameters for **Democracy variables** and Their **Lags**")
+  )
+
+```
+
+\newpage 
+
+# Appendix
 
 ```{r}
 summary(mod0_POLITY2)
+summary(mod0_POLITY2_lag1)
+summary(mod0_POLITY2_lag2)
+summary(mod0_POLITY2_lag3)
 summary(mod1_POLITY2)
+summary(mod1_POLITY2_lag1)
+summary(mod1_POLITY2_lag2)
+summary(mod1_POLITY2_lag3)
 
 summary(mod0_POLITY)
+summary(mod0_POLITY_lag1)
+summary(mod0_POLITY_lag2)
+summary(mod0_POLITY_lag3)
 summary(mod1_POLITY)
+summary(mod1_POLITY_lag1)
+summary(mod1_POLITY_lag2)
+summary(mod1_POLITY_lag3)
 
 summary(mod0_TOTLIB1)
+summary(mod0_TOTLIB1_lag1)
+summary(mod0_TOTLIB1_lag2)
+summary(mod0_TOTLIB1_lag3)
+
 summary(mod1_TOTLIB1)
+summary(mod1_TOTLIB1_lag1)
+summary(mod1_TOTLIB1_lag2)
+summary(mod1_TOTLIB1_lag3)
+
+summary(mod0_V2x_Libdem)
+summary(mod0_V2x_Libdem_lag1)
+summary(mod0_V2x_Libdem_lag2)
+summary(mod0_V2x_Libdem_lag3)
+
+summary(mod1_V2x_Libdem)
+summary(mod1_V2x_Libdem_lag1)
+summary(mod1_V2x_Libdem_lag2)
+summary(mod1_V2x_Libdem_lag3)
 ```
 
