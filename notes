@@ -105,3 +105,9 @@ Table
       - mod1_v2x_LIBDEM_lag2_noODAG
     - v2x_LIBDEM lag3 full model no ODAG FIXED
       - mod1_v2x_LIBDEM_lag3_noODAG
+      
+8-31-26
+
+  - HHI index ranges from 1/k to 1
+  - We need to create HHI models for democracy scores and their lags
+  - Copy and paste the old reports for HHI models
