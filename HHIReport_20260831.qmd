@@ -10,29 +10,31 @@ editor: visual
 date: "September 1, 2026"
 ---
 
-
-
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->
 
 <!-- summary(mod1_v2x_LIBDEM_lag1) -->
 
 <!-- v2x_Libdem lag 1 didn't converge -->
 
-This analysis seeks to evaluate the relationship between a country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI uses a country's official development assistance gross (ODAG) share from external countries. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY and POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x_libdem).
+# Overview
 
-This main analyses were split into two parts: a reduced model and a full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the internal country, the external country, their interaction, and the year. These random effects account for correlation between observations with in the structure of the data.
+This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the share of an African country's official development assistance gross (ODAG) share from external countries. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem).
 
-The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, ODAG (Note: When ODAG is not observed it is set to 0 in the analysis), and total sum of trade import and export gross (TRDTOT). We applied a log transformation to each of these predictor variables due to their fairly extreme right-skewness (shown in the following density plots). We applied both of these model with lagged democracy scores of 1, 2, and 3 years. Finally, note that the POLITY model was dropped here as there were convergence issues in parameter estimation with the addition of TRDTOT and ODAG with a large number of zeroes. These convergence issues were not present when using POLITY2.
+This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for correlation between observations within the data structure.
+
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), amd total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). We applied a log transformation to each of these predictor variables due to their fairly extreme right skew and quadratic or cubic transformations when necessary to capture nonlinear relationships. We applied this model framework to lagged democracy scores of 1, 2, and 3 years.
+
+In our previous analysis, we included additional models for the POLITY democracy score from the POLITY IV database. Here, the POLITY model was dropped due to convergence issues in parameter estimation with the addition of ODAG, which both have a large number of zeros. These convergence issues were not present when using POLITY2.
 
 # Reduced Model
 
-The reduced model equations are given below, where the response $Y_{it}$ ranges from 1/$k$ to 1 for African country $i$ in year $t$ and $k$ is the number of possible sources of ODAG. We applied a log transformation to HHI to fix its heavy non-constant variance, where the residuals increased in size as the fitted values increased. The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
+The reduced model equations are given below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI to fix its non-constant variance, where the residuals increased in size as the fitted values increased. The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
 
-In lagged models, the year $t$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the external country's democracy score in the prior year (year $t$-1).
+In lagged models, the year $t$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the external country's democracy score in the prior year (year $t$-1).
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
-$\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$
+$\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$
 
 $$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
 
@@ -42,13 +44,13 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
 # Full Model
 
-Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
+Our full model equations are given below. They follow the same setup as the reduced model with the addition of the aforementioned transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
 
-Additional covariates in this model include GNI, Population, and total ODAG all transformed on the log scale.  In addition, quadratic terms were included for log GNI and log total ODAG while log Population was included with a quadratic and cubic terms.  
+Additional predictors in this model include the African country's log-transformed GNI, population, and total ODAG. Quadratic terms were included for the log-transformed GNI, population, and total ODAG. The log-transformed population variable added a cubic term to capture further nonlinear tendencies.
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
-$$\text{log}(HHI_{it}) = \beta_0 + \beta_1X_{1ik} + \ldots + \beta_5X_{5it} + \gamma_{0i} + \gamma_{tk} + \epsilon_{it}$$
+$$\log(HHI_{it}) = \beta_0 + \beta_1X_{1ik} + \ldots + \gamma_{0i} + \gamma_{tk} + \epsilon_{it}$$
 
 $$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
 
@@ -67,7 +69,7 @@ library(readxl)
 library(gt)
 library(data.table)
 
-setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
+# setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 #masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
 masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
