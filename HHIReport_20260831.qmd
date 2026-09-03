@@ -64,6 +64,7 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
 <!-- As shown in Table 2, none of the democracy scores are significant at the $\alpha$ = 0.05 level. External population size, the amount of aid sent to an internal country (ODAG), and imports (TRDIM) are all highly significant and all show a positive relationship with the probability of a connection.   -->
 
+# HHI Model Information and Relevant Visualizations
 
 ```{r}
 #Note original Hirschman ideas was the square root of the sum of squres of market share. 
