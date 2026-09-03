@@ -26,6 +26,10 @@ The full model includes all of the parts of the reduced model while adding the A
 
 In our previous analysis, we included additional models for the POLITY democracy score from the POLITY IV database. Here, the POLITY model was dropped due to convergence issues in parameter estimation with the addition of ODAG, which both have a large number of zeros. These convergence issues were not present when using POLITY2.
 
+In the reduced models, every V2x_Libdem and POLITY2 coefficient (besides POLITY2 in the lag0 model) is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, it tends to have more countries providing development aid and vice versa.
+
+In the full models, every coefficient besides POLITY2 in the lag0 and lag1 models is significant at $\alpha$ = 0.05. The negative direction of the V2x_Libdem and POLITY2 coefficients and positive direction of the TOTLIB1 coefficients provide the same conclusion as for the reduced models. To reiterate, as an African country is more democratic, it tends to have more countries providing development aid and vice versa.
+
 # Reduced Model
 
 The reduced model equations are given below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI to fix its non-constant variance, where the residuals increased in size as the fitted values increased. The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
@@ -185,10 +189,113 @@ HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + t
   )
 
 ```
+The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
+```{r}
+HHI %>% 
+  ggplot(aes(x = POPULATN)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Population Density\n of External Countries",
+    x = "External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logPOP)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Population\n Density of External Countries",
+    x = "Log-Transformed External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = GNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Gross National Income (GNI)\n Density of External Countries",
+    x = "External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logGNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Gross National Income (GNI)\n Density of External Countries",
+    x = "Log-Transformed External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = ODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Official Development Assistance Gross (ODAG)\n Density of External Countries",
+    x = "External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Official Development Assistance Gross\n (ODAG) Density of External Countries",
+    x = "Log-Transformed External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+The relationship between relevant democracy scores and log-transformed HHI, grouped and colored by year, and the relationship between log-transformed full model predictor variables and HHI are all visualized below.
 
 ```{r echo = FALSE}
 #Summary stuff
+
+HHI %>% filter(!is.na(TOTLIB1)) %>% group_by(COUNTRY) %>% reframe(TOTLIB1 = mean(TOTLIB1)) %>% arrange(desc(TOTLIB1))
+HHI %>% filter(!is.na(V2x_Libdem)) %>% group_by(COUNTRY) %>% reframe(V2x_Libdem = mean(V2x_Libdem)) %>% arrange(desc(V2x_Libdem))
+HHI %>% filter(!is.na(POLITY2)) %>% group_by(COUNTRY) %>% reframe(POLITY2 = mean(POLITY2)) %>% arrange(desc(POLITY2))
+
 HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T)) 
 HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T))  %>% ggplot(aes(x = YEAR, y = meanHHI)) + geom_point() + geom_line() + theme_bw()
 HHI %>% ggplot(aes(x = YEAR, y = log(HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
@@ -397,7 +504,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Table 1: Reduced Model Parameters for **Democracy variables** and Their **Lags**")
+    title = md("Table 1: Reduced Model Parameters for **Democracy Variables** and Their **Lags**")
   )
 
 ```
@@ -538,7 +645,7 @@ table_data %>%
     align = "center"
   ) %>%
   tab_header(
-    title = md("Table 2: Full Model Parameters for **Democracy variables** and Their **Lags**")
+    title = md("Table 2: Full Model Parameters for **Democracy Variables** and Their **Lags**")
   )
 
 ```
