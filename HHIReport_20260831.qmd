@@ -7,7 +7,7 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "September 1, 2026"
+date: "September 3, 2026"
 ---
 
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->
@@ -18,21 +18,20 @@ date: "September 1, 2026"
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the share of an African country's official development assistance gross (ODAG) share from external countries. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem).
+This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total.  Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio.  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem).  (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
-This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for correlation between observations within the data structure.
+This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
-The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), amd total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). We applied a log transformation to each of these predictor variables due to their fairly extreme right skew and quadratic or cubic transformations when necessary to capture nonlinear relationships. We applied this model framework to lagged democracy scores of 1, 2, and 3 years.
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). We applied a log transformation to each of these predictor variables due to their right skew and quadratic or cubic transformations when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
 
-In our previous analysis, we included additional models for the POLITY democracy score from the POLITY IV database. Here, the POLITY model was dropped due to convergence issues in parameter estimation with the addition of ODAG, which both have a large number of zeros. These convergence issues were not present when using POLITY2.
+In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Table 1. 
 
-In the reduced models, every V2x_Libdem and POLITY2 coefficient (besides POLITY2 in the lag0 model) is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, it tends to have more countries providing development aid and vice versa.
+In the full models, every democracy score coefficient except POLITY2 in the lag0 and lag1 models is significant at $\alpha$ = 0.05. The negative direction of the V2x_Libdem and POLITY2 coefficients and positive direction of the TOTLIB1 coefficients provide the same conclusion as the the reduced models. That is, controlling for population, total ODAG, GNI, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Table 2.  Full model results for all variables in the full models along with random effects estimates are presented for all models in the appendix.   
 
-In the full models, every coefficient besides POLITY2 in the lag0 and lag1 models is significant at $\alpha$ = 0.05. The negative direction of the V2x_Libdem and POLITY2 coefficients and positive direction of the TOTLIB1 coefficients provide the same conclusion as for the reduced models. To reiterate, as an African country is more democratic, it tends to have more countries providing development aid and vice versa.
+# Models 
+## Reduced Model
 
-# Reduced Model
-
-The reduced model equations are given below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI to fix its non-constant variance, where the residuals increased in size as the fitted values increased. The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
+The reduced model, described below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI for better model fit.  The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
 
 In lagged models, the year $t$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the external country's democracy score in the prior year (year $t$-1).
 
@@ -43,8 +42,6 @@ $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \ep
 $$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
 
 $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
-
-
 
 # Full Model
 
@@ -60,13 +57,9 @@ $$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
 
 $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
-<!-- We gotta fix this.  This isn't significant.  The model didn't converge.  You can tell this because the confidence interval is so narrow it's ridiculous and very different from the others.  -->
+# Data Visualizations and Results
 
-<!-- As shown in Table 2, none of the democracy scores are significant at the $\alpha$ = 0.05 level. External population size, the amount of aid sent to an internal country (ODAG), and imports (TRDIM) are all highly significant and all show a positive relationship with the probability of a connection.   -->
-
-# HHI Model Information and Relevant Visualizations
-
-```{r}
+```{r }
 #Note original Hirschman ideas was the square root of the sum of squres of market share. 
 #HHI is now just the sum of squares.  
 library(tidyverse)
@@ -190,6 +183,7 @@ HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + t
   )
 
 ```
+
 The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
 ```{r}
@@ -369,7 +363,6 @@ load("./HHImodels/mod1_V2x_Libdem_lag2.RData")
 load("./HHImodels/mod1_V2x_Libdem_lag3.RData")
 ```
 
-
 ```{r}
 totlib_nolag <- (
   totlib1 = as.data.frame(coef(summary(mod0_TOTLIB1))) %>%
@@ -509,7 +502,6 @@ table_data %>%
   )
 
 ```
-
 
 ```{r echo = FALSE}
 totlib_nolag <- (
@@ -651,7 +643,7 @@ table_data %>%
 
 ```
 
-\newpage 
+\newpage
 
 # Appendix
 
@@ -694,4 +686,3 @@ summary(mod1_V2x_Libdem_lag1)
 summary(mod1_V2x_Libdem_lag2)
 summary(mod1_V2x_Libdem_lag3)
 ```
-
