@@ -84,7 +84,8 @@ masterset = masterset %>%
          across(where(is.numeric), ~ na_if(., -66)),
          COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
                              COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
-                             .default = COUNTRY))
+                             .default = COUNTRY),
+         HIST_PERIOD = ifelse(YEAR >= 1992, 1, 0))
 
 #Convert commas to periods. 
 #it looks like commas are being used as the decimal.  
