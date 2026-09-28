@@ -184,6 +184,12 @@ HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + t
 
 ```
 
+```{r}
+HHI %>% filter(YEAR == 2024) %>% arrange(HHI) %>% select(COUNTRY, YEAR, HHI) %>% view()
+
+HHI %>% filter(YEAR >= 1990) %>% group_by(COUNTRY) %>% summarize(mn = mean(HHI, na.rm = T)) %>% select(COUNTRY,mn) %>% view()
+```
+
 The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
 ```{r}
