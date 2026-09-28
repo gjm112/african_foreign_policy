@@ -7,7 +7,8 @@ setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 #masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
 #masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
-masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
+#masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
+masterset = read_csv("data2026/MASTER DATASET - 9.10.2026.csv")
 
 #restofworldold = read_excel("data/Rest of the World.xlsx")
 #restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
@@ -21,7 +22,11 @@ masterset = masterset %>%
          across(where(is.numeric), ~ na_if(., -66)),
          COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
                              COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
-                             .default = COUNTRY))
+                             .default = COUNTRY),
+         COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
+         COLPAST1 = as.factor(COLPAST1),
+         REGION = as.factor(REGION))
+         
 
 #Convert commas to periods. 
 #it looks like commas are being used as the decimal.  
@@ -140,51 +145,51 @@ library(lmerTest)
 library(splines)
 #Polity2
 mod0_POLITY2 <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_POLITY2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + COLPAST1 + REGION +  COLD_WAR  + (1|CCODE) + (1|YEAR) , data = HHI)
 
 mod0_POLITY2_lag1 <- lmer(log(HHI) ~ POLITY2_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_POLITY2_lag2 <- lmer(log(HHI) ~ POLITY2_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_POLITY2_lag3 <- lmer(log(HHI) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_POLITY2_lag1 <- lmer(log(HHI) ~  POLITY2_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_POLITY2_lag2 <- lmer(log(HHI) ~  POLITY2_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_POLITY2_lag3 <- lmer(log(HHI) ~  POLITY2_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_lag1 <- lmer(log(HHI) ~  POLITY2_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_lag2 <- lmer(log(HHI) ~  POLITY2_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY2_lag3 <- lmer(log(HHI) ~  POLITY2_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 mod0_POLITY <- lmer(log(HHI) ~ POLITY  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_POLITY <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 #Polity
 mod0_POLITY_lag1 <- lmer(log(HHI) ~ POLITY_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_POLITY_lag2 <- lmer(log(HHI) ~ POLITY_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_POLITY_lag3 <- lmer(log(HHI) ~ POLITY_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_POLITY_lag1 <- lmer(log(HHI) ~  POLITY_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_POLITY_lag2 <- lmer(log(HHI) ~  POLITY_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_POLITY_lag3 <- lmer(log(HHI) ~  POLITY_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_lag1 <- lmer(log(HHI) ~  POLITY_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_lag2 <- lmer(log(HHI) ~  POLITY_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_POLITY_lag3 <- lmer(log(HHI) ~  POLITY_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 
 mod0_TOTLIB1 <- lmer(log(HHI) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 mod0_TOTLIB1_lag1 <- lmer(log(HHI) ~ TOTLIB1_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_TOTLIB1_lag2 <- lmer(log(HHI) ~ TOTLIB1_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_TOTLIB1_lag3 <- lmer(log(HHI) ~ TOTLIB1_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_TOTLIB1_lag1 <- lmer(log(HHI) ~  TOTLIB1_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_TOTLIB1_lag2 <- lmer(log(HHI) ~  TOTLIB1_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_TOTLIB1_lag3 <- lmer(log(HHI) ~  TOTLIB1_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_lag1 <- lmer(log(HHI) ~  TOTLIB1_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_lag2 <- lmer(log(HHI) ~  TOTLIB1_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_TOTLIB1_lag3 <- lmer(log(HHI) ~  TOTLIB1_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 
 mod0_V2x_Libdem <- lmer(log(HHI) ~ V2x_Libdem  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_V2x_Libdem <- lmer(log(HHI) ~  V2x_Libdem + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem <- lmer(log(HHI) ~  V2x_Libdem + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 mod0_V2x_Libdem_lag1 <- lmer(log(HHI) ~ V2x_Libdem_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_V2x_Libdem_lag2 <- lmer(log(HHI) ~ V2x_Libdem_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
 mod0_V2x_Libdem_lag3 <- lmer(log(HHI) ~ V2x_Libdem_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_V2x_Libdem_lag1 <- lmer(log(HHI) ~  V2x_Libdem_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_V2x_Libdem_lag2 <- lmer(log(HHI) ~  V2x_Libdem_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_V2x_Libdem_lag3 <- lmer(log(HHI) ~  V2x_Libdem_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2) + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem_lag1 <- lmer(log(HHI) ~  V2x_Libdem_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem_lag2 <- lmer(log(HHI) ~  V2x_Libdem_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_V2x_Libdem_lag3 <- lmer(log(HHI) ~  V2x_Libdem_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAGtot + I(logODAGtot^2)+ COLPAST1 + REGION +  COLD_WAR + (1|CCODE) + (1|YEAR) , data = HHI)
 
 
 
