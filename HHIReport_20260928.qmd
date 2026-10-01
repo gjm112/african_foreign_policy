@@ -1,0 +1,652 @@
+---
+title: "HHI Report"
+author: "Gregory J. Matthews and Steven Pappas"
+format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
+editor: visual
+date: "September 28, 2026"
+---
+
+<!-- NOTE: for Totlib1 lower scores are MORE democracy -->
+
+<!-- summary(mod1_v2x_LIBDEM_lag1) -->
+
+<!-- v2x_Libdem lag 1 didn't converge -->
+
+# Overview
+
+This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total.  Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio.  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem).  (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+
+This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
+
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total trade imports, total trade exports,and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis).  Additionally, we included categorical variables for colonial past and region, and a cold war indicator.  We applied a log transformation to GNI, population, total ODAG, imports, and exports due to their right skew. Quadratic and cubic transformations were added when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
+
+In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Tables 1-3. 
+
+In the full models, V2x_Libdem and TOTLIB are significant at the $\alpha$ = 0.05 level for all lags.  Conversely, POLITY2 is not significant at any lags.  The negative coefficient for V2x_Libdem and the positive direction for TOTLIB1 yield the same conclusion as the the reduced models. That is, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Tables 4-6.  In addition to the democracy variables, population, GNI, and ODAG are all highly associated with HHI.  The Cold War indicator is significant in the POLITY2 and v2x_Libdem models, but not in TOTLIB1 model.  The Cold War indicator is positive indicating that during the Cold War HHI values were generally larger (i.e., less diverse) than after the Cold War ended.  
+
+# Models 
+
+## Reduced Model
+
+The reduced model is described below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI for better model fit.  The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
+
+In lagged models, the year $t$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the external country's democracy score in the prior year (year $t$-1).
+
+$$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
+
+$\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$
+
+$$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
+
+$$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
+
+# Full Model
+
+Our full model equations are given below. They follow the same setup as the reduced model with the addition of the aforementioned transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
+
+Additional predictors in this model include the African country's GNI, population, total ODAG, total imports and exports all on the log scale. Quadratic terms were included for the log-transformed GNI, population, and total ODAG. The log-transformed population variable added a cubic term to capture further nonlinear tendencies. In addition to these variables, colonial past, region, and a cold war indicator were included. 
+
+$$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
+
+$$\log(HHI_{it}) = \beta_0 + \beta_1X_{1ik} + \ldots + \gamma_{0i} + \gamma_{tk} + \epsilon_{it}$$
+
+$$\gamma_{0i} \sim \text{N}(0, \sigma_{country}^2)$$
+
+$$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
+
+# Data Visualizations and Results
+
+```{r }
+#Note original Hirschman ideas was the square root of the sum of squres of market share. 
+#HHI is now just the sum of squares.  
+library(tidyverse)
+library(readxl)
+library(gt)
+library(data.table)
+
+# setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
+
+#masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
+masterset = read_csv("data2026/MASTER DATASET - 7.6.2026.csv")
+
+#restofworldold = read_excel("data/Rest of the World.xlsx")
+#restofworld = read_excel("data2026/Rest of the World - 5.6.2026.xlsx")
+
+
+## Cleaning data ##
+masterset = masterset %>%
+  mutate(across(where(is.numeric), ~ na_if(., -99)),
+         across(where(is.numeric), ~ na_if(., -88)),
+         across(where(is.numeric), ~ na_if(., -77)),
+         across(where(is.numeric), ~ na_if(., -66)),
+         COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
+                             COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
+                             .default = COUNTRY),
+         HIST_PERIOD = ifelse(YEAR >= 1992, 1, 0))
+
+#Convert commas to periods. 
+#it looks like commas are being used as the decimal.  
+#Fix the nonsense formatting from excel. 
+masterset$GNI <- gsub(",",".",masterset$GNI)
+masterset$GNI <- gsub(" ","",masterset$GNI)%>% as.numeric()
+
+masterset$GNI_CAP <- gsub(",",".",masterset$GNI_CAP)
+masterset$GNI_CAP <- gsub(" ","",masterset$GNI_CAP)%>% as.numeric()
+
+masterset$POPULATN <- gsub(",",".",masterset$POPULATN)
+masterset$POPULATN <- gsub(" ","",masterset$POPULATN) %>% as.numeric()
+
+#Manually fixing names
+names(masterset)[which(names(masterset) == "TRDX352b")] <- "TRDEX352b" #These years are getting dropped.  
+names(masterset)[which(names(masterset) == "TRDX200h")] <- "TRDEX200h"
+names(masterset)[which(names(masterset) == "TRDX200m")] <- "TRDEX200m"
+names(masterset)[which(names(masterset) == "TDX321sr")] <- "TRDEX321sr"
+names(masterset)[which(names(masterset) == "TDX321sm")] <- "TRDEX321sm"
+names(masterset)[which(names(masterset) == "TDX321yr")] <- "TRDEX321yr"
+
+names(masterset)[which(names(masterset) == "TRDI200h")] <- "TRDIM200h"
+names(masterset)[which(names(masterset) == "TRDI200m")] <- "TRDIM200m"
+names(masterset)[which(names(masterset) == "TDI321sr")] <- "TRDIM321sr"
+names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
+names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
+names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
+
+masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
+
+HHI <- masterset %>%
+  mutate(across(ODAG201:ODAG501, ~ replace_na(.x, 0))) %>% #replace NA with 0
+  mutate(across(ODAG201:ODAG501, ~ pmax(.x, 0))) %>% #no negative numbers
+  mutate(across(ODAG201:ODAG501, ~ as.numeric(.x))) %>% #make these variables numeric
+  rowwise() %>% 
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
+  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
+  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+
+#HHI values over time
+#HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_500, ODAG201:ODAG416) %>% write.csv(file = "./HHI.csv", row.names = FALSE)
+
+#HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() + facet_wrap(~COUNTRY) + theme_bw()
+
+
+## Prepare data for analysis. 
+HHI <- HHI %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>% 
+  mutate(across(TRDIM351:TRDIM203, ~ as.numeric(.x))) %>% 
+  mutate(TRDEXtot = rowSums(pick(TRDEX351:TRDEX250, 
+                                 TRDEX300:TRDEX285, 
+                                 TRDEX280:TRDEX415,
+                                 TRDEX100:TRDEX147,
+                                 TRDEX577:TRDEX551,
+                                 TRDEX563:TRDEX203),na.rm = TRUE),
+         TRDIMtot = rowSums(pick(TRDIM351:TRDIM250,
+                                 TRDIM300:TRDIM285,
+                                 TRDIM280:TRDIM415,
+                                 TRDIM100:TRDIM147,
+                                 TRDIM577:TRDIM551,
+                                 TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
+  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T)) %>% 
+  mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
+         logGNI = log(GNI, 10),
+         logPOP = log(POPULATN,10),
+         logTRDIMtot = log(TRDIMtot + 1,10),
+         logTRDEXtot = log(TRDEXtot + 1,10), 
+         logODAGtot = log(ODAGtot + 1, 10)) 
+
+#Now create the lag variables
+HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>% 
+  mutate(TOTLIB1_lag1 = lag(TOTLIB1,1),
+         TOTLIB1_lag2 = lag(TOTLIB1,2),
+         TOTLIB1_lag3 = lag(TOTLIB1,3),
+         POLITY_lag1 = lag(POLITY,1),
+         POLITY_lag2 = lag(POLITY,2),
+         POLITY_lag3 = lag(POLITY,3),
+         POLITY2_lag1 = lag(POLITY2,1),
+         POLITY2_lag2 = lag(POLITY2,2),
+         POLITY2_lag3 = lag(POLITY2,3),
+         V2x_Libdem_lag1 = lag(V2x_Libdem,1),
+         V2x_Libdem_lag2 = lag(V2x_Libdem,2),
+         V2x_Libdem_lag3 = lag(V2x_Libdem,3)
+         
+  ) %>% 
+  ungroup() 
+  
+  
+```
+
+```{r fig.height=10, fig.width = 8, echo = FALSE, message = FALSE, warning=FALSE}
+HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw() + scale_x_continuous(
+    limits = c(1948,2025),                # Set min and max limits
+    breaks = c(1980, 2020),     # Set manual tick mark placement
+    labels = c(1980,  2020) 
+  )
+
+```
+
+```{r}
+HHI %>% filter(YEAR == 2024) %>% arrange(HHI) %>% select(COUNTRY, YEAR, HHI) %>% view()
+
+HHI %>% filter(YEAR >= 1990) %>% group_by(COUNTRY) %>% summarize(mn = mean(HHI, na.rm = T)) %>% select(COUNTRY,mn) %>% view()
+```
+
+The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = POPULATN)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Population Density\n of External Countries",
+    x = "External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logPOP)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Population\n Density of External Countries",
+    x = "Log-Transformed External Country Population"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = GNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Gross National Income (GNI)\n Density of External Countries",
+    x = "External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logGNI)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Gross National Income (GNI)\n Density of External Countries",
+    x = "Log-Transformed External Country GNI"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = ODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Official Development Assistance Gross (ODAG)\n Density of External Countries",
+    x = "External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+```{r}
+HHI %>% 
+  ggplot(aes(x = logODAGtot)) + 
+  geom_density(fill = "#7bffff") +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
+  labs(
+    title = "Log-Transformed Official Development Assistance Gross\n (ODAG) Density of External Countries",
+    x = "Log-Transformed External Country ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  )
+```
+
+The relationship between relevant democracy scores and log-transformed HHI, grouped and colored by year, and the relationship between log-transformed full model predictor variables and HHI are all visualized below.
+
+```{r echo = FALSE}
+#Summary stuff
+
+HHI %>% filter(!is.na(TOTLIB1)) %>% group_by(COUNTRY) %>% reframe(TOTLIB1 = mean(TOTLIB1)) %>% arrange(desc(TOTLIB1))
+HHI %>% filter(!is.na(V2x_Libdem)) %>% group_by(COUNTRY) %>% reframe(V2x_Libdem = mean(V2x_Libdem)) %>% arrange(desc(V2x_Libdem))
+HHI %>% filter(!is.na(POLITY2)) %>% group_by(COUNTRY) %>% reframe(POLITY2 = mean(POLITY2)) %>% arrange(desc(POLITY2))
+
+HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T)) 
+HHI %>% filter(YEAR >= 1960) %>%group_by(YEAR) %>% summarize(meanHHI = mean(HHI, na.rm = T))  %>% ggplot(aes(x = YEAR, y = meanHHI)) + geom_point() + geom_line() + theme_bw()
+HHI %>% ggplot(aes(x = YEAR, y = log(HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = HHI)) + geom_density() + theme_bw()
+
+
+#
+HHI %>% ggplot(aes(x = POLITY2, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = POLITY, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = V2x_Libdem, y = log(HHI), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = logODAGtot, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = logGNI, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+```
+
+
+
+
+```{r echo = FALSE}
+load("./HHImodels/mod0_POLITY2.RData")
+load("./HHImodels/mod0_POLITY2_lag1.RData")
+load("./HHImodels/mod0_POLITY2_lag2.RData")
+load("./HHImodels/mod0_POLITY2_lag3.RData")
+load("./HHImodels/mod1_POLITY2.RData")
+load("./HHImodels/mod1_POLITY2_lag1.RData")
+load("./HHImodels/mod1_POLITY2_lag2.RData")
+load("./HHImodels/mod1_POLITY2_lag3.RData")
+
+load("./HHImodels/mod0_TOTLIB1.RData")
+load("./HHImodels/mod0_TOTLIB1_lag1.RData")
+load("./HHImodels/mod0_TOTLIB1_lag2.RData")
+load("./HHImodels/mod0_TOTLIB1_lag3.RData")
+load("./HHImodels/mod1_TOTLIB1.RData")
+load("./HHImodels/mod1_TOTLIB1_lag1.RData")
+load("./HHImodels/mod1_TOTLIB1_lag2.RData")
+load("./HHImodels/mod1_TOTLIB1_lag3.RData")
+
+load("./HHImodels/mod0_V2x_Libdem.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag1.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag2.RData")
+load("./HHImodels/mod0_V2x_Libdem_lag3.RData")
+load("./HHImodels/mod1_V2x_Libdem.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag1.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag2.RData")
+load("./HHImodels/mod1_V2x_Libdem_lag3.RData")
+```
+
+Below are the summaries for the reduced models. The $\hat{\beta}$ coefficients are starred by significance as denoted in each table. Below each coefficient is their respective standard error.
+
+```{r}
+
+## REDUCED MODEL SUMMARIES
+
+library(modelsummary)
+library(tinytable)
+
+mod0_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_V2x_Libdem,
+    "One-Year Lag" = mod0_V2x_Libdem_lag1,
+    "Two-Year Lag" = mod0_V2x_Libdem_lag2,
+    "Three-Year Lag" = mod0_V2x_Libdem_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", 
+    "SD (Observations)"
+  ),
+  title = "Reduced Model Summary for V2X_LIBDEM"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_POLITY2,
+    "One-Year Lag" = mod0_POLITY2_lag1,
+    "Two-Year Lag" = mod0_POLITY2_lag2,
+    "Three-Year Lag" = mod0_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+  ),
+  title = "Reduced Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_TOTLIB1,
+    "One-Year Lag" = mod0_TOTLIB1_lag1,
+    "Two-Year Lag" = mod0_TOTLIB1_lag2,
+    "Three-Year Lag" = mod0_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+  ),
+  title = "Full Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_V2X_LIBDEM
+mod0_summary_POLITY2
+mod0_summary_TOTLIB1
+```
+
+Below are the summaries for the full models. As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
+
+```{r}
+
+## FULL MODEL SUMMARIES
+
+mod1_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_V2x_Libdem,
+    "One-Year Lag" = mod1_V2x_Libdem_lag1,
+    "Two-Year Lag" = mod1_V2x_Libdem_lag2,
+    "Three-Year Lag" = mod1_V2x_Libdem_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "V2x_Libdem",
+    "V2x_Libdem_lag1",
+    "V2x_Libdem_lag2",
+    "V2x_Libdem_lag3",
+    "logPOP",
+    "I(logPOP^2)",
+    "I(logPOP^3)",
+    "logGNI",
+    "I(logGNI^2)",
+    "logODAGtot",
+    "I(logODAGtot^2)",
+    "logTRDIMtot",
+    "logTRDEXtot"   ,
+    "COLPAST12"   ,
+    "COLPAST13"    ,
+    "COLPAST14"    ,
+    "COLPAST15"   ,
+    "COLPAST16"  ,
+    "COLPAST17"  ,
+    "COLPAST18"   ,
+    "COLPAST19"  ,
+    "COLPAST110" ,
+    "REGION2"    ,
+    "REGION3"     ,
+    "REGION4"    ,
+    "REGION5" ,
+    "COLD_WAR",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Full Model Summary for V2X_LIBDEM"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "l",
+    fontsize = 1,
+    bootstrap_class = "table caption-top"
+  ) %>%
+  style_tt(fontsize = 0.9) 
+
+mod1_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_POLITY2,
+    "One-Year Lag" = mod1_POLITY2_lag1,
+    "Two-Year Lag" = mod1_POLITY2_lag2,
+    "Three-Year Lag" = mod1_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "POLITY2",
+    "POLITY2_lag1",
+    "POLITY2_lag2",
+    "POLITY2_lag3",
+    "logPOP",
+    "I(logPOP^2)",
+    "I(logPOP^3)",
+    "logGNI",
+    "I(logGNI^2)",
+    "logODAGtot",
+    "I(logODAGtot^2)",
+    "logTRDIMtot",
+    "logTRDEXtot"   ,
+    "COLPAST12"   ,
+    "COLPAST13"    ,
+    "COLPAST14"    ,
+    "COLPAST15"   ,
+    "COLPAST16"  ,
+    "COLPAST17"  ,
+    "COLPAST18"   ,
+    "COLPAST19"  ,
+    "COLPAST110" ,
+    "REGION2"    ,
+    "REGION3"     ,
+    "REGION4"    ,
+    "REGION5" ,
+    "COLD_WAR",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Full Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "l",
+    fontsize = 1,
+    bootstrap_class = "table caption-top"
+  ) %>%
+  style_tt(fontsize = 0.9) 
+
+mod1_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_TOTLIB1,
+    "One-Year Lag" = mod1_TOTLIB1_lag1,
+    "Two-Year Lag" = mod1_TOTLIB1_lag2,
+    "Three-Year Lag" = mod1_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "TOTLIB1",
+    "TOTLIB1_lag1",
+    "TOTLIB1_lag2",
+    "TOTLIB1_lag3",
+    "logPOP",
+    "I(logPOP^2)",
+    "I(logPOP^3)",
+    "logGNI",
+    "I(logGNI^2)",
+    "logODAGtot",
+    "I(logODAGtot^2)",
+    "logTRDIMtot",
+    "logTRDEXtot"   ,
+    "COLPAST12"   ,
+    "COLPAST13"    ,
+    "COLPAST14"    ,
+    "COLPAST15"   ,
+    "COLPAST16"  ,
+    "COLPAST17"  ,
+    "COLPAST18"   ,
+    "COLPAST19"  ,
+    "COLPAST110" ,
+    "REGION2"    ,
+    "REGION3"     ,
+    "REGION4"    ,
+    "REGION5" ,
+    "COLD_WAR",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Full Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "l",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )  %>%
+  style_tt(fontsize = 0.9) 
+
+
+mod1_summary_V2X_LIBDEM
+mod1_summary_POLITY2
+mod1_summary_TOTLIB1
+```
+
+<!-- \newpage -->
+
+<!-- # Appendix -->
+
+<!-- ```{r} -->
+<!-- summary(mod0_POLITY2) -->
+<!-- summary(mod0_POLITY2_lag1) -->
+<!-- summary(mod0_POLITY2_lag2) -->
+<!-- summary(mod0_POLITY2_lag3) -->
+
+<!-- summary(mod1_POLITY2) -->
+<!-- summary(mod1_POLITY2_lag1) -->
+<!-- summary(mod1_POLITY2_lag2) -->
+<!-- summary(mod1_POLITY2_lag3) -->
+
+<!-- summary(mod0_POLITY) -->
+<!-- summary(mod0_POLITY_lag1) -->
+<!-- summary(mod0_POLITY_lag2) -->
+<!-- summary(mod0_POLITY_lag3) -->
+
+<!-- summary(mod1_POLITY) -->
+<!-- summary(mod1_POLITY_lag1) -->
+<!-- summary(mod1_POLITY_lag2) -->
+<!-- summary(mod1_POLITY_lag3) -->
+
+<!-- summary(mod0_TOTLIB1) -->
+<!-- summary(mod0_TOTLIB1_lag1) -->
+<!-- summary(mod0_TOTLIB1_lag2) -->
+<!-- summary(mod0_TOTLIB1_lag3) -->
+
+<!-- summary(mod1_TOTLIB1) -->
+<!-- summary(mod1_TOTLIB1_lag1) -->
+<!-- summary(mod1_TOTLIB1_lag2) -->
+<!-- summary(mod1_TOTLIB1_lag3) -->
+
+<!-- summary(mod0_V2x_Libdem) -->
+<!-- summary(mod0_V2x_Libdem_lag1) -->
+<!-- summary(mod0_V2x_Libdem_lag2) -->
+<!-- summary(mod0_V2x_Libdem_lag3) -->
+
+<!-- summary(mod1_V2x_Libdem) -->
+<!-- summary(mod1_V2x_Libdem_lag1) -->
+<!-- summary(mod1_V2x_Libdem_lag2) -->
+<!-- summary(mod1_V2x_Libdem_lag3) -->
+<!-- ``` -->

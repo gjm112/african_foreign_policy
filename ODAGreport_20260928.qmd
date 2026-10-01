@@ -12,17 +12,23 @@ date: "September 28, 2026"
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and private organizations. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and private organizations.  (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGprivate.)  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
-The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). We applied a log transformation to each of these predictor variables due to their right skew and quadratic or cubic transformations when necessary to capture nonlinear relationships.
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total imports, total exports, colonial Past, region, and a cold war indicator variable.  We applied a log transformation to GNI, population, imports, and exports due to their right skew.
 
-In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Table 1. 
+## ODAG (Countries)
+In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with larger levels of total ODAG.  
 
-In the full models, every democracy score coefficient except POLITY2 in the lag0 and lag1 models is significant at $\alpha$ = 0.05. The negative direction of the V2x_Libdem and POLITY2 coefficients and positive direction of the TOTLIB1 coefficients provide the same conclusion as the the reduced models. That is, controlling for population, total ODAG, GNI, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Table 2.  Full model results for all variables in the full models along with random effects estimates are presented for all models in the appendix.   
+In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with high total ODAG.  In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant.  Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG.  Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.  
 
-# Models 
+## ODAG (Private)
+In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with larger levels of total ODAG.  
+
+In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with high total ODAG.  As before, we see that total population, GNI, total imports, and the cold war indicator are all significant.  However, unlike the previous full models, total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG.  Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG.
+
+# Models
 
 ## Reduced Model
 
@@ -32,7 +38,7 @@ In lagged models, the year $t$ changes units depending on the lag. For instance,
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
-$\log(\text{ODAG}_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$
+$$\log(\text{ODAG}_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$$
 
 $$\gamma_{0i} \sim \text{N}(0, \sigma_{\text{country}}^2)$$
 
@@ -106,10 +112,24 @@ names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
 masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
 
+#ODAG Country and HHI
 masterset <- masterset %>%
   mutate(across(ODAG201:ODAG501, ~ replace_na(.x, 0))) %>% # Replace NA with 0
   mutate(across(ODAG201:ODAG501, ~ pmax(.x, 0))) %>% # No negative numbers
   mutate(across(ODAG201:ODAG501, ~ as.numeric(.x))) %>% # Make these variables numeric
+  rowwise() %>% 
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
+  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
+  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+#Masterset private
+masterset <- masterset %>% 
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
+                                           odagfao:odagwbtot, odagaf:odaggggi), ~ as.numeric(.x))) %>% # Make these variables numeric
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
+                  odagfao:odagwbtot, odagaf:odaggggi), ~ replace_na(.x, 0))) %>% # Replace NA with 0
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
+                  odagfao:odagwbtot, odagaf:odaggggi), ~ pmax(.x, 0))) %>% # No negative numbers
   rowwise() %>% 
   mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
   mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
@@ -130,8 +150,20 @@ masterset <- masterset %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %
                                  TRDIM100:TRDIM147,
                                  TRDIM577:TRDIM551,
                                  TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
-  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T)) %>% 
-  filter(ODAGtot >= 0) %>% 
+  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T)) %>% mutate(ODAGtot_private = rowSums(pick(
+    c(
+      ODAG600,
+      ODAG601,
+      ODAG609,
+      ODAG610,
+      ODAG613:ODAGARBC,
+      ODAGARBA:ODAGIAEA,
+      odagrdbtot,
+      odagfao:odagwbtot,
+      odagaf:odaggggi
+    )
+  ), na.rm = T)) %>% 
+  filter(ODAGtot >= 0 & ODAGtot_private >= 0) %>% 
   mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
          logGNI = log(GNI, 10),
          logPOP = log(POPULATN,10),
@@ -158,11 +190,7 @@ masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
 
 ```
 
-```{r}
-masterset %>% filter(YEAR == 2024) %>% arrange(ODAGtot) %>% select(COUNTRY, YEAR, ODAGtot) %>% head()
 
-masterset %>% filter(YEAR >= 1990) %>% group_by(COUNTRY) %>% summarize(mn = mean(ODAGtot, na.rm = T)) %>% select(COUNTRY,mn) %>% head()
-```
 
 The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
@@ -173,8 +201,8 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Population Density\n of External Countries",
-    x = "External Country Population"
+    title = "Population",
+    x = "Population"
   ) +
   theme_bw() +
   theme(
@@ -189,8 +217,8 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Log-Transformed Population\n Density of External Countries",
-    x = "Log-Transformed External Country Population"
+    title = "Log-Transformed Population",
+    x = "Log-Transformed Population"
   ) +
   theme_bw() +
   theme(
@@ -205,8 +233,8 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Gross National Income (GNI)\n Density of External Countries",
-    x = "External Country GNI"
+    title = "Gross National Income (GNI)\n Density",
+    x = "GNI"
   ) +
   theme_bw() +
   theme(
@@ -221,8 +249,8 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Log-Transformed Gross National Income (GNI)\n Density of External Countries",
-    x = "Log-Transformed External Country GNI"
+    title = "Log-Transformed Gross National Income (GNI) Density",
+    x = "Log-Transformed GNI"
   ) +
   theme_bw() +
   theme(
@@ -237,8 +265,8 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Official Development Assistance Gross (ODAG)\n Density of External Countries",
-    x = "External Country ODAG"
+    title = "Official Development Assistance\n Gross (ODAG) Density ",
+    x = "ODAG"
   ) +
   theme_bw() +
   theme(
@@ -253,14 +281,44 @@ masterset %>%
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
   labs(
-    title = "Log-Transformed Official Development Assistance Gross\n (ODAG) Density of External Countries",
-    x = "Log-Transformed External Country ODAG"
+    title = "Log-Transformed Official Developmen\n Assistance Gross (ODAG) Density",
+    x = "Log-Transformed ODAG"
   ) +
   theme_bw() +
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold")
   )
 ```
+
+
+```{r}
+masterset %>%  
+  ggplot(aes(x = logODAGtot, color = as.factor(COLD_WAR))) + geom_density() +
+  labs(
+    title = "Log ODAG distribution pre- and post-cold war",
+    x = "Log-Transformed ODAG"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  ) 
+```
+
+```{r}
+
+masterset %>% mutate(logODAGtot_private = log(ODAGtot_private +1,10)) %>% 
+  ggplot(aes(x = logODAGtot_private, color = as.factor(COLD_WAR))) + geom_density() +
+  labs(
+    title = "Log ODAG Private distribution pre- and post-cold war",
+    x = "Log-Transformed ODAG Private"
+  ) +
+  theme_bw() +
+  theme(
+    plot.title = element_text(hjust = 0.5, face = "bold")
+  ) 
+```
+
+
 
 ```{r echo = FALSE}
 load("./ODAGmodels/mod0_POLITY2.RData")
@@ -291,7 +349,10 @@ load("./ODAGmodels/mod1_V2x_Libdem_lag2.RData")
 load("./ODAGmodels/mod1_V2x_Libdem_lag3.RData")
 ```
 
-Below are the summaries for the reduced models for ODAG from external countries. The $\hat{\beta}$ coefficients are starred by significance as denoted in each table. Below each coefficient is their respective standard error.
+Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. each table. Next to each coefficient estimate is their respective standard error.
+
+
+# ODAG Results
 
 ```{r}
 
@@ -309,11 +370,12 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", 
     "SD (Observations)"
   ),
-  title = "Reduced Model Summary for V2X_LIBDEM From External Countries"
+  title = "ODAG: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -321,12 +383,8 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
     align = "c",
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
-  ) %>%
-  group_tt(i = list(
-    "Performance" = 2,  # Inserts header before row index 2 (hp)
-    "Controls"    = 4   # Inserts header before row index 4 (qsec)
-  ))
-
+  )
+  
 mod0_summary_POLITY2 <- modelsummary(
   models = list(
     "Unlagged" = mod0_POLITY2,
@@ -336,10 +394,11 @@ mod0_summary_POLITY2 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Reduced Model Summary for POLITY2 From External Countries"
+  title = "ODAG: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -358,10 +417,11 @@ mod0_summary_TOTLIB1 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for TOTLIB1 From External Countries"
+  title = "ODAG: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -370,6 +430,10 @@ mod0_summary_TOTLIB1 <- modelsummary(
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
   )
+
+mod0_summary_V2X_LIBDEM
+mod0_summary_POLITY2
+mod0_summary_TOTLIB1
 
 ```
 
@@ -388,11 +452,15 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2","V2x_Libdem_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for V2X_LIBDEM From External Countries"
+  title = "ODAG: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -411,11 +479,15 @@ mod1_summary_POLITY2 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
-  coef_map = c(
-    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+ shape = term ~ model + statistic,
+ coef_map = c(
+    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2","POLITY2_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for POLITY2 From External Countries"
+  title = "ODAG: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -434,11 +506,15 @@ mod1_summary_TOTLIB1 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
-  coef_map = c(
-    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+ shape = term ~ model + statistic,
+ coef_map = c(
+    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2","TOTLIB1_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for TOTLIB1 From External Countries"
+  title = "ODAG: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -448,6 +524,9 @@ mod1_summary_TOTLIB1 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
+mod1_summary_V2X_LIBDEM
+mod1_summary_POLITY2
+mod1_summary_TOTLIB1
 ```
 
 ```{r}
@@ -469,8 +548,8 @@ load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag1.RData")
 load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag2.RData")
 load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag3.RData")
 
-load("./ODAGPRIVATEmodels/mod0_V2x_Libdem.RData")
-load("./ODAGPRIVATEmodels/mod0_V2x_Libdem_lag1.RData")
+load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem.RData")
+load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag1.RData")
 load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag2.RData")
 load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag3.RData")
 load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem.RData")
@@ -479,7 +558,8 @@ load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag2.RData")
 load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag3.RData")
 ```
 
-Below are the summaries for the reduced models for ODAG from private organizations The $\hat{\beta}$ coefficients are starred by significance as denoted in each table. Below each coefficient is their respective standard error.
+
+# ODAG Private Results
 
 ```{r}
 
@@ -488,7 +568,7 @@ Below are the summaries for the reduced models for ODAG from private organizatio
 library(modelsummary)
 library(tinytable)
 
-mod0_summary_V2X_LIBDEM <- modelsummary(
+mod0_private_summary_V2X_LIBDEM <- modelsummary(
   models = list(
     "Unlagged" = mod0_private_V2x_Libdem,
     "One-Year Lag" = mod0_private_V2x_Libdem_lag1,
@@ -497,11 +577,12 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", 
     "SD (Observations)"
   ),
-  title = "Reduced Model Summary for V2X_LIBDEM From External Countries"
+  title = "ODAG Private: Reduced Model Summary for V2X_LIBDEM "
 ) %>%
   style_tt(
     i = "caption",
@@ -509,13 +590,9 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
     align = "c",
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
-  ) %>%
-  group_tt(i = list(
-    "Performance" = 2,  # Inserts header before row index 2 (hp)
-    "Controls"    = 4   # Inserts header before row index 4 (qsec)
-  ))
+  ) 
 
-mod0_summary_POLITY2 <- modelsummary(
+mod0_private_summary_POLITY2 <- modelsummary(
   models = list(
     "Unlagged" = mod0_private_POLITY2,
     "One-Year Lag" = mod0_private_POLITY2_lag1,
@@ -524,10 +601,11 @@ mod0_summary_POLITY2 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Reduced Model Summary for POLITY2 From External Countries"
+  title = "ODAG Private: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -537,7 +615,7 @@ mod0_summary_POLITY2 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod0_summary_TOTLIB1 <- modelsummary(
+mod0_private_summary_TOTLIB1 <- modelsummary(
   models = list(
     "Unlagged" = mod0_private_TOTLIB1,
     "One-Year Lag" = mod0_private_TOTLIB1_lag1,
@@ -546,10 +624,11 @@ mod0_summary_TOTLIB1 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for TOTLIB1 From External Countries"
+  title = "ODAG Private: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -559,6 +638,10 @@ mod0_summary_TOTLIB1 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
+
+mod0_private_summary_V2X_LIBDEM
+mod0_private_summary_POLITY2
+mod0_private_summary_TOTLIB1
 ```
 
 Below are the summaries for the full models for ODAG from private organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
@@ -567,20 +650,24 @@ Below are the summaries for the full models for ODAG from private organizations 
 
 ## FULL MODEL SUMMARIES
 
-mod1_summary_V2X_LIBDEM <- modelsummary(
+mod1_private_summary_V2X_LIBDEM <- modelsummary(
   models = list(
     "Unlagged" = mod1_private_V2x_Libdem,
     "One-Year Lag" = mod1_private_V2x_Libdem_lag1,
     "Two-Year Lag" = mod1_private_V2x_Libdem_lag2,
     "Three-Year Lag" = mod1_private_V2x_Libdem_lag3
-  ),
+  ), statistic = NULL,
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2","V2x_Libdem_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for V2X_LIBDEM From External Countries"
+  title = "ODAG Private: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -588,9 +675,9 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     align = "c",
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
-  )
+  ) %>%  theme_tinytable(width = 0.5)
 
-mod1_summary_POLITY2 <- modelsummary(
+mod1_private_summary_POLITY2 <- modelsummary(
   models = list(
     "Unlagged" = mod1_private_POLITY2,
     "One-Year Lag" = mod1_private_POLITY2_lag1,
@@ -599,11 +686,15 @@ mod1_summary_POLITY2 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
+  shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2","POLITY2_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for POLITY2 From External Countries"
+  title = "ODAG Private: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -613,7 +704,7 @@ mod1_summary_POLITY2 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod1_summary_TOTLIB1 <- modelsummary(
+mod1_private_summary_TOTLIB1 <- modelsummary(
   models = list(
     "Unlagged" = mod1_private_TOTLIB1,
     "One-Year Lag" = mod1_private_TOTLIB1_lag1,
@@ -622,11 +713,16 @@ mod1_summary_TOTLIB1 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
-  coef_map = c(
-    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "logPOP", "I(logPOP^2)", "I(logPOP^3)",
-    "logGNI", "I(logGNI^2)", "logODAGtot", "I(logODAGtot^2)", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+  shape = term ~ model + statistic,
+ coef_map = c(
+    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2","TOTLIB1_lag3", "logPOP"   ,   "logGNI" ,  
+  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
+  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
+ "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
+ "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
   ),
-  title = "Full Model Summary for TOTLIB1 From External Countries"
+ 
+  title = "ODAG Private: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -635,5 +731,9 @@ mod1_summary_TOTLIB1 <- modelsummary(
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
   )
+
+mod1_private_summary_V2X_LIBDEM
+mod1_private_summary_POLITY2
+mod1_private_summary_TOTLIB1
 
 ```
