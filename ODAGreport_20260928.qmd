@@ -372,7 +372,13 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
   gof_omit = ".",
   shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2", "V2x_Libdem_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", 
+    "(Intercept)",
+    "V2x_Libdem",
+    "V2x_Libdem_lag1",
+    "V2x_Libdem_lag2",
+    "V2x_Libdem_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
   title = "ODAG: Reduced Model Summary for V2X_LIBDEM"
@@ -384,7 +390,7 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
     fontsize = 1.5,
     bootstrap_class = "table caption-top"
   )
-  
+
 mod0_summary_POLITY2 <- modelsummary(
   models = list(
     "Unlagged" = mod0_POLITY2,
@@ -396,7 +402,14 @@ mod0_summary_POLITY2 <- modelsummary(
   gof_omit = ".",
   shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2", "POLITY2_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+    "(Intercept)",
+    "POLITY2",
+    "POLITY2_lag1",
+    "POLITY2_lag2",
+    "POLITY2_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
   ),
   title = "ODAG: Reduced Model Summary for POLITY2"
 ) %>%
@@ -419,7 +432,14 @@ mod0_summary_TOTLIB1 <- modelsummary(
   gof_omit = ".",
   shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2", "TOTLIB1_lag3", "SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+    "(Intercept)",
+    "TOTLIB1",
+    "TOTLIB1_lag1",
+    "TOTLIB1_lag2",
+    "TOTLIB1_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
   ),
   title = "ODAG: Reduced Model Summary for TOTLIB1"
 ) %>%
@@ -454,11 +474,32 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
   gof_omit = ".",
   shape = term ~ model + statistic,
   coef_map = c(
-    "(Intercept)", "V2x_Libdem", "V2x_Libdem_lag1", "V2x_Libdem_lag2","V2x_Libdem_lag3", "logPOP"   ,   "logGNI" ,  
-  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
-  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
- "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
- "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+     "(Intercept)" = "Intercept",
+    "V2x_Libdem" = "V2x_Libdem",
+    "V2x_Libdem_lag1" = "V2x_Libdem_lag1",
+    "V2x_Libdem_lag2" = "V2x_Libdem_lag2",
+    "V2x_Libdem_lag3" = "V2x_Libdem_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "COLD_WAR" = "COLD_WAR",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "ODAG: Full Model Summary for V2X_LIBDEM"
 ) %>%
@@ -479,13 +520,34 @@ mod1_summary_POLITY2 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
- shape = term ~ model + statistic,
- coef_map = c(
-    "(Intercept)", "POLITY2", "POLITY2_lag1", "POLITY2_lag2","POLITY2_lag3", "logPOP"   ,   "logGNI" ,  
-  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
-  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
- "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
- "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "POLITY2" = "POLITY2",
+    "POLITY2_lag1" = "POLITY2_lag1",
+    "POLITY2_lag2" = "POLITY2_lag2",
+    "POLITY2_lag3" = "POLITY2_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "COLD_WAR" = "COLD_WAR",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "ODAG: Full Model Summary for POLITY2"
 ) %>%
@@ -506,13 +568,34 @@ mod1_summary_TOTLIB1 <- modelsummary(
   ),
   stars = T,
   gof_omit = ".",
- shape = term ~ model + statistic,
- coef_map = c(
-    "(Intercept)", "TOTLIB1", "TOTLIB1_lag1", "TOTLIB1_lag2","TOTLIB1_lag3", "logPOP"   ,   "logGNI" ,  
-  "logTRDIMtot" ,"logTRDEXtot", "COLPAST12" ,  "COLPAST13",  
-  "COLPAST14"  , "COLPAST15" ,  "COLPAST16" ,  "COLPAST17",  
- "COLPAST18" ,  "COLPAST19" ,  "COLPAST110" , "REGION2"  ,  
- "REGION3"   ,  "REGION4"   ,  "REGION5"  ,   "COLD_WAR","SD (Intercept YEAR)", "SD (Intercept CCODE)", "SD (Observations)"
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "TOTLIB1" = "TOTLIB1",
+    "TOTLIB1_lag1" = "TOTLIB1_lag1",
+    "TOTLIB1_lag2" = "TOTLIB1_lag2",
+    "TOTLIB1_lag3" = "TOTLIB1_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "COLD_WAR" = "COLD_WAR",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "ODAG: Full Model Summary for TOTLIB1"
 ) %>%
