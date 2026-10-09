@@ -9,24 +9,27 @@ execute:
 editor: visual
 date: "September 28, 2026"
 ---
+<!-- Note:  let's not call it private.  Multilateral.  -->
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and private organizations.  (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGprivate.)  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and private organizations. (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGprivate.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
-The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total imports, total exports, colonial Past, region, and a cold war indicator variable.  We applied a log transformation to GNI, population, imports, and exports due to their right skew.
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total imports, total exports, colonial Past, region, and a cold war indicator variable. We applied a log transformation to GNI, population, imports, and exports due to their right skew.
 
 ## ODAG (Countries)
-In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with larger levels of total ODAG.  
 
-In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with high total ODAG.  In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant.  Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG.  Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.  
+In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
+
+In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
 
 ## ODAG (Private)
-In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with larger levels of total ODAG.  
 
-In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05.  In all cases, higher democracy scores were associated with high total ODAG.  As before, we see that total population, GNI, total imports, and the cold war indicator are all significant.  However, unlike the previous full models, total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG.  Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG.
+In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
+
+In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. As before, we see that total population, GNI, total imports, and the cold war indicator are all significant. However, unlike the previous full models, total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG. Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG.
 
 # Models
 
@@ -190,8 +193,6 @@ masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
 
 ```
 
-
-
 The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
 
 ```{r}
@@ -290,7 +291,6 @@ masterset %>%
   )
 ```
 
-
 ```{r}
 masterset %>%  
   ggplot(aes(x = logODAGtot, color = as.factor(COLD_WAR))) + geom_density() +
@@ -317,8 +317,6 @@ masterset %>% mutate(logODAGtot_private = log(ODAGtot_private +1,10)) %>%
     plot.title = element_text(hjust = 0.5, face = "bold")
   ) 
 ```
-
-
 
 ```{r echo = FALSE}
 load("./ODAGmodels/mod0_POLITY2.RData")
@@ -350,7 +348,6 @@ load("./ODAGmodels/mod1_V2x_Libdem_lag3.RData")
 ```
 
 Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. each table. Next to each coefficient estimate is their respective standard error.
-
 
 # ODAG Results
 
@@ -640,7 +637,6 @@ load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag1.RData")
 load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag2.RData")
 load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag3.RData")
 ```
-
 
 # ODAG Private Results
 
