@@ -18,21 +18,21 @@ date: "October 9, 2026"
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total.  Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio.  We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem).  (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total. Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
-The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total trade imports, total trade exports,and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis).  Additionally, we included categorical variables for colonial past and region, and a cold war indicator.  We applied a log transformation to GNI, population, total ODAG, imports, and exports due to their right skew. Quadratic and cubic transformations were added when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total trade imports, total trade exports,and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). Additionally, we included categorical variables for colonial past and region, and a cold war indicator. We applied a log transformation to GNI, population, total ODAG, imports, and exports due to their right skew. Quadratic and cubic transformations were added when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
 
-In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Tables 1-3. 
+In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 1-3.
 
-In the full models, V2x_Libdem and TOTLIB are significant at the $\alpha$ = 0.05 level for all lags.  Conversely, POLITY2 is not significant at any lags.  The negative coefficient for V2x_Libdem and the positive direction for TOTLIB1 yield the same conclusion as the the reduced models. That is, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa.  Results for the significance of democracy variables in the reduced model are displayed in Tables 4-6.  In addition to the democracy variables, population, GNI, and ODAG are all highly associated with HHI.  The Cold War indicator is significant in the POLITY2 and v2x_Libdem models, but not in TOTLIB1 model.  The Cold War indicator is positive indicating that during the Cold War HHI values were generally larger (i.e., less diverse) than after the Cold War ended.  
+In the full models, V2x_Libdem and TOTLIB are significant at the $\alpha$ = 0.05 level for all lags. Conversely, POLITY2 is not significant at any lags. The negative coefficient for V2x_Libdem and the positive direction for TOTLIB1 yield the same conclusion as the the reduced models. That is, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 4-6. In addition to the democracy variables, population, GNI, and ODAG are all highly associated with HHI. The Cold War indicator is significant in the POLITY2 and v2x_Libdem models, but not in TOTLIB1 model. The Cold War indicator is positive indicating that during the Cold War HHI values were generally larger (i.e., less diverse) than after the Cold War ended.
 
-# Models 
+# Models
 
 ## Reduced Model
 
-The reduced model is described below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI for better model fit.  The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
+The reduced model is described below, where the response $Y_{it}$ ($Y$ being HHI) ranges from 1/$k$, $k$ being the number of possible sources of ODAG, to 1 for African country $i$ in year $t$. We applied a log transformation to HHI for better model fit. The predictor $X_{1it}$ represents the democracy score of African country $i$ in year $t$.
 
 In lagged models, the year $t$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the external country's democracy score in the prior year (year $t$-1).
 
@@ -48,7 +48,7 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{year}^2)$$
 
 Our full model equations are given below. They follow the same setup as the reduced model with the addition of the aforementioned transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\log(HHI_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
 
-Additional predictors in this model include the African country's GNI, population, total ODAG, total imports and exports all on the log scale. Quadratic terms were included for the log-transformed GNI, population, and total ODAG. The log-transformed population variable added a cubic term to capture further nonlinear tendencies. In addition to these variables, colonial past, region, and a cold war indicator were included. 
+Additional predictors in this model include the African country's GNI, population, total ODAG, total imports and exports all on the log scale. Quadratic terms were included for the log-transformed GNI, population, and total ODAG. The log-transformed population variable added a cubic term to capture further nonlinear tendencies. In addition to these variables, colonial past, region, and a cold war indicator were included.
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
@@ -315,9 +315,6 @@ HHI %>% ggplot(aes(x = logGNI, y = (HHI))) + geom_point() + geom_smooth(se = F) 
 HHI %>% ggplot(aes(x = logPOP, y = (HHI))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 ```
 
-
-
-
 ```{r echo = FALSE}
 load("./HHImodels/mod0_POLITY2.RData")
 load("./HHImodels/mod0_POLITY2_lag1.RData")
@@ -462,6 +459,9 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     "I(logODAGtot^2)" = "logODAGtot^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot"   ,
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
     "COLPAST12" = "COL_British",
     "COLPAST13" = "COL_Portuguese",
     "COLPAST14" = "COL_Spanish",
@@ -475,7 +475,6 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     "REGION3" = "REG_S_Africa",
     "REGION4" = "REG_C_Africa",
     "REGION5" = "REG_W_Africa",
-    "COLD_WAR" = "COLD_WAR",
     "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
@@ -516,6 +515,9 @@ mod1_summary_POLITY2 <- modelsummary(
     "I(logODAGtot^2)" = "logODAGtot^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot"   ,
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
     "COLPAST12" = "COL_British",
     "COLPAST13" = "COL_Portuguese",
     "COLPAST14" = "COL_Spanish",
@@ -529,7 +531,6 @@ mod1_summary_POLITY2 <- modelsummary(
     "REGION3" = "REG_S_Africa",
     "REGION4" = "REG_C_Africa",
     "REGION5" = "REG_W_Africa",
-    "COLD_WAR" = "COLD_WAR",
     "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
@@ -570,6 +571,9 @@ mod1_summary_TOTLIB1 <- modelsummary(
     "I(logODAGtot^2)" = "logODAGtot^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot"   ,
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
     "COLPAST12" = "COL_British",
     "COLPAST13" = "COL_Portuguese",
     "COLPAST14" = "COL_Spanish",
@@ -583,7 +587,6 @@ mod1_summary_TOTLIB1 <- modelsummary(
     "REGION3" = "REG_S_Africa",
     "REGION4" = "REG_C_Africa",
     "REGION5" = "REG_W_Africa",
-    "COLD_WAR" = "COLD_WAR",
     "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
@@ -610,43 +613,69 @@ mod1_summary_TOTLIB1
 <!-- # Appendix -->
 
 <!-- ```{r} -->
+
 <!-- summary(mod0_POLITY2) -->
+
 <!-- summary(mod0_POLITY2_lag1) -->
+
 <!-- summary(mod0_POLITY2_lag2) -->
+
 <!-- summary(mod0_POLITY2_lag3) -->
 
 <!-- summary(mod1_POLITY2) -->
+
 <!-- summary(mod1_POLITY2_lag1) -->
+
 <!-- summary(mod1_POLITY2_lag2) -->
+
 <!-- summary(mod1_POLITY2_lag3) -->
 
 <!-- summary(mod0_POLITY) -->
+
 <!-- summary(mod0_POLITY_lag1) -->
+
 <!-- summary(mod0_POLITY_lag2) -->
+
 <!-- summary(mod0_POLITY_lag3) -->
 
 <!-- summary(mod1_POLITY) -->
+
 <!-- summary(mod1_POLITY_lag1) -->
+
 <!-- summary(mod1_POLITY_lag2) -->
+
 <!-- summary(mod1_POLITY_lag3) -->
 
 <!-- summary(mod0_TOTLIB1) -->
+
 <!-- summary(mod0_TOTLIB1_lag1) -->
+
 <!-- summary(mod0_TOTLIB1_lag2) -->
+
 <!-- summary(mod0_TOTLIB1_lag3) -->
 
 <!-- summary(mod1_TOTLIB1) -->
+
 <!-- summary(mod1_TOTLIB1_lag1) -->
+
 <!-- summary(mod1_TOTLIB1_lag2) -->
+
 <!-- summary(mod1_TOTLIB1_lag3) -->
 
 <!-- summary(mod0_V2x_Libdem) -->
+
 <!-- summary(mod0_V2x_Libdem_lag1) -->
+
 <!-- summary(mod0_V2x_Libdem_lag2) -->
+
 <!-- summary(mod0_V2x_Libdem_lag3) -->
 
 <!-- summary(mod1_V2x_Libdem) -->
+
 <!-- summary(mod1_V2x_Libdem_lag1) -->
+
 <!-- summary(mod1_V2x_Libdem_lag2) -->
+
 <!-- summary(mod1_V2x_Libdem_lag3) -->
+
 <!-- ``` -->

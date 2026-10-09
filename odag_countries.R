@@ -15,7 +15,8 @@ masterset = masterset %>%
                              .default = COUNTRY),
          COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
          COLPAST1 = as.factor(COLPAST1),
-         REGION = as.factor(REGION))
+         REGION = as.factor(REGION),
+         IDEOLOGY = as.factor(IDEOLOGY))
 
 # Convert commas to periods. 
 # It looks like commas are being used as the decimal.  
@@ -125,43 +126,41 @@ library(splines)
 # Polity2
 
 mod0_POLITY2 <- lmer(log(ODAGtot + 1,10) ~ POLITY2 + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_POLITY2 <- lmer(log(ODAGtot + 1,10) ~  POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_POLITY2 <- lmer(log(ODAGtot + 1,10) ~  POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 mod0_POLITY2_lag1 <- lmer(log(ODAGtot+ 1,10) ~ POLITY2_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_POLITY2_lag2 <- lmer(log(ODAGtot+ 1,10) ~ POLITY2_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_POLITY2_lag3 <- lmer(log(ODAGtot+ 1,10) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_POLITY2_lag1 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_POLITY2_lag2 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_POLITY2_lag3 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_POLITY2_lag1 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_POLITY2_lag2 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_POLITY2_lag3 <- lmer(log(ODAGtot+ 1,10) ~  POLITY2_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 # TOTLIB1
 
 mod0_TOTLIB1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1 + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_TOTLIB1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_TOTLIB1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 mod0_TOTLIB1_lag1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_TOTLIB1_lag2 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_TOTLIB1_lag3 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_TOTLIB1_lag1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_TOTLIB1_lag2 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_TOTLIB1_lag3 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_TOTLIB1_lag1 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_TOTLIB1_lag2 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_TOTLIB1_lag3 <- lmer(log(ODAGtot+ 1,10) ~ TOTLIB1_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 # V2x_Libdem
 
 mod0_V2x_Libdem <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_V2x_Libdem <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_V2x_Libdem <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 mod0_V2x_Libdem_lag1 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag1  + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_V2x_Libdem_lag2 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag2  + (1|CCODE) + (1|YEAR), data = masterset)
 mod0_V2x_Libdem_lag3 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag3  + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_V2x_Libdem_lag1 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_V2x_Libdem_lag2 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_V2x_Libdem_lag3 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + (1|CCODE) + (1|YEAR), data = masterset)
-
-
+mod1_V2x_Libdem_lag1 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_V2x_Libdem_lag2 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_V2x_Libdem_lag3 <- lmer(log(ODAGtot+ 1,10) ~ V2x_Libdem_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 library(modelsummary)
 
