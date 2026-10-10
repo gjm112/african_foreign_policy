@@ -11,10 +11,10 @@ library(lme4)
 #2. Total amount and diversification of African trade imports and trade exports
 #3. Total amount and diversification of foreign aid received by African countries
 #setwd("schrader")
-setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
+# setwd("/Users/gregorymatthews/Dropbox/african_foreign_policy_git/")
 
 #masterset = read_csv("data/Master 08-28-2025 AFP excel dataset-3.csv")
-masterset = read_csv("data2026/MASTER DATASET 3.26.2026.csv")
+masterset = read_csv("data2026/MASTER DATASET - 9.10.2026.csv")
 
 # cbind(masterset$POLITY, masterset$POLITY2) %>% view()
 # out <- masterset %>% select(COUNTRY, YEAR, POLITY, POLITY2) %>% filter(POLITY != POLITY2) 
@@ -33,7 +33,11 @@ masterset = masterset %>%
          across(where(is.numeric), ~ na_if(., -66)),
          COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
                              COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
-                             .default = COUNTRY))
+                             .default = COUNTRY),
+         COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
+         COLPAST1 = as.factor(COLPAST1),
+         REGION = as.factor(REGION),
+         IDEOLOGY = as.factor(IDEOLOGY))
 
 #Convert commas to periods. 
 #it looks like commas are being used as the decimal.  
@@ -68,7 +72,6 @@ names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
 
 restofworld <- restofworld %>% 
-  rename(v2x_LIBDEM = V2x_Libdem) %>%
   mutate(GNI = as.numeric(GNI),
          GNI_CAP = as.numeric(GNI_CAP),
          AVLIFEEX = as.numeric(AVLIFEEX),
@@ -88,6 +91,8 @@ restofworld$GNI <- gsub(",",".",restofworld$GNI)
 restofworld$GNI <- gsub(" ","",restofworld$GNI)%>% as.numeric()
 
 restofworld$GNI_CAP <- gsub(",",".",restofworld$GNI_CAP)
+
+
 restofworld$GNI_CAP <- gsub(" ","",restofworld$GNI_CAP)%>% as.numeric()
 
 restofworld$POPULATN <- gsub(",",".",restofworld$POPULATN)
@@ -117,7 +122,7 @@ external_democracy <- list(
     select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, v2x_LIBDEM, GNI, GNI_CAP, POPULATN) %>%
     unique(),
   africa = masterset %>%
-    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, GNI, GNI_CAP, POPULATN) %>% # WHERE IS INTERNAL V2X?
+    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, GNI, GNI_CAP, POPULATN, IDEOLOGY, COLPAST1, REGION) %>% # WHERE IS INTERNAL V2X?
     mutate(CCODE = paste0("C", CCODE)) %>%
     unique()
 ) %>%
@@ -159,10 +164,10 @@ newdata <- masterset %>%
   mutate(CCODE_INT = paste0("C", CCODE_INT)) %>%
   pivot_longer(!CCODE_INT:YEAR, names_to = "CCODE_EXT", values_to = "CONNECTION") %>%
   left_join(countrycodes, by = c("CCODE_EXT" = "CCODE"), relationship = "many-to-many") %>%
-  select(CONNECTION, CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT = COUNTRY, 
+  select(CONNECTION, CCODE_INT, COUNTRY_INT, CCODE_EXT, COUNTRY_EXT = COUNTRY,
          everything()) %>%
   filter(CONNECTION %in% c(0, 1), CCODE_INT != CCODE_EXT) %>% 
-  left_join(external_democracy, by = c("CCODE_EXT" = "CCODE_EXT","YEAR" = "YEAR")) %>% 
+  left_join(external_democracy, by = c("CCODE_EXT" = "CCODE_EXT","YEAR" = "YEAR")) %>%
   mutate(GNI_EXT = as.numeric(GNI_EXT),
          GNI_CAP_EXT = as.numeric(GNI_CAP_EXT))
 
@@ -237,28 +242,37 @@ trdim_data <- masterset %>%
 
 
 #merge on odag, trdex, trdim
-cleandata <- newdata %>% 
-  left_join(odag_data %>% select(CCODE_INT,YEAR,CCODE_EXT,ODAG), 
-            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>%
-  left_join(trdex_data %>% select(CCODE_INT,YEAR,CCODE_EXT,TRDEX), 
-            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>%
-  left_join(trdim_data %>% select(CCODE_INT,YEAR,CCODE_EXT,TRDIM), 
-            by = c("CCODE_INT","CCODE_EXT","YEAR")) %>% 
-  mutate( ODAG = ifelse(ODAG == -99, NA, ODAG),
-          ODAG = ifelse(is.na(ODAG), 0,ODAG),
-          TRDIM = ifelse(TRDIM == -99, NA, TRDIM),
-          TRDEX = ifelse(TRDEX == -99, NA, TRDEX),
-          GNI_EXT = ifelse(GNI_EXT == -99, NA, GNI_EXT),
-          TRDTOT = TRDIM + TRDEX, #sum of exports and imports
-          POPULATN_EXT = ifelse(POPULATN_EXT == -99, NA, POPULATN_EXT),
-          logGNI_EXT = log(GNI_EXT, 10),
-          logPOP_EXT = log(POPULATN_EXT, 10),
-          logODAG = log(ODAG+1,10),
-          logTRDIM = log(TRDIM+1,10),
-          logTRDEX = log(TRDEX+1,10), 
-          logTRDTOT = log(TRDTOT + 1, 10), 
-          anyODAG = (ODAG != 0) + 0
-  ) %>% ungroup() 
+cleandata <- newdata %>%
+  left_join(
+    odag_data %>% select(CCODE_INT, YEAR, CCODE_EXT, ODAG),
+    by = c("CCODE_INT", "CCODE_EXT", "YEAR")
+  ) %>%
+  left_join(
+    trdex_data %>% select(CCODE_INT, YEAR, CCODE_EXT, TRDEX),
+    by = c("CCODE_INT", "CCODE_EXT", "YEAR")
+  ) %>%
+  left_join(
+    trdim_data %>% select(CCODE_INT, YEAR, CCODE_EXT, TRDIM),
+    by = c("CCODE_INT", "CCODE_EXT", "YEAR")
+  ) %>%
+  mutate(
+    ODAG = ifelse(ODAG == -99, NA, ODAG),
+    ODAG = ifelse(is.na(ODAG), 0, ODAG),
+    TRDIM = ifelse(TRDIM == -99, NA, TRDIM),
+    TRDEX = ifelse(TRDEX == -99, NA, TRDEX),
+    GNI_EXT = ifelse(GNI_EXT == -99, NA, GNI_EXT),
+    TRDTOT = TRDIM + TRDEX,
+    #sum of exports and imports
+    POPULATN_EXT = ifelse(POPULATN_EXT == -99, NA, POPULATN_EXT),
+    logGNI_EXT = log(GNI_EXT, 10),
+    logPOP_EXT = log(POPULATN_EXT, 10),
+    logODAG = log(ODAG + 1, 10),
+    logTRDIM = log(TRDIM + 1, 10),
+    logTRDEX = log(TRDEX + 1, 10),
+    logTRDTOT = log(TRDTOT + 1, 10),
+    anyODAG = (ODAG != 0) + 0,
+    COLD_WAR = ifelse(YEAR >= 1992, 0, 1)
+  ) %>% ungroup()
 
 
 #Data Viz
@@ -329,22 +343,22 @@ save(mod0_v2x_LIBDEM_lag2, file = "./externalmodels2026/mod0_v2x_LIBDEM_lag2.RDa
 save(mod0_v2x_LIBDEM_lag3, file = "./externalmodels2026/mod0_v2x_LIBDEM_lag3.RData")
 
 #Full models 
-mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG  + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
+mod1_TOTLIB1 <- glmer(CONNECTION ~ TOTLIB1_EXT + logGNI_EXT + logPOP_EXT + logODAG  + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
                       family = "binomial", 
                       data = cleandata, 
                       control = glmerControl(optimizer = "bobyqa"))
 
-mod1_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
+mod1_TOTLIB1_lag1 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "bobyqa"))
 
-mod1_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
+mod1_TOTLIB1_lag2 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "nloptwrap"))
 
-mod1_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
+mod1_TOTLIB1_lag3 <- glmer(CONNECTION ~ TOTLIB1_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "bobyqa"))
@@ -354,22 +368,22 @@ save(mod1_TOTLIB1_lag1, file = "./externalmodels2026/mod1_TOTLIB1_lag1.RData")
 save(mod1_TOTLIB1_lag2, file = "./externalmodels2026/mod1_TOTLIB1_lag2.RData")
 save(mod1_TOTLIB1_lag3, file = "./externalmodels2026/mod1_TOTLIB1_lag3.RData")
 
-mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                      family = "binomial", 
                      data = cleandata, 
                      control = glmerControl(optimizer = "Nelder_Mead"))
 
-mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                           family = "binomial", 
                           data = cleandata, 
                           control = glmerControl(optimizer = "nloptwrap"))
 
-mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                           family = "binomial", 
                           data = cleandata, 
                           control = glmerControl(optimizer = "bobyqa"))
 
-mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                           family = "binomial", 
                           data = cleandata, 
                           control = glmerControl(optimizer = "bobyqa"))
@@ -379,22 +393,22 @@ save(mod1_POLITY_lag1, file = "./externalmodels2026/mod1_POLITY_lag1.RData")
 save(mod1_POLITY_lag2, file = "./externalmodels2026/mod1_POLITY_lag2.RData")
 save(mod1_POLITY_lag3, file = "./externalmodels2026/mod1_POLITY_lag3.RData")
 
-mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                       family = "binomial", 
                       data = cleandata, 
                       control = glmerControl(optimizer = "bobyqa"))
 
-mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "bobyqa"))
 
-mod1_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "bobyqa"))
 
-mod1_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
                            control = glmerControl(optimizer = "bobyqa"))
@@ -404,22 +418,22 @@ save(mod1_POLITY2_lag1, file = "./externalmodels2026/mod1_POLITY2_lag1.RData")
 save(mod1_POLITY2_lag2, file = "./externalmodels2026/mod1_POLITY2_lag2.RData")
 save(mod1_POLITY2_lag3, file = "./externalmodels2026/mod1_POLITY2_lag3.RData")
 
-mod1_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT  + logPOP_EXT + anyODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
+mod1_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT  + logPOP_EXT + anyODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
                          family = "binomial", 
                          data = cleandata, 
                          control = glmerControl(optimizer = "bobyqa"))
 
-mod1_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + logPOP_EXT + anyODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
+mod1_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + logPOP_EXT + anyODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
                               control = glmerControl(optimizer = "Nelder_Mead"))
 
-mod1_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2  + logPOP_EXT + anyODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
+mod1_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2  + logPOP_EXT + anyODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT)  + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
                               control = glmerControl(optimizer = "Nelder_Mead"))
 
-mod1_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3  + logPOP_EXT + anyODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
+mod1_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3  + logPOP_EXT + anyODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
                               control = glmerControl(optimizer = "Nelder_Mead"))
@@ -431,10 +445,10 @@ save(mod1_v2x_LIBDEM_lag3, file = "./externalmodels2026/mod1_v2x_LIBDEM_lag3.RDa
 
 
 
-mod1_no_democracy_score <- glmer(CONNECTION ~  logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                              family = "binomial", 
-                              data = cleandata, 
-                              control = glmerControl(optimizer = "bobyqa"))
-
-save(mod1_no_democracy_score, file = "./externalmodels2026/mod1_no_democracy_score.RData")
+# mod1_no_democracy_score <- glmer(CONNECTION ~  logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+#                               family = "binomial", 
+#                               data = cleandata, 
+#                               control = glmerControl(optimizer = "bobyqa"))
+# 
+# save(mod1_no_democracy_score, file = "./externalmodels2026/mod1_no_democracy_score.RData")
 
