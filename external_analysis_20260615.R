@@ -70,6 +70,7 @@ names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
 names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
 names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
+masterset$v2x_LIBDEM <- masterset$V2x_Libdem
 
 restofworld <- restofworld %>% 
   mutate(GNI = as.numeric(GNI),
@@ -97,7 +98,7 @@ restofworld$GNI_CAP <- gsub(" ","",restofworld$GNI_CAP)%>% as.numeric()
 
 restofworld$POPULATN <- gsub(",",".",restofworld$POPULATN)
 restofworld$POPULATN <- gsub(" ","",restofworld$POPULATN) %>% as.numeric()
-
+restofworld$v2x_LIBDEM <- restofworld$V2x_Libdem
 
 ## WORK INVOLVING NOTES FROM 3-27-26 ##
 
@@ -122,7 +123,7 @@ external_democracy <- list(
     select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, v2x_LIBDEM, GNI, GNI_CAP, POPULATN) %>%
     unique(),
   africa = masterset %>%
-    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, GNI, GNI_CAP, POPULATN, IDEOLOGY, COLPAST1, REGION) %>% # WHERE IS INTERNAL V2X?
+    select(CCODE,YEAR,TOTLIB1, POLITY, POLITY2, v2x_LIBDEM, GNI, GNI_CAP, POPULATN, IDEOLOGY, COLPAST1, REGION) %>% # WHERE IS INTERNAL V2X?
     mutate(CCODE = paste0("C", CCODE)) %>%
     unique()
 ) %>%
@@ -368,50 +369,62 @@ save(mod1_TOTLIB1_lag1, file = "./externalmodels2026/mod1_TOTLIB1_lag1.RData")
 save(mod1_TOTLIB1_lag2, file = "./externalmodels2026/mod1_TOTLIB1_lag2.RData")
 save(mod1_TOTLIB1_lag3, file = "./externalmodels2026/mod1_TOTLIB1_lag3.RData")
 
-mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLPAST1_EXT + REGION_EXT + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                     family = "binomial", 
-                     data = cleandata, 
-                     control = glmerControl(optimizer = "Nelder_Mead"))
+# mod1_POLITY <- glmer(CONNECTION ~ POLITY_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLPAST1_EXT + REGION_EXT + COLD_WAR:IDEOLOGY_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+#                      family = "binomial", 
+#                      data = cleandata, 
+#                      control = glmerControl(optimizer = "Nelder_Mead"))
+# 
+# mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+#                           family = "binomial", 
+#                           data = cleandata, 
+#                           control = glmerControl(optimizer = "nloptwrap"))
+# 
+# mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+#                           family = "binomial", 
+#                           data = cleandata, 
+#                           control = glmerControl(optimizer = "bobyqa"))
+# 
+# mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+#                           family = "binomial", 
+#                           data = cleandata, 
+#                           control = glmerControl(optimizer = "bobyqa"))
+# 
+# save(mod1_POLITY, file = "./externalmodels2026/mod1_POLITY.RData")
+# save(mod1_POLITY_lag1, file = "./externalmodels2026/mod1_POLITY_lag1.RData")
+# save(mod1_POLITY_lag2, file = "./externalmodels2026/mod1_POLITY_lag2.RData")
+# save(mod1_POLITY_lag3, file = "./externalmodels2026/mod1_POLITY_lag3.RData")
 
-mod1_POLITY_lag1 <- glmer(CONNECTION ~ POLITY_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                          family = "binomial", 
-                          data = cleandata, 
-                          control = glmerControl(optimizer = "nloptwrap"))
-
-mod1_POLITY_lag2 <- glmer(CONNECTION ~ POLITY_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                          family = "binomial", 
-                          data = cleandata, 
-                          control = glmerControl(optimizer = "bobyqa"))
-
-mod1_POLITY_lag3 <- glmer(CONNECTION ~ POLITY_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
-                          family = "binomial", 
-                          data = cleandata, 
-                          control = glmerControl(optimizer = "bobyqa"))
-
-save(mod1_POLITY, file = "./externalmodels2026/mod1_POLITY.RData")
-save(mod1_POLITY_lag1, file = "./externalmodels2026/mod1_POLITY_lag1.RData")
-save(mod1_POLITY_lag2, file = "./externalmodels2026/mod1_POLITY_lag2.RData")
-save(mod1_POLITY_lag3, file = "./externalmodels2026/mod1_POLITY_lag3.RData")
-
-mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2 <- glmer(CONNECTION ~ POLITY2_EXT + logGNI_EXT + logPOP_EXT  + logODAG+ logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                       family = "binomial", 
                       data = cleandata, 
-                      control = glmerControl(optimizer = "bobyqa"))
+                      control = glmerControl(
+                        optimizer = "bobyqa",
+                        optCtrl = list(maxfun = 200000)
+                      ))
 
-mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
+mod1_POLITY2_lag1 <- glmer(CONNECTION ~ POLITY2_EXT_lag1 + logGNI_EXT + logPOP_EXT  + logODAG  + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+                           control = glmerControl(
+                             optimizer = "bobyqa",
+                             optCtrl = list(maxfun = 200000)
+                           ))
 
 mod1_POLITY2_lag2 <- glmer(CONNECTION ~ POLITY2_EXT_lag2 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+                           control = glmerControl(
+                             optimizer = "bobyqa",
+                             optCtrl = list(maxfun = 200000)
+                           ))
 
 mod1_POLITY2_lag3 <- glmer(CONNECTION ~ POLITY2_EXT_lag3 + logGNI_EXT + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                            family = "binomial", 
                            data = cleandata, 
-                           control = glmerControl(optimizer = "bobyqa"))
+                           control = glmerControl(
+                             optimizer = "bobyqa",
+                             optCtrl = list(maxfun = 200000)
+                           ))
 
 save(mod1_POLITY2, file = "./externalmodels2026/mod1_POLITY2.RData")
 save(mod1_POLITY2_lag1, file = "./externalmodels2026/mod1_POLITY2_lag1.RData")
@@ -421,22 +434,34 @@ save(mod1_POLITY2_lag3, file = "./externalmodels2026/mod1_POLITY2_lag3.RData")
 mod1_v2x_LIBDEM <- glmer(CONNECTION ~ v2x_LIBDEM_EXT  + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                          family = "binomial", 
                          data = cleandata, 
-                         control = glmerControl(optimizer = "bobyqa"))
+                         control = glmerControl(
+                           optimizer = "bobyqa",
+                           optCtrl = list(maxfun = 200000)
+                         ))
 
 mod1_v2x_LIBDEM_lag1 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag1  + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
-                              control = glmerControl(optimizer = "Nelder_Mead"))
+                              control = glmerControl(
+                                optimizer = "bobyqa",
+                                optCtrl = list(maxfun = 200000)
+                              ))
 
 mod1_v2x_LIBDEM_lag2 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag2  + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
-                              control = glmerControl(optimizer = "Nelder_Mead"))
+                              control = glmerControl(
+                                optimizer = "bobyqa",
+                                optCtrl = list(maxfun = 200000)
+                              ))
 
 mod1_v2x_LIBDEM_lag3 <- glmer(CONNECTION ~ v2x_LIBDEM_EXT_lag3  + logPOP_EXT + logODAG + logTRDTOT + COLD_WAR + COLD_WAR:IDEOLOGY_EXT + COLPAST1_EXT + REGION_EXT + (1|COUNTRY_INT) + (1|COUNTRY_EXT) + (1|COUNTRY_INT:COUNTRY_EXT) + (1|YEAR), 
                               family = "binomial", 
                               data = cleandata, 
-                              control = glmerControl(optimizer = "Nelder_Mead"))
+                              control = glmerControl(
+                                optimizer = "bobyqa",
+                                optCtrl = list(maxfun = 200000)
+                              ))
 
 save(mod1_v2x_LIBDEM, file = "./externalmodels2026/mod1_v2x_LIBDEM.RData")
 save(mod1_v2x_LIBDEM_lag1, file = "./externalmodels2026/mod1_v2x_LIBDEM_lag1.RData")

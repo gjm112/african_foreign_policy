@@ -1,13 +1,13 @@
 ---
 title: "External Report"
 author: "Gregory J. Matthews and Steven Pappas"
-format: pdf
+format: html
 execute:
   echo: false
   message: false
   warning: false
 editor: visual
-date: "June 29, 2026"
+date: "October 9, 2026"
 ---
 
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->
@@ -16,11 +16,11 @@ date: "June 29, 2026"
 
 <!-- v2x_Libdem lag 1 didn't converge -->
 
-This analysis seeks to evaluate the probability of a connection (i.e. an Embassy) between an African country and an external country, which could also be an African country as a function of democracy score. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY and POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x_libdem).
+This analysis seeks to evaluate the probability of a connection (i.e. an Embassy) between an African country and an external country, which could also be an African country as a function of democracy score. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (v2x_libdem).
 
 This main analyses were split into two parts: a reduced model and a full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the internal country, the external country, their interaction, and the year. These random effects account for correlation between observations with in the structure of the data.
 
-The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, official development assistance gross (ODAG) (Note: When ODAG is not observed it is set to 0 in the analysis), and total sum of trade import and export gross (TRDTOT). ODAG scores are only provided for non-African countries, meaning that models with ODAG as a predictor exclude a potential embassy relationship between two African countries. We applied a log transformation to each of these predictor variables due to their fairly extreme right-skewness (shown in the following density plots). We applied both of these model with lagged democracy scores of 1, 2, and 3 years. Finally, note that the POLITY model was dropped here as there were convergence issues in parameter estimation with the addition of TRDTOT and ODAG with a large number of zeroes. These convergence issues were not present when using POLITY2.
+The full model includes all of the parts of the reduced model, but also includes the external country's population, GNI, and total sum of trade import and export gross (TRDTOT).  We applied a log transformation to each of these predictor variables due to their fairly extreme right-skewness (shown in the following density plots). In addition, indicators for region of the external country ,colonial past of the external country, cold war, and and interaction between cold war and ideology of the external country were included.  We applied both of these model with lagged democracy scores of 1, 2, and 3 years. 
 
 # Reduced Model
 
@@ -28,69 +28,40 @@ The reduced model equations are given below, where the response $Y_{ijk}$ is a 1
 
 In lagged models, the year $k$ changes units depending on the lag. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
 
-$$
-Y_{ijk} \sim \text{Binomial}(1, p_{ijk})
-$$
+$$Y_{ijk} \sim \text{Binomial}(1, p_{ijk})$$
 
-$$
-\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1jk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}
-$$
+$$\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1jk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$$
 
-$$
-\gamma_{0i} \sim \text{N}(0, \sigma_i^2)
-$$
+$$\gamma_{0i} \sim \text{N}(0, \sigma_i^2)$$
 
-$$
-\gamma_{0j} \sim \text{N}(0, \sigma_j^2)
-$$
+$$\gamma_{0j} \sim \text{N}(0, \sigma_j^2)$$
 
-$$
-\gamma_{0ij} \sim \text{N}(0, \sigma_{ij}^2)
-$$
+$$\gamma_{0ij} \sim \text{N}(0, \sigma_{ij}^2)$$
 
-$$
-\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
-$$
+$$\gamma_{0k} \sim \text{N}(0, \sigma_k^2)$$
 
-As shown in Table 1, the external country democracy scores from the POLITY IV database (POLITY and POLITY2) and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, these models' $\hat{\beta}$ coefficients indicate that the more democratic external country $j$ is, the less likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged POLITY (where a higher score indicates a more democratic country) decreases the odds of an embassy relationship by a factor of $e^{-0.045}$ = 0.956, approximately a 4.4 percent decrease in the odds of an embassy relationship.
+As shown in Table 1, the external country democracy scores from the POLITY IV database (POLITY2) and their lags show significance at the $\alpha$ = 0.05 level. Interestingly, these models' $\hat{\beta}$ coefficients indicate that the more democratic external country $j$ is, the less likely they are to have an embassy relationship with internal country $i$. For instance, a one-unit increase in unlagged POLITY (where a higher score indicates a more democratic country) decreases the odds of an embassy relationship by a factor of $e^{-0.0416}$ = 0.959, approximately a 4.1 percent decrease in the odds of an embassy relationship.
 
 # Full Model
 
-Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed external country characteristics. In lagged models, we only lagged the external country's democracy score. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \ldots + \beta_5X_{5ijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
+Our full model equations are given below. They largely follow the same setup as the reduced model with the addition of the aforementioned log-transformed external country characteristics. In lagged models, we only lagged the external country's democracy score. For instance, a one-year lag would produce the model equation $\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1j(k-1)} + \ldots + \beta_pX_{pijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$, where $X_{1j(k-1)}$ is the external country's democracy score in the prior year (year $k$-1).
 
-$$
-Y_{ijk} \sim \text{Binomial}(1, p_{ijk})
-$$
+$$Y_{ijk} \sim \text{Binomial}(1, p_{ijk})$$
 
-$$
-\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1jk} + \ldots + \beta_5X_{5ijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}
-$$
+$$\text{logit}(p_{ijk}) = \beta_0 + \beta_1X_{1jk} + \ldots + \beta_5X_{5ijk} + \gamma_{0i} + \gamma_{0j} + \gamma_{0ij} + \gamma_{0k} + \epsilon_{ijk}$$
 
-$$
-\gamma_{0i} \sim \text{N}(0, \sigma_i^2)
-$$
+$$\gamma_{0i} \sim \text{N}(0, \sigma_i^2)$$
 
-$$
-\gamma_{0j} \sim \text{N}(0, \sigma_j^2)
-$$
+$$\gamma_{0j} \sim \text{N}(0, \sigma_j^2)$$
 
-$$
-\gamma_{0ij} \sim \text{N}(0, \sigma_{ij}^2)
-$$
+$$\gamma_{0ij} \sim \text{N}(0, \sigma_{ij}^2)$$
 
-$$
-\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
-$$
+$$\gamma_{0k} \sim \text{N}(0, \sigma_k^2)$$
 
 <!-- We gotta fix this.  This isn't significant.  The model didn't converge.  You can tell this because the confidence interval is so narrow it's ridiculous and very different from the others.  -->
 
 <!-- As shown in Table 2, none of the democracy scores are significant at the $\alpha$ = 0.05 level. External population size, the amount of aid sent to an internal country (ODAG), and imports (TRDIM) are all highly significant and all show a positive relationship with the probability of a connection.   -->
 
-As shown in Table 2, POLITY2 is highly significant in predicting an embassy relationship at all lags explored. The coefficient estimate is negative, indicating that the higher the POLITY2 score (i.e. more democratic) of the external country the lower the probability of an embassy connection. At lag 0, the odds ratio for POLITY2 is estimated to be 0.956 (95% CI: 0.931, 0.981) indicating about a 4.4% reduction in the odds of an embassy connection. This reduction is also fairly consistent across lags.
-
-For TOTLIB1, we observe that higher values of TOTLIB1 are associated with an increased probability of an embassy connection though this significance decreases over longer lags. Note that higher values of TOTLIB1 indicate LOWER democracy levels, so this relationship (i.e. lower external democracy levels are related to higher probability of an embassy connection) is consistent with what was observed with POLITY2.
-
-v2x_LIBDEM is nearly significant at the $\alpha = 0.05$ level for lag0 and not significant at all for any of the lags.
 
 ```{r}
 # Connection ~ Totlib (of external country) +
@@ -669,7 +640,7 @@ The correlations between each log-transformed predictor variable from the full m
 
 ```{r}
 cordata <- cleandata %>%
-  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDTOT, YEAR, v2x_LIBDEM_EXT, TOTLIB1_EXT, POLITY_EXT) %>%
+  select(logPOP_EXT, logGNI_EXT, logODAG, logTRDTOT, YEAR, v2x_LIBDEM_EXT, TOTLIB1_EXT, POLITY2_EXT) %>%
   drop_na()
 
 cat("Pearson Correlation Coefficient")
@@ -723,7 +694,7 @@ load("externalmodels2026/mod0_v2x_LIBDEM_lag3.Rdata")
 
 ```
 
-```{r}
+```{r reduced-model-summary}
 
 ## REDUCED MODEL SUMMARIES
 
@@ -738,7 +709,7 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
     "Three-Year Lag" = mod0_v2x_LIBDEM_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map = NA,
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
@@ -770,7 +741,7 @@ mod0_summary_POLITY2 <- modelsummary(
     "Three-Year Lag" = mod0_POLITY2_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map = NA,
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
@@ -802,7 +773,7 @@ mod0_summary_TOTLIB1 <- modelsummary(
     "Three-Year Lag" = mod0_TOTLIB1_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map = NA,
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
@@ -868,7 +839,7 @@ load("externalmodels2026/mod1_v2x_LIBDEM_lag3.Rdata")
 
 ```
 
-```{r}
+```{r full-model-summary}
 
 ## FULL MODEL SUMMARIES
 
@@ -880,20 +851,20 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     "Three-Year Lag" = mod1_v2x_LIBDEM_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map = NA,
   shape = term ~ model + statistic,
   coef_map = c(
      "(Intercept)" = "Intercept",
-    "v2x_LIBDEM" = "v2x_LIBDEM",
-    "v2x_LIBDEM_lag1" = "v2x_LIBDEM_lag1",
-    "v2x_LIBDEM_lag2" = "v2x_LIBDEM_lag2",
-    "v2x_LIBDEM_lag3" = "v2x_LIBDEM_lag3",
-    "logPOP" = "logPOP",
-    "logGNI" = "logGNI",
+    "v2x_LIBDEM_EXT" = "v2x_LIBDEM_EXT",
+    "v2x_LIBDEM_EXT_lag1" = "v2x_LIBDEM_EXT_lag1",
+    "v2x_LIBDEM_EXT_lag2" = "v2x_LIBDEM_EXT_lag2",
+    "v2x_LIBDEM_EXT_lag3" = "v2x_LIBDEM_EXT_lag3",
+    "logPOP_EXT" = "logPOP_EXT",
+    "logGNI_EXT" = "logGNI_EXT",
     "logTRDTOT" = "logTRDTOT",
     "COLD_WAR" = "COLD_WAR",
     "COLD_WAR:IDEOLOGY_EXT2" = "CW_Socialist",
-    "COLD_WAR:IDEOLOG_EXT3" = "CW_Marxist",
+    "COLD_WAR:IDEOLOGY_EXT3" = "CW_Marxist",
     "COLPAST1_EXT2" = "COL_British",
     "COLPAST1_EXT3" = "COL_Portuguese",
     "COLPAST1_EXT4" = "COL_Spanish",
@@ -907,11 +878,11 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     "REGION_EXT3" = "REG_S_Africa",
     "REGION_EXT4" = "REG_C_Africa",
     "REGION_EXT5" = "REG_W_Africa",
-    "SD (Intercept YEAR)",
-    "SD (Intercept COUNTRY_INT)",
-    "SD (Intercept COUNTRY_EXT)",
-    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
-    "SD (Observations)"
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept COUNTRY_INT)" = "SD (Intercept COUNTRY_INT)",
+    "SD (Intercept COUNTRY_EXT)" = "SD (Intercept COUNTRY_EXT)",
+    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)" = "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "External Report: Full Model Summary for V2X_LIBDEM"
 ) %>%
@@ -931,20 +902,20 @@ mod1_summary_POLITY2 <- modelsummary(
     "Three-Year Lag" = mod1_POLITY2_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map =  NA,
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)" = "Intercept",
-    "POLITY2" = "POLITY2",
-    "POLITY2_lag1" = "POLITY2_lag1",
-    "POLITY2_lag2" = "POLITY2_lag2",
-    "POLITY2_lag3" = "POLITY2_lag3",
-    "logPOP" = "logPOP",
-    "logGNI" = "logGNI",
+    "POLITY2_EXT" = "POLITY2_EXT",
+    "POLITY2_EXT_lag1" = "POLITY2_EXT_lag1",
+    "POLITY2_EXT_lag2" = "POLITY2_EXT_lag2",
+    "POLITY2_EXT_lag3" = "POLITY2_EXT_lag3",
+    "logPOP_EXT" = "logPOP_EXT",
+    "logGNI_EXT" = "logGNI_EXT",
     "logTRDTOT" = "logTRDTOT",
     "COLD_WAR" = "COLD_WAR",
     "COLD_WAR:IDEOLOGY_EXT2" = "CW_Socialist",
-    "COLD_WAR:IDEOLOG_EXT3" = "CW_Marxist",
+    "COLD_WAR:IDEOLOGY_EXT3" = "CW_Marxist",
     "COLPAST1_EXT2" = "COL_British",
     "COLPAST1_EXT3" = "COL_Portuguese",
     "COLPAST1_EXT4" = "COL_Spanish",
@@ -958,11 +929,11 @@ mod1_summary_POLITY2 <- modelsummary(
     "REGION_EXT3" = "REG_S_Africa",
     "REGION_EXT4" = "REG_C_Africa",
     "REGION_EXT5" = "REG_W_Africa",
-    "SD (Intercept YEAR)",
-    "SD (Intercept COUNTRY_INT)",
-    "SD (Intercept COUNTRY_EXT)",
-    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
-    "SD (Observations)"
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept COUNTRY_INT)" = "SD (Intercept COUNTRY_INT)",
+    "SD (Intercept COUNTRY_EXT)" = "SD (Intercept COUNTRY_EXT)",
+    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)" = "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "External Report: Full Model Summary for POLITY2"
 ) %>%
@@ -982,20 +953,20 @@ mod1_summary_TOTLIB1 <- modelsummary(
     "Three-Year Lag" = mod1_TOTLIB1_lag3
   ),
   stars = T,
-  gof_omit = ".",
+  gof_map =  NA,
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)" = "Intercept",
-    "TOTLIB1" = "TOTLIB1",
-    "TOTLIB1_lag1" = "TOTLIB1_lag1",
-    "TOTLIB1_lag2" = "TOTLIB1_lag2",
-    "TOTLIB1_lag3" = "TOTLIB1_lag3",
-    "logPOP" = "logPOP",
-    "logGNI" = "logGNI",
+    "TOTLIB1_EXT" = "TOTLIB1_EXT",
+    "TOTLIB1_EXT_lag1" = "TOTLIB1_EXT_lag1",
+    "TOTLIB1_EXT_lag2" = "TOTLIB1_EXT_lag2",
+    "TOTLIB1_EXT_lag3" = "TOTLIB1_EXT_lag3",
+    "logPOP_EXT" = "logPOP_EXT",
+    "logGNI_EXT" = "logGNI_EXT",
     "logTRDTOT" = "logTRDTOT",
     "COLD_WAR" = "COLD_WAR",
     "COLD_WAR:IDEOLOGY_EXT2" = "CW_Socialist",
-    "COLD_WAR:IDEOLOG_EXT3" = "CW_Marxist",
+    "COLD_WAR:IDEOLOGY_EXT3" = "CW_Marxist",
     "COLPAST1_EXT2" = "COL_British",
     "COLPAST1_EXT3" = "COL_Portuguese",
     "COLPAST1_EXT4" = "COL_Spanish",
@@ -1009,11 +980,11 @@ mod1_summary_TOTLIB1 <- modelsummary(
     "REGION_EXT3" = "REG_S_Africa",
     "REGION_EXT4" = "REG_C_Africa",
     "REGION_EXT5" = "REG_W_Africa",
-    "SD (Intercept YEAR)",
-    "SD (Intercept COUNTRY_INT)",
-    "SD (Intercept COUNTRY_EXT)",
-    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
-    "SD (Observations)"
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept COUNTRY_INT)" = "SD (Intercept COUNTRY_INT)",
+    "SD (Intercept COUNTRY_EXT)" = "SD (Intercept COUNTRY_EXT)",
+    "SD (Intercept COUNTRY_INT:COUNTRY_EXT)" = "SD (Intercept COUNTRY_INT:COUNTRY_EXT)",
+    "SD (Observations)" = "SD (Observations)"
   ),
   title = "External Report: Full Model Summary for TOTLIB1"
 ) %>%
@@ -1034,29 +1005,29 @@ mod1_summary_TOTLIB1
 
 # Appendix
 
-## Full Model Summaries
+<!-- ## Full Model Summaries -->
 
-The model summaries for each unlagged democracy score in the reduced and full models are given below. Previously, in the full models, we had observed that external countries with larger populations are more likely to have an embassy connection with an African country. However, with the change in the coding for ODAG (i.e. unobserved values are now zeroes) and the addition of the TRDTOT predictor (i.e. sum of TRDIM and TRDEX), the significance of population disappears. We now observe TRDTOT and ODAG (both logged) to be highly significant.
+<!-- The model summaries for each unlagged democracy score in the reduced and full models are given below. Previously, in the full models, we had observed that external countries with larger populations are more likely to have an embassy connection with an African country. However, with the change in the coding for ODAG (i.e. unobserved values are now zeroes) and the addition of the TRDTOT predictor (i.e. sum of TRDIM and TRDEX), the significance of population disappears. We now observe TRDTOT and ODAG (both logged) to be highly significant. -->
 
-```{r}
-summary(mod0_TOTLIB1)
-summary(mod1_TOTLIB1)
+<!-- ```{r} -->
+<!-- summary(mod0_TOTLIB1) -->
+<!-- summary(mod1_TOTLIB1) -->
 
-summary(mod0_POLITY2)
-summary(mod1_POLITY2)
+<!-- summary(mod0_POLITY2) -->
+<!-- summary(mod1_POLITY2) -->
 
-summary(mod0_v2x_LIBDEM)
-summary(mod1_v2x_LIBDEM)
-```
+<!-- summary(mod0_v2x_LIBDEM) -->
+<!-- summary(mod1_v2x_LIBDEM) -->
+<!-- ``` -->
 
-### Model summary with no democracy scores
+<!-- ### Model summary with no democracy scores -->
 
-Below are the results for the model with no democracy score included as a predictor, but with all of the other fixed and random effects of the full model included.
+<!-- Below are the results for the model with no democracy score included as a predictor, but with all of the other fixed and random effects of the full model included. -->
 
-```{r}
-load("./externalmodels2026/mod1_no_democracy_score.RData")
-summary(mod1_no_democracy_score)
-```
+<!-- ```{r} -->
+<!-- load("./externalmodels2026/mod1_no_democracy_score.RData") -->
+<!-- summary(mod1_no_democracy_score) -->
+<!-- ``` -->
 
 ## Random Effect Estimates From the Freedom House Database (POLITY2) Full Model
 
