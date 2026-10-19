@@ -1,7 +1,15 @@
 library(tidyverse)
 library(readxl)
 
-masterset = read_excel("./data2026/MASTER DATASET - 9.10.2026.xlsx")
+masterset = read_excel("data/MASTER DATASET - 9.10.2026.xlsx")
+
+masterset = read_csv("data/MASTER DATASET - 9.10.2026.csv") %>%
+  rename_with(toupper)
+
+odagkey = read_csv("data/odag_key.csv", skip = 1) %>%
+  na.omit() %>%
+  mutate(`Variable Name` = str_to_upper(`Variable Name`),
+         `Variable Name` = gsub("[^A-Z0-9]", "", x = `Variable Name`))
 
 ## Cleaning data ##
 
@@ -51,16 +59,34 @@ masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
 masterset <- masterset %>% mutate(ODAG600 = as.numeric(ODAG600))
 
 masterset <- masterset %>% 
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                                           odagfao:odagwbtot, odagaf:odaggggi), ~ as.numeric(.x))) %>% # Make these variables numeric
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                  odagfao:odagwbtot, odagaf:odaggggi), ~ replace_na(.x, 0))) %>% # Replace NA with 0
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                  odagfao:odagwbtot, odagaf:odaggggi), ~ pmax(.x, 0))) %>% # No negative numbers
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                                           ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ as.numeric(.x))) %>% # Make these variables numeric
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ replace_na(.x, 0))) %>% # Replace NA with 0
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ pmax(.x, 0))) %>% # No negative numbers
   rowwise() %>% 
   mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
   mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
   mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+odag_countries = odagkey %>%
+  filter(Classification == "Countries") %>%
+  pull(`Variable Name`)
+
+odag_io = odagkey %>%
+  filter(Classification == "IOs") %>%
+  mutate(`Variable Name` = case_when(`Variable Name` == "ODAG615" ~ "ODAG615 IMF", .default = `Variable Name`)) %>%
+  pull(`Variable Name`)
+
+odag_total = odagkey %>%
+  filter(Classification == "Total") %>%
+  pull(`Variable Name`)
+
+masterset = masterset %>%
+  mutate(ODAG_COUNTRIES = rowSums(across(all_of(odag_countries)), na.rm = T),
+         ODAG_IO = rowSums(across(all_of(odag_io)), na.rm = T),
+         ODAG_TOT = ODAG_COUNTRIES + ODAG_IO)
 
 # HHI values over time
 
@@ -72,28 +98,31 @@ masterset <- masterset %>%
 
 masterset <- masterset %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>% 
   mutate(across(TRDIM351:TRDIM203, ~ as.numeric(.x))) %>% 
-  mutate(TRDEXtot = rowSums(pick(TRDEX351:TRDEX250, 
+  mutate(TRDEXTOT = rowSums(pick(TRDEX351:TRDEX250, 
                                  TRDEX300:TRDEX285, 
                                  TRDEX280:TRDEX415,
                                  TRDEX100:TRDEX147,
                                  TRDEX577:TRDEX551,
                                  TRDEX563:TRDEX203),na.rm = TRUE),
-         TRDIMtot = rowSums(pick(TRDIM351:TRDIM250,
+         TRDIMTOT = rowSums(pick(TRDIM351:TRDIM250,
                                  TRDIM300:TRDIM285,
                                  TRDIM280:TRDIM415,
                                  TRDIM100:TRDIM147,
                                  TRDIM577:TRDIM551,
                                  TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
-  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T),
-         ODAGtot_private = rowSums(pick(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                                          odagfao:odagwbtot, odagaf:odaggggi)), na.rm = T)) %>% 
-  filter(ODAGtot_private >= 0) %>%
+  mutate(ODAGTOT = rowSums(pick(ODAG201:ODAG501), na.rm = T),
+         ODAGTOT_private = rowSums(pick(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                                          ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI)), na.rm = T)) %>% 
+  filter(ODAGTOT_private >= 0,
+         ODAG_IO >= 0,
+         ODAG_COUNTRIES >= 0,
+         ODAG_TOT >= 0) %>%
   mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
          logGNI = log(GNI, 10),
          logPOP = log(POPULATN,10),
-         logTRDIMtot = log(TRDIMtot + 1,10),
-         logTRDEXtot = log(TRDEXtot + 1,10), 
-         logODAGtot = log(ODAGtot + 1, 10)) 
+         logTRDIMtot = log(TRDIMTOT + 1,10),
+         logTRDEXtot = log(TRDEXTOT + 1,10), 
+         logODAGtot = log(ODAGTOT + 1, 10)) 
 
 # Now create the lag variables
 
@@ -107,13 +136,11 @@ masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
          POLITY2_lag1 = lag(POLITY2,1),
          POLITY2_lag2 = lag(POLITY2,2),
          POLITY2_lag3 = lag(POLITY2,3),
-         V2x_Libdem_lag1 = lag(V2x_Libdem,1),
-         V2x_Libdem_lag2 = lag(V2x_Libdem,2),
-         V2x_Libdem_lag3 = lag(V2x_Libdem,3)
+         V2X_LIBDEM_lag1 = lag(V2X_LIBDEM,1),
+         V2X_LIBDEM_lag2 = lag(V2X_LIBDEM,2),
+         V2X_LIBDEM_lag3 = lag(V2X_LIBDEM,3)
   ) %>% 
   ungroup() 
-
-
 
 # Summary stuff
 
@@ -137,69 +164,69 @@ library(lmerTest)
 library(splines)
 
 # Polity2
-mod0_private_POLITY2 <- lmer(log(ODAGtot_private+ 1,10) ~ POLITY2 + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_POLITY2 <- lmer(log(ODAGtot_private+ 1,10) ~ POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_POLITY2 <- lmer(log(ODAG_IO + 1, 10) ~ POLITY2 + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_POLITY2 <- lmer(log(ODAG_IO + 1, 10) ~ POLITY2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod0_private_POLITY2_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~ POLITY2_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_POLITY2_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~ POLITY2_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_POLITY2_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_POLITY2_lag1 <- lmer(log(ODAG_IO + 1,10) ~ POLITY2_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_POLITY2_lag2 <- lmer(log(ODAG_IO + 1,10) ~ POLITY2_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_POLITY2_lag3 <- lmer(log(ODAG_IO + 1,10) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_private_POLITY2_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~  POLITY2_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY +  (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_POLITY2_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~  POLITY2_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_POLITY2_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~  POLITY2_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_POLITY2_lag1 <- lmer(log(ODAG_IO + 1,10) ~  POLITY2_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY +  (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_POLITY2_lag2 <- lmer(log(ODAG_IO + 1,10) ~  POLITY2_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_POLITY2_lag3 <- lmer(log(ODAG_IO + 1,10) ~  POLITY2_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 # TOTLIB1
 
-mod0_private_TOTLIB1 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1 + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_TOTLIB1 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_TOTLIB1 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1 + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_TOTLIB1 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod0_private_TOTLIB1_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_TOTLIB1_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_TOTLIB1_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_TOTLIB1_lag1 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag1 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_TOTLIB1_lag2 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag2 + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_TOTLIB1_lag3 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag3 + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_private_TOTLIB1_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_TOTLIB1_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_TOTLIB1_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~ TOTLIB1_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_TOTLIB1_lag1 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_TOTLIB1_lag2 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_TOTLIB1_lag3 <- lmer(log(ODAG_IO + 1,10) ~ TOTLIB1_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
-# V2x_Libdem
+# V2X_LIBDEM
 
-mod0_private_V2x_Libdem <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_V2x_Libdem <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_V2X_LIBDEM <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_V2X_LIBDEM <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod0_private_V2x_Libdem_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag1  + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_V2x_Libdem_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag2  + (1|CCODE) + (1|YEAR), data = masterset)
-mod0_private_V2x_Libdem_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag3  + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_V2X_LIBDEM_lag1 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag1  + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_V2X_LIBDEM_lag2 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag2  + (1|CCODE) + (1|YEAR), data = masterset)
+mod0_IO_V2X_LIBDEM_lag3 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag3  + (1|CCODE) + (1|YEAR), data = masterset)
 
-mod1_private_V2x_Libdem_lag1 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_V2x_Libdem_lag2 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
-mod1_private_V2x_Libdem_lag3 <- lmer(log(ODAGtot_private+ 1,10) ~ V2x_Libdem_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_V2X_LIBDEM_lag1 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag1 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_V2X_LIBDEM_lag2 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag2 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
+mod1_IO_V2X_LIBDEM_lag3 <- lmer(log(ODAG_IO + 1,10) ~ V2X_LIBDEM_lag3 + logPOP + logGNI + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION + COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR), data = masterset)
 
 
 
-save(mod0_private_POLITY2, file = "./ODAGPRIVATEmodels/mod0_private_POLITY2.RData")
-save(mod1_private_POLITY2, file = "./ODAGPRIVATEmodels/mod1_private_POLITY2.RData")
-save(mod0_private_POLITY2_lag1, file = "./ODAGPRIVATEmodels/mod0_private_POLITY2_lag1.RData")
-save(mod0_private_POLITY2_lag2, file = "./ODAGPRIVATEmodels/mod0_private_POLITY2_lag2.RData")
-save(mod0_private_POLITY2_lag3, file = "./ODAGPRIVATEmodels/mod0_private_POLITY2_lag3.RData")
-save(mod1_private_POLITY2_lag1, file = "./ODAGPRIVATEmodels/mod1_private_POLITY2_lag1.RData")
-save(mod1_private_POLITY2_lag2, file = "./ODAGPRIVATEmodels/mod1_private_POLITY2_lag2.RData")
-save(mod1_private_POLITY2_lag3, file = "./ODAGPRIVATEmodels/mod1_private_POLITY2_lag3.RData")
+save(mod0_IO_POLITY2, file = "models/ODAG_IO/mod0_IO_POLITY2.RData")
+save(mod1_IO_POLITY2, file = "models/ODAG_IO/mod1_IO_POLITY2.RData")
+save(mod0_IO_POLITY2_lag1, file = "models/ODAG_IO/mod0_IO_POLITY2_lag1.RData")
+save(mod0_IO_POLITY2_lag2, file = "models/ODAG_IO/mod0_IO_POLITY2_lag2.RData")
+save(mod0_IO_POLITY2_lag3, file = "models/ODAG_IO/mod0_IO_POLITY2_lag3.RData")
+save(mod1_IO_POLITY2_lag1, file = "models/ODAG_IO/mod1_IO_POLITY2_lag1.RData")
+save(mod1_IO_POLITY2_lag2, file = "models/ODAG_IO/mod1_IO_POLITY2_lag2.RData")
+save(mod1_IO_POLITY2_lag3, file = "models/ODAG_IO/mod1_IO_POLITY2_lag3.RData")
 
-save(mod0_private_TOTLIB1, file = "./ODAGPRIVATEmodels/mod0_private_TOTLIB1.RData")
-save(mod1_private_TOTLIB1, file = "./ODAGPRIVATEmodels/mod1_private_TOTLIB1.RData")
-save(mod0_private_TOTLIB1_lag1, file = "./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag1.RData")
-save(mod0_private_TOTLIB1_lag2, file = "./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag2.RData")
-save(mod0_private_TOTLIB1_lag3, file = "./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag3.RData")
-save(mod1_private_TOTLIB1_lag1, file = "./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag1.RData")
-save(mod1_private_TOTLIB1_lag2, file = "./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag2.RData")
-save(mod1_private_TOTLIB1_lag3, file = "./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag3.RData")
+save(mod0_IO_TOTLIB1, file = "models/ODAG_IO/mod0_IO_TOTLIB1.RData")
+save(mod1_IO_TOTLIB1, file = "models/ODAG_IO/mod1_IO_TOTLIB1.RData")
+save(mod0_IO_TOTLIB1_lag1, file = "models/ODAG_IO/mod0_IO_TOTLIB1_lag1.RData")
+save(mod0_IO_TOTLIB1_lag2, file = "models/ODAG_IO/mod0_IO_TOTLIB1_lag2.RData")
+save(mod0_IO_TOTLIB1_lag3, file = "models/ODAG_IO/mod0_IO_TOTLIB1_lag3.RData")
+save(mod1_IO_TOTLIB1_lag1, file = "models/ODAG_IO/mod1_IO_TOTLIB1_lag1.RData")
+save(mod1_IO_TOTLIB1_lag2, file = "models/ODAG_IO/mod1_IO_TOTLIB1_lag2.RData")
+save(mod1_IO_TOTLIB1_lag3, file = "models/ODAG_IO/mod1_IO_TOTLIB1_lag3.RData")
 
-save(mod0_private_V2x_Libdem, file = "./ODAGPRIVATEmodels/mod0_private_V2x_Libdem.RData")
-save(mod1_private_V2x_Libdem, file = "./ODAGPRIVATEmodels/mod1_private_V2x_Libdem.RData")
-save(mod0_private_V2x_Libdem_lag1, file = "./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag1.RData")
-save(mod0_private_V2x_Libdem_lag2, file = "./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag2.RData")
-save(mod0_private_V2x_Libdem_lag3, file = "./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag3.RData")
-save(mod1_private_V2x_Libdem_lag1, file = "./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag1.RData")
-save(mod1_private_V2x_Libdem_lag2, file = "./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag2.RData")
-save(mod1_private_V2x_Libdem_lag3, file = "./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag3.RData")
+save(mod0_IO_V2X_LIBDEM, file = "models/ODAG_IO/mod0_IO_V2X_LIBDEM.RData")
+save(mod1_IO_V2X_LIBDEM, file = "models/ODAG_IO/mod1_IO_V2X_LIBDEM.RData")
+save(mod0_IO_V2X_LIBDEM_lag1, file = "models/ODAG_IO/mod0_IO_V2X_LIBDEM_lag1.RData")
+save(mod0_IO_V2X_LIBDEM_lag2, file = "models/ODAG_IO/mod0_IO_V2X_LIBDEM_lag2.RData")
+save(mod0_IO_V2X_LIBDEM_lag3, file = "models/ODAG_IO/mod0_IO_V2X_LIBDEM_lag3.RData")
+save(mod1_IO_V2X_LIBDEM_lag1, file = "models/ODAG_IO/mod1_IO_V2X_LIBDEM_lag1.RData")
+save(mod1_IO_V2X_LIBDEM_lag2, file = "models/ODAG_IO/mod1_IO_V2X_LIBDEM_lag2.RData")
+save(mod1_IO_V2X_LIBDEM_lag3, file = "models/ODAG_IO/mod1_IO_V2X_LIBDEM_lag3.RData")
 

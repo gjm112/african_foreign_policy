@@ -1,13 +1,13 @@
 ---
 title: "HHI Report"
 author: "Gregory J. Matthews and Steven Pappas"
+date: "October 16, 2026"
 format: pdf
 execute:
   echo: false
   message: false
   warning: false
 editor: visual
-date: "October 9, 2026"
 ---
 
 <!-- NOTE: for Totlib1 lower scores are MORE democracy -->

@@ -25,7 +25,8 @@ masterset = masterset %>%
                              .default = COUNTRY),
          COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
          COLPAST1 = as.factor(COLPAST1),
-         REGION = as.factor(REGION))
+         REGION = as.factor(REGION),
+         IDEOLOGY = as.factor(IDEOLOGY))
          
 
 #Convert commas to periods. 
@@ -97,8 +98,7 @@ HHI <- HHI %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>%
          logPOP = log(POPULATN,10),
          logTRDIMtot = log(TRDIMtot + 1,10),
          logTRDEXtot = log(TRDEXtot + 1,10), 
-         logODAGtot = log(ODAGtot + 1, 10),
-         IDEOLOGY = factor(IDEOLOGY)) 
+         logODAGtot = log(ODAGtot + 1, 10)) 
 
 #Now create the lag variables
 HHI <- HHI %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>% 

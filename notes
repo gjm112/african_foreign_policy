@@ -111,3 +111,30 @@ Table
   - HHI index ranges from 1/k to 1
   - We need to create HHI models for democracy scores and their lags
   - Copy and paste the old reports for HHI models
+  
+10-9-26
+
+  - Add ideology to HHI and ODAG models (DONE)
+  - Add COLPAST1 and REGION names to HHI models (DONE)
+  - Add ideology to embassy models if not there already
+  - Dig up embassy count models and update those with ideology and modelsummary
+  - To do ideology, interact it with cold war indicator (DONE)
+    - A 0 for cold war means ideology doesn't factor in, a 1 for cold war means ideology is a factor
+    - Can't do a main effect for ideology with the interaction because you get multicollinearity issues
+    
+10-16-26
+
+  - Three sets of ODAG models
+    - ODAG_IO = ODAG_private where IO is international orgs
+    - ODAG_countries
+    - ODAG_total = ODAG_IO + ODAG_countries
+  - Three sets of HHI models with each ODAG as predictor set
+    - HHI from countries (HHI_countries)
+    - HHI from IO (HHI_IO)
+    - HHI from countries and IO (HHI_total)
+  - Embassy counts model
+    - Update it with newer data
+    - Make sure it's the same predictor set as ODAG and HHI
+    - Is the response defined as number of embassies an African country has in external country or external countries have in the African country
+  - Clean repository
+  
