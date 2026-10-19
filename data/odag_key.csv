@@ -1,0 +1,119 @@
+﻿Development Aid Spreadsheet,,,,
+Variable Name,Variable Description ,Total ODA,Source,Classification 
+,,,,
+odag260,Australia,"3,494.09 ",OECD,Countries
+odag351,Austria,"6,023.83 ",OECD,Countries
+odag352,Belgium,"22,104.07 ",OECD,Countries
+odag500,Canada,"32,283.08 ",OECD,Countries
+odag306,Czech Republic,262.99 ,OECD,Countries
+odag355,Denmark,"21,799.21 ",OECD,Countries
+odag356,Finland,"6,879.32 ",OECD,Countries
+odag357,France,"163,804.00 ",OECD,Countries
+odag358,Germany,"112,467.81 ",OECD,Countries
+odag359,Greece,256.99 ,OECD,Countries
+odag310,Hungary,368.02 ,OECD,Countries
+odag360,Iceland,432.19 ,OECD,Countries
+odag361,Ireland,"8,967.62 ",OECD,Countries
+odag362,Italy,"29,635.61 ",OECD,Countries
+odag201,Japan,"74,978.90 ",OECD,Countries
+odag204,Korea,"5,546.92 ",OECD,Countries
+odag364,Luxembourg,"3,428.40 ",OECD,Countries
+odag367,Netherlands,"32,355.69 ",OECD,Countries
+odag266,New Zealand,284.82 ,OECD,Countries
+odag368,Norway,"23,896.01 ",OECD,Countries
+odag313,Poland,574.23 ,OECD,Countries
+odag369,Portugal,"6,995.17 ",OECD,Countries
+odag317,Slovak Republic,138.96 ,OECD,Countries
+odag318,Slovenia,53.22 ,OECD,Countries
+odag371,Spain,"13,523.63 ",OECD,Countries
+odag372,Sweden,"31,483.57 ",OECD,Countries
+odag373,Switzerland,"14,388.99 ",OECD,Countries
+odag375,United Kingdom,"84,320.42 ",OECD,Countries
+odag501,United States,"288,825.56 ",OECD,Countries
+odag308 †,Estonia  ,31.08 ,OECD,Countries
+odag311 †,Latvia  ,6.21 ,OECD,Countries
+odag312 †,Lithuania  ,8.86 ,OECD,Countries
+odag400,Azerbaijan,5.43 ,OECD,Countries
+odag304 †,Bulgaria ,6.90 ,OECD,Countries
+odag305,Croatia,8.64 ,OECD,Countries
+odag353 †,Cyprus  ,9.72 ,OECD,Countries
+odag404,Israel,470.97 ,OECD,Countries
+odag281,Kazakhstan,7.83 ,OECD,Countries
+odag406 †,Kuwait  ,"14,874.41 ",OECD,Countries
+odag363 †,Liechtenstein  ,63.75 ,OECD,Countries
+odag365 †,Malta  ,18.70 ,OECD,Countries
+odag315 †,Romania  ,35.14 ,OECD,Countries
+odag411 †,Saudi Arabia ,"22,173.84 ",OECD,Countries
+odag205,Taiwan,666.43 ,OECD,Countries
+odag249,Thailand,44.95 ,OECD,Countries
+odag251††,Timor-Leste,1.70 ,OECD,Countries
+odag416,Turkey,"3,845.22 ",OECD,Countries
+odag414,United Arab Emirates,"27,008.26 ",OECD,Countries
+odag643,EU Institutions,"167,026.76 ",OECD,IOs
+odag615‡,"International Monetary Fund, Total","57,690.95 ",OECD,IOs
+odag616,IMF (Congressional Trust Funds),"56,036.47 ",OECD,IOs
+odag600,African Development Bank (AfDB),"6,881.91 ",OECD,IOs
+odag601,African Development Fund,"51,496.09 ",OECD,IOs
+odag633 †,Islamic Development Bank (IsDB) †,"3,081.82 ",OECD,IOs
+odagfao††,Food and Agriculture Organisation (FAO),245.04 ,OECD,IOs
+odagiaea,International Atomic Energy Agency (IAEA),333.89 ,OECD,IOs
+odag613,IFAD,"9,695.75 ",OECD,IOs
+odagilo††,International Labour Organisation (ILO),425.90 ,OECD,IOs
+odag628,UNAIDS,488.86 ,OECD,IOs
+odag621,UNDP,"12,291.49 ",OECD,IOs
+odag622,UNFPA,"4,305.09 ",OECD,IOs
+odag623,UNHCR,"8,739.79 ",OECD,IOs
+odag624,UNICEF,"15,603.37 ",OECD,IOs
+odag636 †,UN Peacebuilding Fund (UNPBF) †,929.60 ,OECD,IOs
+odag626,UNTA,"2,380.35 ",OECD,IOs
+odag627,WFP,"14,829.00 ",OECD,IOs
+odag630,World Health Organisation (WHO),"1,470.45 ",OECD,IOs
+odag609,(World Bank) International Bank for Reconstruction and Development (IBRD),"44,014.38 ",OECD,IOs
+odag610,(World Bank) International Development Association (IDA),"241,893.91 ",OECD,IOs
+odagaf††,Adaptation Fund,281.27 ,OECD,IOs
+odag632 †,Arab Bank for Economic Development in Africa (BADEA) ,"1,982.60 ",OECD,IOs
+odag631 †,Arab Fund (AFESD) ,"10,381.49 ",OECD,IOs
+odagcerf††,Central Emergency Response Fund (CERF),"3,589.57 ",OECD,IOs
+odagcif††,Climate Investment Funds (CIF),"1,909.45 ",OECD,IOs
+odaggavi,Global Alliance for Vaccines and Immunization (GAVI),"16,430.98 ",OECD,IOs
+odaggef,Global Environment Facility (GEF),"3,468.39 ",OECD,IOs
+odaggf,Global Fund,"54,022.70 ",OECD,IOs
+odag617,Nordic Development Fund (NDF),621.83 ,OECD,IOs
+odag634 †,OPEC Fund for International Development (OFID) †,"6,635.69 ",OECD,IOs
+odaggtot,Total Annual Gross ODA-Official Donors,"1,804,470.06 ",OECD,Total
+odagdac,"DAC Countries, Total","989,129.12 ",OECD,Total
+odagnond," Non-DAC Countries,Total","125,090.51 ",OECD,Total
+odagmlti,"Multilaterals, Total","690,250.44 ",OECD,Total
+odagwbgtot††,"World Bank Group, Total","285,908.29 ",OECD,Total
+odagwbtot††,"World Bank, Total","285,359.46 ",OECD,Total
+odagrdbtot††,"Regional Development Banks, Total","58,192.82 ",OECD,Total
+odagafdbtot††,"African Development Bank, Total","59,309.67 ",OECD,Total
+odagomltitot††,"Other Multilateral, Total","132,005.17 ",OECD,Total
+odagothr‡,"Other Donor Countries, Total‡",11.84,OECD,Total
+odaguntot††,"United Nations, Total","74,880.32 ",OECD,Total
+odag637 †,Other Multilaterals   †,"32,648.00 ",OECD,Total
+pdagpriv,"Private Donors, Total","25,634.28 ",OECD,Total
+pdagbmgf,Bill & Melinda Gates Foundation,"12,544.43 ",OECD,Total
+odagg7,"G7 Countries, Total","784,037.25 ",OECD,Total
+odageuectot,"DAC EU Members + EC, Total","709,932.97 ",OECD,Total
+odageceu,"Members of  the European Commission, European Union, & European Investment Bank (Combined)","1,187,111.94",OECD,Total
+psndac††,Private Sector Net Flows,"396,039.13 ",OECD,Total
+didac††,Direct Investment Flows,"322,072.09 ",OECD,Total
+Pidac††,Portfolio Investment,"73,433.66 ",OECD,Total
+odag602 †,Asian Development Bank (AsDB) ,No data,OECD,No Data or not Enough
+odag611,Inter-American Development Bank (IDB),No data,OECD,No Data or not Enough
+odag604,Caribbean Development Bank (CarDB),No data,OECD,No Data or not Enough
+odag605‡,Council of Europe (CEB) ‡,No data,OECD,No Data or not Enough
+odag606,European Bank for Reconstruction and Development (EBRD),No data,OECD,No Data or not Enough
+odag603,Asian Development Bank Special Funds,No data,OECD,No Data or not Enough
+odag612,Inter-American Development Bank Special Funds,No data,OECD,No Data or not Enough
+odagarba‡,Arab Agencies (aggregated) ‡,"9,254.90",OECD,No Data or not Enough
+odagarbc‡,Arab Countries (Aggregated) ‡,"25,994.63",OECD,No Data or not Enough
+odag629,UNECE,0.00 ,OECD,No Data or not Enough
+odagunep††,UNEP,0.00 ,OECD,No Data or not Enough
+odag625,UNRWA,0.00 ,OECD,No Data or not Enough
+odagunwto††,World Tourism Organisation (UNWTO),0.00 ,OECD,No Data or not Enough
+odag635 †,OSCE ,0.00 ,OECD,No Data or not Enough
+odag614,International Finance Corporation (IFC),0.00 ,OECD,No Data or not Enough
+odaggggi††,Global Green Growth Institute (GGGI),27.76 ,OECD,No Data or not Enough
+odagmp,Montreal Protocol,5.44 ,OECD,No Data or not Enough
