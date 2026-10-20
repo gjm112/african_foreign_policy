@@ -7,10 +7,8 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "October 9, 2026"
+date: "October 20, 2026"
 ---
-
-<!-- Note:  let's not call it private.  Multilateral.  -->
 
 # Overview
 
@@ -65,13 +63,13 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{\text{year}}^2)$$
 # Data Visualizations and Results
 
 ```{r}
-
 library(tidyverse)
 library(readxl)
-
+library(here)
 ## Cleaning data ##
 
-masterset = read_csv("./data2026/MASTER DATASET - 9.10.2026.csv")
+
+masterset = read_csv(here("data2026","MASTER DATASET - 9.10.2026.csv"))
 
 masterset = masterset %>%
   mutate(across(where(is.numeric), ~ na_if(., -99)),
