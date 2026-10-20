@@ -1,0 +1,661 @@
+---
+title: "Embassies and Democracy - Results Only"
+format: pdf
+execute:
+  echo: false
+  message: false
+  warning: false
+editor: visual
+authors: "Steven Pappas and Gregory J. Matthews"
+date: "April 20, 2026"
+---
+
+# Summary
+
+# BROAD QUESTION
+
+Broad question: Does the process of democratization within African countries affect the formulation and implementation of African foreign policies.
+
+## THERE ARE THREE DIFFERENT SETS OF STATISTICALLY BASED QUESTIONS (We address only question 1 here):
+
+1.  African democracy and African embassies. Do greater levels of democratization of African countries lead to larger and more diversified embassy networks maintained by African countries overseas? Dependent variable: embassies maintained abroad (yes/no by country) in 1965, 1975, 1985, 1995, 2000, 2005, 2010, 2015, 2020, 2025 (use 2024 for 2025).
+2.  African democracy and African trade. Do greater levels of democratization within African countries lead to larger and more diversified levels of trade imports and trade exports by African countries? Dependent variable: \$ amount of imports and exports annually for 1960 to 2022)
+3.  African democracy and aid to Africa. Do greater levels of democratization within African countries lead to larger and more diversified levels of foreign aid to African countries? (Dependent variable:\$ amount of aid annually for every country in the world 1960 to 2021).
+
+THUS, THREE DIFFERENT DEPENDENT VARIABLES:
+
+1.  Total number and diversification of African embassies maintained abroad.
+2.  Total amount and diversification of African trade imports and trade exports
+3.  Total amount and diversification of foreign aid received by African countries
+
+## THREE DIFFERENT VARIABLES OF AFRICAN DEMOCRACY AS INDEPENDENT VARIABLE
+
+Three different variables of democracy (each with different inclusive dates) to use separately in the analyses as the independent variable:
+
+1.  V-Dem democracy variable (1951-2024) Variable name in the dataset: v2x_LIBDEM. It ranges from 0 (worst) to 1 (best).
+2.  Polity IV democracy variable (1948-2018) Variable name in the dataset: DEMOC. It ranges from -10 (worst) to +10 (best).
+3.  Freedom House democracy variable (1972 - 2024) Variable name in the dataset: TOTLIB. It ranges from 1 (best) to 14 (worst). It is a combination of the following two variables, which people sometimes run separately: Civil liberties - Variable name in the dataset: -CIVLIB. It ranges from 1 (best) to 7 (worst). -Political rights: Variable name in the dataset: POLLIB. It ranges from 1 (best) to 7 (worst).
+
+For each of the three democracy variables, will do a series of 4 tests with lags. -Test 1. Change in democracy score (no lag) -Test 2. Change in democracy score (1 year lag) -Test 3. Change in democracy score (2 year lag) -Test 4. Change in democracy score (3 year lag)
+
+## CONTROL VARIABLES RELATED FOR AFRICAN COUNTRIES (AFRICAN FACTORS)
+
+-African GNI OR GNI per capita (logged?) -African Population (size in millions) - Region of Africa (1= North Africa, 2 = East Africa, 3 = Southern Africa, 4= Central Africa, 5 = West Africa) - African Colonial Past (Colpast2) (1 = French, 2 = British, 3 = Portuguese, 4 = Spanish, 5 = Italian, 6 = Belgian, 7 = German, 8 = United States, 9 = Not colony, 10 = unique) - African Ideology (1 = capitalist, 2 = socialist, 3 = Marxist) - African Historical Period - Entire independence era - Cold War era (1945-1989) - Post-Cold War era (1990-present)
+
+## PULL FACTORS—CHARACTERISTICS OF OTHER NON-AFRICAN COUNTRIES OF THE WORLD—JUST FOR THE EMBASSSY QUESTION
+
+- Level of democracy (Freedom House)
+- Level of democracy (Polity IV)
+- Level of democracy (V-dem) These are in the data set for the African countries, but need to be added for the rest of the world.
+- GNI
+- GNI per capita
+- Population
+- Imports
+- Exports
+- Foreign Aid
+
+FOR THE THREE SETS OF STATISTICALLY BASED QUESTIONS, LET’S START WITH THE EMBASSIES (ABOVE QUESTION #1 FIRST)
+
+## ANSWERING QUESTION #1
+
+To evaluate this question we first created three sets of reduced and full models. Our reduced models sought to evaluate the relationship and the significance of the relationship between a country's embassy count and its democracy score from Freedom House, Polity IV, and V-dem. In these models, democracy score was the only explanatory variable after controlling for the country and year with random effects. The model equation is given below, where $\gamma_{0k}$ represents the random effect for country $k$ and $\gamma_{0t}$ is the random effect for year $t$. We follow the same setup for the lagged models, which go back as far as three years for each democracy score.
+
+# Number of embassy models
+
+## Reduced model
+
+$$
+Y_{kt} \sim \text{Poisson}(\lambda_{kt})
+$$
+
+$$
+\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$ where $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prio year.)
+
+As shown in Table 1, in these reduced models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level.
+
+## Full model
+
+The full models (results in Table 2) follow a similar setup as the reduced models, but they include additional explanatory variables for the country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We applied log transformations to GNI and population, since they displayed a right-skewed distribution. We also kept the reduced models' random effects for country and year and followed a similar setup for lagged democracy scores, going back as far as three years. The model equation is given below, with $k$ and $t$ again representing country and year, repsectively.
+
+$$
+Y_{kt} \sim \text{Poisson}(\lambda_{kt})
+$$
+
+$$
+\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1kt} + \ldots + \beta_7X_{7kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$
+
+where again $Y_{kt}$ is the number of embassies for country $k$ in year $t$ and $X_{1kt}$ is one of the democracy scores for country $k$ in year $t$. The additional $X$'s represent country's GNI, population, region, colonization status after World War II, ideology, and whether the year is during the Cold War. We also considered models where the democracy score as a predictor was lagged by 1, 2, or 3 years (i.e. for a single lag: $\text{log}(\lambda_{kt}) = \beta_0 + \beta_1X_{1k(t-1)} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}$ where $X_{1k(t-1)}$ is the democracy score in the prior year.)
+
+Similar to the reduced models, in the full models none of the democracy scores or their lags display significance at an $\alpha$ = 0.05 confidence level. Additionally, none reached a p-value under 0.2. Full results are shown in Table 2.
+
+# Change in number of embassy models
+
+## Reduced model
+
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score. Once again, in this first set of models the random effects for country and year were included . The model equations follow the previously described reduced model setup, however the response variable here is the change in the number of embassies from one year to the next as opposed to the total number of embassies. Therefore, a normal model was used instead of a Poisson model. The details of the model are below:
+
+$$
+\Delta_{kt} \sim \text{Normal}(\mu_{kt}, \sigma^2)
+$$
+
+$$
+\text{log}(\mu_{kt}) = \beta_0 + \beta_1X_{1kt} + \gamma_{0k} + \gamma_{0t} + \epsilon_{kt}
+$$
+
+$$
+\gamma_{0k} \sim \text{N}(0, \sigma_k^2)
+$$
+
+$$
+\gamma_{0t} \sim \text{N}(0, \sigma_t^2)
+$$ where $\Delta_{kt}$ is the change in the number of embassies from year $t-1$ to $t$, while $\gamma_{0k}$, $\gamma_{0t}$, and X\_{1kt} and are the same as before.
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the unlagged democracy score from Polity IV, with a p-value of 0.140. Full results are shown in table 3.
+
+## Full Model
+
+Next, we sought to evaluate the relationship between a country's yearly change in embassy count by the change in their democracy score while accounting for the variables from our previous full model and random effects for country and year. It is important to note that some models only had realized values for before or after the Cold War, so we removed the Cold War indicator in models where it could not explain any variation in our response variable. We also applied the same log transformations to GNI and population to reduce the effect of their right-skew.
+
+The tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level, even when accounting for the full range of factors. The closest is the second lag for the democracy score from Freedom House, with a p-value of 0.102. Full results are shown in Table 4.
+
+## Full model with differenced predictors
+
+Finally, we replicated the setup from our previous full model but applied the same yearly change to the log-transformed GNI and population variables in addition to the democracy score. However, we only lagged the democracy score, so every other variable matched the year the change in embassy was measured. We kept the same random variables for country and year.
+
+Similar to the previous full model, the tables show no significance for any of the changes in democracy score at an $\alpha$ = 0.05 confidence level. The closest is the nonlagged democracy score from V-Dem, with a p-value of 0.171. Full results of these models are shown in Table 5.
+
+```{r message = FALSE, warning=FALSE, echo = FALSE}
+library(tidyverse)
+library(readxl)
+
+masterset = read_excel("data/MASTER DATASET - 9.10.2026.xlsx")
+
+masterset = read_csv("data/MASTER DATASET - 9.10.2026.csv") %>%
+  rename_with(toupper)
+
+odagkey = read_csv("data/odag_key.csv", skip = 1) %>%
+  na.omit() %>%
+  mutate(`Variable Name` = str_to_upper(`Variable Name`),
+         `Variable Name` = gsub("[^A-Z0-9]", "", x = `Variable Name`))
+
+## Cleaning data ##
+
+masterset = masterset %>%
+  mutate(across(where(is.numeric), ~ na_if(., -99)),
+         across(where(is.numeric), ~ na_if(., -88)),
+         across(where(is.numeric), ~ na_if(., -77)),
+         across(where(is.numeric), ~ na_if(., -66)),
+         COUNTRY = case_when(COUNTRY == "seychelles" ~ "Seychelles",
+                             COUNTRY == "sao tome & Principe" ~ "Sao Tome & Principe",
+                             .default = COUNTRY),
+         COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
+         COLPAST1 = as.factor(COLPAST1),
+         REGION = as.factor(REGION),
+         IDEOLOGY = as.factor(IDEOLOGY))
+
+# Convert commas to periods. 
+# It looks like commas are being used as the decimal.  
+# Fix the nonsense formatting from excel. 
+
+masterset$GNI <- gsub(",",".",masterset$GNI)
+masterset$GNI <- gsub(" ","",masterset$GNI)%>% as.numeric()
+
+masterset$GNI_CAP <- gsub(",",".",masterset$GNI_CAP)
+masterset$GNI_CAP <- gsub(" ","",masterset$GNI_CAP)%>% as.numeric()
+
+masterset$POPULATN <- gsub(",",".",masterset$POPULATN)
+masterset$POPULATN <- gsub(" ","",masterset$POPULATN) %>% as.numeric()
+
+masterset <- masterset %>% 
+  mutate(N_EMBASSY = select(., C099:C572) %>% rowSums(na.rm = T))
+
+# Manually fixing names
+
+names(masterset)[which(names(masterset) == "TRDX352b")] <- "TRDEX352b" # These years are getting dropped.  
+names(masterset)[which(names(masterset) == "TRDX200h")] <- "TRDEX200h"
+names(masterset)[which(names(masterset) == "TRDX200m")] <- "TRDEX200m"
+names(masterset)[which(names(masterset) == "TDX321sr")] <- "TRDEX321sr"
+names(masterset)[which(names(masterset) == "TDX321sm")] <- "TRDEX321sm"
+names(masterset)[which(names(masterset) == "TDX321yr")] <- "TRDEX321yr"
+
+names(masterset)[which(names(masterset) == "TRDI200h")] <- "TRDIM200h"
+names(masterset)[which(names(masterset) == "TRDI200m")] <- "TRDIM200m"
+names(masterset)[which(names(masterset) == "TDI321sr")] <- "TRDIM321sr"
+names(masterset)[which(names(masterset) == "TDI321sm")] <- "TRDIM321sm"
+names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
+names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
+
+masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
+masterset <- masterset %>% mutate(ODAG600 = as.numeric(ODAG600))
+
+masterset <- masterset %>% 
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ as.numeric(.x))) %>% # Make these variables numeric
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ replace_na(.x, 0))) %>% # Replace NA with 0
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ pmax(.x, 0))) %>% # No negative numbers
+  rowwise() %>% 
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
+  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
+  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+odag_countries = odagkey %>%
+  filter(Classification == "Countries") %>%
+  pull(`Variable Name`)
+
+odag_io = odagkey %>%
+  filter(Classification == "IOs") %>%
+  mutate(`Variable Name` = case_when(`Variable Name` == "ODAG615" ~ "ODAG615 IMF", .default = `Variable Name`)) %>%
+  pull(`Variable Name`)
+
+odag_total = odagkey %>%
+  filter(Classification == "Total") %>%
+  pull(`Variable Name`)
+
+masterset = masterset %>%
+  mutate(ODAG_COUNTRIES = rowSums(across(all_of(odag_countries)), na.rm = T),
+         ODAG_IO = rowSums(across(all_of(odag_io)), na.rm = T),
+         ODAG_TOT = ODAG_COUNTRIES + ODAG_IO)
+
+# HHI values over time
+
+# HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_500, ODAG201:ODAG416) %>% write.csv(file = "./HHI.csv", row.names = FALSE)
+
+#HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw()
+
+## Prepare data for analysis
+
+masterset <- masterset %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>% 
+  mutate(across(TRDIM351:TRDIM203, ~ as.numeric(.x))) %>% 
+  mutate(TRDEXTOT = rowSums(pick(TRDEX351:TRDEX250, 
+                                 TRDEX300:TRDEX285, 
+                                 TRDEX280:TRDEX415,
+                                 TRDEX100:TRDEX147,
+                                 TRDEX577:TRDEX551,
+                                 TRDEX563:TRDEX203),na.rm = TRUE),
+         TRDIMTOT = rowSums(pick(TRDIM351:TRDIM250,
+                                 TRDIM300:TRDIM285,
+                                 TRDIM280:TRDIM415,
+                                 TRDIM100:TRDIM147,
+                                 TRDIM577:TRDIM551,
+                                 TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
+  mutate(ODAGTOT = rowSums(pick(ODAG201:ODAG501), na.rm = T),
+         ODAGTOT_private = rowSums(pick(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                                          ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI)), na.rm = T)) %>% 
+  filter(ODAGTOT_private >= 0,
+         ODAG_IO >= 0,
+         ODAG_COUNTRIES >= 0,
+         ODAG_TOT >= 0) %>%
+  mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
+         logGNI = log(GNI, 10),
+         logPOP = log(POPULATN,10),
+         logTRDIMtot = log(TRDIMTOT + 1,10),
+         logTRDEXtot = log(TRDEXTOT + 1,10), 
+         logODAGtot = log(ODAGTOT + 1, 10)) 
+
+# Now create the lag variables
+
+masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>% 
+  mutate(TOTLIB1_lag1 = lag(TOTLIB1,1),
+         TOTLIB1_lag2 = lag(TOTLIB1,2),
+         TOTLIB1_lag3 = lag(TOTLIB1,3),
+         POLITY_lag1 = lag(POLITY,1),
+         POLITY_lag2 = lag(POLITY,2),
+         POLITY_lag3 = lag(POLITY,3),
+         POLITY2_lag1 = lag(POLITY2,1),
+         POLITY2_lag2 = lag(POLITY2,2),
+         POLITY2_lag3 = lag(POLITY2,3),
+         V2X_LIBDEM_lag1 = lag(V2X_LIBDEM,1),
+         V2X_LIBDEM_lag2 = lag(V2X_LIBDEM,2),
+         V2X_LIBDEM_lag3 = lag(V2X_LIBDEM,3)
+  ) %>% 
+  ungroup() 
+```
+
+# Exploratory Data Analysis
+
+Below are the distributions of the three democracy variables.
+
+```{r}
+masterset %>% ggplot(aes(x = factor(POLITY2))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("POLITY2")
+masterset %>% ggplot(aes(x = factor(TOTLIB1))) + geom_bar() + facet_wrap(~YEAR) + theme_bw() + xlab("TOTLIB1") + scale_x_discrete(breaks = c(2, 5, 8, 11, 14, NA))
+masterset %>% ggplot(aes(x = factor(YEAR), y = V2X_LIBDEM)) + geom_boxplot() +theme_bw() + xlab("v2x_LIBDEM")
+```
+
+The plot below is the number of embassies over time with each connected line representing a single country.
+
+```{r}
+masterset %>% ggplot(aes(x = YEAR, y = N_EMBASSY, group = COUNTRY)) + geom_line() + geom_point() + theme_bw() 
+```
+
+Next, scatter plots of the number of the democracy variables versus the embassies are plotted and each plot includes a trend line of the relationship.
+
+```{r}
+masterset %>% ggplot(aes(x = V2X_LIBDEM, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = V2X_LIBDEM_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = V2X_LIBDEM_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = V2X_LIBDEM_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+
+masterset %>% ggplot(aes(x = DEMOC, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = DEMOC_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = DEMOC_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = DEMOC_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+
+masterset %>% ggplot(aes(x = TOTLIB1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = TOTLIB1_lag1, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = TOTLIB1_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+masterset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
+```
+
+```{r echo = T}
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag1)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag2)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,DEMOC_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag3)$p.val)
+
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,V2X_LIBDEM, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,V2X_LIBDEM_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag1)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,V2X_LIBDEM_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag2)$p.val)
+masterset %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,V2X_LIBDEM_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,V2X_LIBDEM_lag3)$p.val)
+
+masterset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1)$p.val)
+masterset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag1, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag1)$p.val)
+masterset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag2, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag2)$p.val)
+masterset %>% filter(YEAR > 1965 & YEAR < 2024) %>% group_by(YEAR) %>% summarize(cor = cor(N_EMBASSY,TOTLIB1_lag3, use = "pairwise.complete.obs") , pval = cor.test(N_EMBASSY,TOTLIB1_lag3)$p.val)
+```
+
+```{r}
+load("internal_count/models/mod0_POLITY2.RData")
+load("internal_count/models/mod0_POLITY2_lag1.RData")
+load("internal_count/models/mod0_POLITY2_lag2.RData")
+load("internal_count/models/mod0_POLITY2_lag3.RData")
+load("internal_count/models/mod1_POLITY2.RData")
+load("internal_count/models/mod1_POLITY2_lag1.RData")
+load("internal_count/models/mod1_POLITY2_lag2.RData")
+load("internal_count/models/mod1_POLITY2_lag3.RData")
+
+load("internal_count/models/mod0_TOTLIB1.RData")
+load("internal_count/models/mod0_TOTLIB1_lag1.RData")
+load("internal_count/models/mod0_TOTLIB1_lag2.RData")
+load("internal_count/models/mod0_TOTLIB1_lag3.RData")
+load("internal_count/models/mod1_TOTLIB1.RData")
+load("internal_count/models/mod1_TOTLIB1_lag1.RData")
+load("internal_count/models/mod1_TOTLIB1_lag2.RData")
+load("internal_count/models/mod1_TOTLIB1_lag3.RData")
+
+load("internal_count/models/mod0_V2X_LIBDEM.RData")
+load("internal_count/models/mod0_V2X_LIBDEM_lag1.RData")
+load("internal_count/models/mod0_V2X_LIBDEM_lag2.RData")
+load("internal_count/models/mod0_V2X_LIBDEM_lag3.RData")
+load("internal_count/models/mod1_V2X_LIBDEM.RData")
+load("internal_count/models/mod1_V2X_LIBDEM_lag1.RData")
+load("internal_count/models/mod1_V2X_LIBDEM_lag2.RData")
+load("internal_count/models/mod1_V2X_LIBDEM_lag3.RData")
+```
+
+```{r}
+## REDUCED MODEL SUMMARIES
+
+library(modelsummary)
+library(tinytable)
+
+mod0_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_V2X_LIBDEM,
+    "One-Year Lag" = mod0_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod0_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod0_V2X_LIBDEM_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Internal Analysis: Reduced Model Summary for V2X_LIBDEM"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_POLITY2,
+    "One-Year Lag" = mod0_POLITY2_lag1,
+    "Two-Year Lag" = mod0_POLITY2_lag2,
+    "Three-Year Lag" = mod0_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "POLITY2",
+    "POLITY2_lag1",
+    "POLITY2_lag2",
+    "POLITY2_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Internal Analysis: Reduced Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_TOTLIB1,
+    "One-Year Lag" = mod0_TOTLIB1_lag1,
+    "Two-Year Lag" = mod0_TOTLIB1_lag2,
+    "Three-Year Lag" = mod0_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "TOTLIB1",
+    "TOTLIB1_lag1",
+    "TOTLIB1_lag2",
+    "TOTLIB1_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "Internal Analysis: Reduced Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_summary_V2X_LIBDEM
+mod0_summary_POLITY2
+mod0_summary_TOTLIB1
+
+```
+
+Below are the summaries for the full models for ODAG from external countries. As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
+
+```{r}
+## FULL MODEL SUMMARIES
+
+mod1_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_V2X_LIBDEM,
+    "One-Year Lag" = mod1_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod1_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod1_V2X_LIBDEM_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+     "(Intercept)" = "Intercept",
+    "V2X_LIBDEM" = "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1" = "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2" = "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3" = "V2X_LIBDEM_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  title = "Internal Analysis: Full Model Summary for V2X_LIBDEM"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod1_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_POLITY2,
+    "One-Year Lag" = mod1_POLITY2_lag1,
+    "Two-Year Lag" = mod1_POLITY2_lag2,
+    "Three-Year Lag" = mod1_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "POLITY2" = "POLITY2",
+    "POLITY2_lag1" = "POLITY2_lag1",
+    "POLITY2_lag2" = "POLITY2_lag2",
+    "POLITY2_lag3" = "POLITY2_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  title = "Internal Analysis: Full Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod1_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_TOTLIB1,
+    "One-Year Lag" = mod1_TOTLIB1_lag1,
+    "Two-Year Lag" = mod1_TOTLIB1_lag2,
+    "Three-Year Lag" = mod1_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "TOTLIB1" = "TOTLIB1",
+    "TOTLIB1_lag1" = "TOTLIB1_lag1",
+    "TOTLIB1_lag2" = "TOTLIB1_lag2",
+    "TOTLIB1_lag3" = "TOTLIB1_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  title = "Internal Analysis: Full Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod1_summary_V2X_LIBDEM
+mod1_summary_POLITY2
+mod1_summary_TOTLIB1
+```
+
+# Appendix
+
+```{r echo = T}
+#Embassy models
+summary(mod_TOTLIB1)
+summary(mod1_TOTLIB1)
+
+summary(mod_POLITY)
+summary(mod1_POLITY)
+
+summary(mod_V2X_LIBDEM)
+summary(mod1_V2X_LIBDEM)
+
+#Change in Embassy Models
+summary(mod0_delta_POLITY_PER_YEAR)
+summary(mod1_delta_POLITY_PER_YEAR)
+
+summary(mod0_delta_TOTLIB1_PER_YEAR)
+summary(mod1_delta_TOTLIB1_PER_YEAR)
+
+summary(mod0_delta_V2X_LIBDEM_PER_YEAR)
+summary(mod1_delta_V2X_LIBDEM_PER_YEAR)
+
+
+```

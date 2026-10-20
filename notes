@@ -58,6 +58,21 @@ Table
   - Change the bar charts that still have DEMOC
   - Change the name of the full models so that they don't match reduced (DONE)
   - Write out the model equations (DONE)
+  
+4-27-26
+
+  #Logistics regression
+  Connection ~ Totlib (of external country) +
+  population + wealth + 
+  Imports + Exports + foreign aid + (Coldwar / post cold war?)
+  (1|Africa Country) + (1|Year) + (1|Country?)
+  
+  Connection ~ v2x_libdem +
+  population + wealth + 
+  Imports + Exports + foreign aid +  (Coldwar / post cold war?)+ 
+  (1|Africa Country) + (1|Year) + (1|Country?)
+  
+  Case Study: Ghana and Senegal
 
 5-5-26
 
@@ -141,4 +156,6 @@ Table
 10-20-26
 
   - Do we need to update external analysis with ODAG categories?
+  - Should internal analysis have any ODAG variables?
+  - Errors with loading internal models
   

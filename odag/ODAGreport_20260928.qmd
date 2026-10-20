@@ -24,13 +24,13 @@ The full model includes all of the parts of the reduced model while adding the A
 
 In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
 
-In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. We also see total exports are significant for most of the different lagged models for v2x_Libdem models.  Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
+In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. We also see total exports are significant for most of the different lagged models for v2x_Libdem models. Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
 
 ## ODAG (Private)
 
 In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
 
-In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. As before, we see that total population, GNI, total imports, and the cold war indicator are all significant.  Total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG. Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG.  Also of interest, Italian colonial past is significant in the POLITY2 model, but not in any other models.  
+In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. As before, we see that total population, GNI, total imports, and the cold war indicator are all significant. Total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG. Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG. Also of interest, Italian colonial past is significant in the POLITY2 model, but not in any other models.
 
 # Models
 
@@ -52,7 +52,7 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{\text{year}}^2)$$
 
 Our full model equations are given below. They follow the same setup as the reduced model with the addition of the aforementioned transformed country characteristics. In lagged models, we only lagged the country's democracy score. For instance, a one-year lag would produce the model equation $\log(\text{ODAG}_{it}) = \beta_0 + \beta_1X_{1i(t-1)} + \ldots  + \gamma_{0i} + \gamma_{0t} + \epsilon_{it}$, where $X_{1i(t-1)}$ is the country's democracy score in the prior year (year $t$-1).
 
-Additional predictors in this model include the African country's log-transformed GNI, population, and total ODAG. Quadratic terms were included for the log-transformed GNI, population, and total ODAG.  The log-transformed population variable added a cubic term to capture further nonlinear tendencies.  In addition, there are indicator variables for region, colonial past, cold war, and cold war interacted with ideology (i.e., pre-cold war ideology).
+Additional predictors in this model include the African country's log-transformed GNI, population, and total ODAG. Quadratic terms were included for the log-transformed GNI, population, and total ODAG. The log-transformed population variable added a cubic term to capture further nonlinear tendencies. In addition, there are indicator variables for region, colonial past, cold war, and cold war interacted with ideology (i.e., pre-cold war ideology).
 
 $$Y_{it} \sim \text{N}(\mu_{it}, \sigma^2)$$
 
@@ -353,7 +353,6 @@ Summaries for the reduced and full models for ODAG are shown with the regression
 # ODAG Results
 
 ```{r}
-
 ## REDUCED MODEL SUMMARIES
 
 library(modelsummary)
