@@ -392,14 +392,14 @@ modelset %>%
 
 ```
 
--   Interpolate embassy growth by year (so if a country had 30 embassies in 1965 and 50 in 1975, find the rate of change and fill in an expected embassy value)
+- Interpolate embassy growth by year (so if a country had 30 embassies in 1965 and 50 in 1975, find the rate of change and fill in an expected embassy value)
 
--   Random intercept for country in glmer with a Poisson family (count variable)
+- Random intercept for country in glmer with a Poisson family (count variable)
 
--   Make note of missing embassy data in certain years and the lack of variance in ideology beyond 1985
+- Make note of missing embassy data in certain years and the lack of variance in ideology beyond 1985
 
--   Incorporate VDEM scores into analysis
+- Incorporate VDEM scores into analysis
 
--   Explore feature generation or derived variables for the mixed model (rate of change in democracy scores from 1955 to 1960 for instance)
+- Explore feature generation or derived variables for the mixed model (rate of change in democracy scores from 1955 to 1960 for instance)
 
--   Add lags for GNI so that embassy count is predicted by GNI in year n-1, n-2, n-3
+- Add lags for GNI so that embassy count is predicted by GNI in year n-1, n-2, n-3

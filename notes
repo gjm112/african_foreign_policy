@@ -124,11 +124,11 @@ Table
     
 10-16-26
 
-  - Three sets of ODAG models
+  - Three sets of ODAG models (DONE; need to reorganize ODAG in Git)
     - ODAG_IO = ODAG_private where IO is international orgs
     - ODAG_countries
     - ODAG_total = ODAG_IO + ODAG_countries
-  - Three sets of HHI models with each ODAG as predictor set
+  - Three sets of HHI models with each ODAG as predictor set (DONE; need to see if we need a second-order polynomial for ODAG terms and reorganize)
     - HHI from countries (HHI_countries)
     - HHI from IO (HHI_IO)
     - HHI from countries and IO (HHI_total)
@@ -136,5 +136,5 @@ Table
     - Update it with newer data
     - Make sure it's the same predictor set as ODAG and HHI
     - Is the response defined as number of embassies an African country has in external country or external countries have in the African country
-  - Clean repository
+  - Clean repository (Getting there)
   
