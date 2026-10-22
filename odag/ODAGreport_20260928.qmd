@@ -12,7 +12,7 @@ date: "October 20, 2026"
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and private organizations. (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGprivate.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and interntional organizations (IO). (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGIO.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
@@ -24,7 +24,7 @@ In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coeffic
 
 In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. We also see total exports are significant for most of the different lagged models for v2x_Libdem models. Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
 
-## ODAG (Private)
+## ODAG (IO)
 
 In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
 
@@ -69,7 +69,7 @@ library(here)
 ## Cleaning data ##
 
 
-masterset = read_csv(here("data2026","MASTER DATASET - 9.10.2026.csv"))
+masterset = read_csv(here("data","MASTER DATASET - 9.10.2026.csv"))
 
 masterset = masterset %>%
   mutate(across(where(is.numeric), ~ na_if(., -99)),
@@ -124,7 +124,7 @@ masterset <- masterset %>%
   mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
   mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
 
-#Masterset private
+#Masterset IO
 masterset <- masterset %>% 
   mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
                                            odagfao:odagwbtot, odagaf:odaggggi), ~ as.numeric(.x))) %>% # Make these variables numeric
@@ -308,8 +308,8 @@ masterset %>%
 masterset %>% mutate(logODAGtot_private = log(ODAGtot_private +1,10)) %>% 
   ggplot(aes(x = logODAGtot_private, color = as.factor(COLD_WAR))) + geom_density() +
   labs(
-    title = "Log ODAG Private distribution pre- and post-cold war",
-    x = "Log-Transformed ODAG Private"
+    title = "Log ODAG IO distribution pre- and post-cold war",
+    x = "Log-Transformed ODAG IO"
   ) +
   theme_bw() +
   theme(
@@ -318,32 +318,32 @@ masterset %>% mutate(logODAGtot_private = log(ODAGtot_private +1,10)) %>%
 ```
 
 ```{r echo = FALSE}
-load("./ODAGmodels/mod0_POLITY2.RData")
-load("./ODAGmodels/mod0_POLITY2_lag1.RData")
-load("./ODAGmodels/mod0_POLITY2_lag2.RData")
-load("./ODAGmodels/mod0_POLITY2_lag3.RData")
-load("./ODAGmodels/mod1_POLITY2.RData")
-load("./ODAGmodels/mod1_POLITY2_lag1.RData")
-load("./ODAGmodels/mod1_POLITY2_lag2.RData")
-load("./ODAGmodels/mod1_POLITY2_lag3.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_POLITY2.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_POLITY2_lag1.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_POLITY2_lag2.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_POLITY2_lag3.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_POLITY2.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_POLITY2_lag1.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_POLITY2_lag2.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_POLITY2_lag3.RData")
 
-load("./ODAGmodels/mod0_TOTLIB1.RData")
-load("./ODAGmodels/mod0_TOTLIB1_lag1.RData")
-load("./ODAGmodels/mod0_TOTLIB1_lag2.RData")
-load("./ODAGmodels/mod0_TOTLIB1_lag3.RData")
-load("./ODAGmodels/mod1_TOTLIB1.RData")
-load("./ODAGmodels/mod1_TOTLIB1_lag1.RData")
-load("./ODAGmodels/mod1_TOTLIB1_lag2.RData")
-load("./ODAGmodels/mod1_TOTLIB1_lag3.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_TOTLIB1.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_TOTLIB1_lag1.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_TOTLIB1_lag2.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_TOTLIB1_lag3.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag1.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag2.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag3.RData")
 
-load("./ODAGmodels/mod0_V2x_Libdem.RData")
-load("./ODAGmodels/mod0_V2x_Libdem_lag1.RData")
-load("./ODAGmodels/mod0_V2x_Libdem_lag2.RData")
-load("./ODAGmodels/mod0_V2x_Libdem_lag3.RData")
-load("./ODAGmodels/mod1_V2x_Libdem.RData")
-load("./ODAGmodels/mod1_V2x_Libdem_lag1.RData")
-load("./ODAGmodels/mod1_V2x_Libdem_lag2.RData")
-load("./ODAGmodels/mod1_V2x_Libdem_lag3.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag1.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag2.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag3.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag1.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag2.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag3.RData")
 ```
 
 Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. each table. Next to each coefficient estimate is their respective standard error.
@@ -358,10 +358,10 @@ library(tinytable)
 
 mod0_summary_V2X_LIBDEM <- modelsummary(
   models = list(
-    "Unlagged" = mod0_V2x_Libdem,
-    "One-Year Lag" = mod0_V2x_Libdem_lag1,
-    "Two-Year Lag" = mod0_V2x_Libdem_lag2,
-    "Three-Year Lag" = mod0_V2x_Libdem_lag3
+    "Unlagged" = mod0_COUNTRIES_V2X_LIBDEM,
+    "One-Year Lag" = mod0_COUNTRIES_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod0_COUNTRIES_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod0_COUNTRIES_V2X_LIBDEM_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -388,10 +388,10 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
 
 mod0_summary_POLITY2 <- modelsummary(
   models = list(
-    "Unlagged" = mod0_POLITY2,
-    "One-Year Lag" = mod0_POLITY2_lag1,
-    "Two-Year Lag" = mod0_POLITY2_lag2,
-    "Three-Year Lag" = mod0_POLITY2_lag3
+    "Unlagged" = mod0_COUNTRIES_POLITY2,
+    "One-Year Lag" = mod0_COUNTRIES_POLITY2_lag1,
+    "Two-Year Lag" = mod0_COUNTRIES_POLITY2_lag2,
+    "Three-Year Lag" = mod0_COUNTRIES_POLITY2_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -418,10 +418,10 @@ mod0_summary_POLITY2 <- modelsummary(
 
 mod0_summary_TOTLIB1 <- modelsummary(
   models = list(
-    "Unlagged" = mod0_TOTLIB1,
-    "One-Year Lag" = mod0_TOTLIB1_lag1,
-    "Two-Year Lag" = mod0_TOTLIB1_lag2,
-    "Three-Year Lag" = mod0_TOTLIB1_lag3
+    "Unlagged" = mod0_COUNTRIES_TOTLIB1,
+    "One-Year Lag" = mod0_COUNTRIES_TOTLIB1_lag1,
+    "Two-Year Lag" = mod0_COUNTRIES_TOTLIB1_lag2,
+    "Three-Year Lag" = mod0_COUNTRIES_TOTLIB1_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -460,10 +460,10 @@ Below are the summaries for the full models for ODAG from external countries. As
 
 mod1_summary_V2X_LIBDEM <- modelsummary(
   models = list(
-    "Unlagged" = mod1_V2x_Libdem,
-    "One-Year Lag" = mod1_V2x_Libdem_lag1,
-    "Two-Year Lag" = mod1_V2x_Libdem_lag2,
-    "Three-Year Lag" = mod1_V2x_Libdem_lag3
+    "Unlagged" = mod1_COUNTRIES_V2X_LIBDEM,
+    "One-Year Lag" = mod1_COUNTRIES_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod1_COUNTRIES_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod1_COUNTRIES_V2X_LIBDEM_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -510,10 +510,10 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
 
 mod1_summary_POLITY2 <- modelsummary(
   models = list(
-    "Unlagged" = mod1_POLITY2,
-    "One-Year Lag" = mod1_POLITY2_lag1,
-    "Two-Year Lag" = mod1_POLITY2_lag2,
-    "Three-Year Lag" = mod1_POLITY2_lag3
+    "Unlagged" = mod1_COUNTRIES_POLITY2,
+    "One-Year Lag" = mod1_COUNTRIES_POLITY2_lag1,
+    "Two-Year Lag" = mod1_COUNTRIES_POLITY2_lag2,
+    "Three-Year Lag" = mod1_COUNTRIES_POLITY2_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -560,10 +560,10 @@ mod1_summary_POLITY2 <- modelsummary(
 
 mod1_summary_TOTLIB1 <- modelsummary(
   models = list(
-    "Unlagged" = mod1_TOTLIB1,
-    "One-Year Lag" = mod1_TOTLIB1_lag1,
-    "Two-Year Lag" = mod1_TOTLIB1_lag2,
-    "Three-Year Lag" = mod1_TOTLIB1_lag3
+    "Unlagged" = mod1_COUNTRIES_TOTLIB1,
+    "One-Year Lag" = mod1_COUNTRIES_TOTLIB1_lag1,
+    "Two-Year Lag" = mod1_COUNTRIES_TOTLIB1_lag2,
+    "Three-Year Lag" = mod1_COUNTRIES_TOTLIB1_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -614,35 +614,35 @@ mod1_summary_TOTLIB1
 ```
 
 ```{r}
-load("./ODAGPRIVATEmodels/mod0_private_POLITY2.RData")
-load("./ODAGPRIVATEmodels/mod0_private_POLITY2_lag1.RData")
-load("./ODAGPRIVATEmodels/mod0_private_POLITY2_lag2.RData")
-load("./ODAGPRIVATEmodels/mod0_private_POLITY2_lag3.RData")
-load("./ODAGPRIVATEmodels/mod1_private_POLITY2.RData")
-load("./ODAGPRIVATEmodels/mod1_private_POLITY2_lag1.RData")
-load("./ODAGPRIVATEmodels/mod1_private_POLITY2_lag2.RData")
-load("./ODAGPRIVATEmodels/mod1_private_POLITY2_lag3.RData")
+load("./ODAG_IO/mod0_IO_POLITY2.RData")
+load("./ODAG_IO/mod0_IO_POLITY2_lag1.RData")
+load("./ODAG_IO/mod0_IO_POLITY2_lag2.RData")
+load("./ODAG_IO/mod0_IO_POLITY2_lag3.RData")
+load("./ODAG_IO/mod1_IO_POLITY2.RData")
+load("./ODAG_IO/mod1_IO_POLITY2_lag1.RData")
+load("./ODAG_IO/mod1_IO_POLITY2_lag2.RData")
+load("./ODAG_IO/mod1_IO_POLITY2_lag3.RData")
 
-load("./ODAGPRIVATEmodels/mod0_private_TOTLIB1.RData")
-load("./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag1.RData")
-load("./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag2.RData")
-load("./ODAGPRIVATEmodels/mod0_private_TOTLIB1_lag3.RData")
-load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1.RData")
-load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag1.RData")
-load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag2.RData")
-load("./ODAGPRIVATEmodels/mod1_private_TOTLIB1_lag3.RData")
+load("./ODAG_IO/mod0_IO_TOTLIB1.RData")
+load("./ODAG_IO/mod0_IO_TOTLIB1_lag1.RData")
+load("./ODAG_IO/mod0_IO_TOTLIB1_lag2.RData")
+load("./ODAG_IO/mod0_IO_TOTLIB1_lag3.RData")
+load("./ODAG_IO/mod1_IO_TOTLIB1.RData")
+load("./ODAG_IO/mod1_IO_TOTLIB1_lag1.RData")
+load("./ODAG_IO/mod1_IO_TOTLIB1_lag2.RData")
+load("./ODAG_IO/mod1_IO_TOTLIB1_lag3.RData")
 
-load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem.RData")
-load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag1.RData")
-load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag2.RData")
-load("./ODAGPRIVATEmodels/mod0_private_V2x_Libdem_lag3.RData")
-load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem.RData")
-load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag1.RData")
-load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag2.RData")
-load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag3.RData")
+load("./ODAG_IO/mod0_IO_V2x_Libdem.RData")
+load("./ODAG_IO/mod0_IO_V2x_Libdem_lag1.RData")
+load("./ODAG_IO/mod0_IO_V2x_Libdem_lag2.RData")
+load("./ODAG_IO/mod0_IO_V2x_Libdem_lag3.RData")
+load("./ODAG_IO/mod1_IO_V2x_Libdem.RData")
+load("./ODAG_IO/mod1_IO_V2x_Libdem_lag1.RData")
+load("./ODAG_IO/mod1_IO_V2x_Libdem_lag2.RData")
+load("./ODAG_IO/mod1_IO_V2x_Libdem_lag3.RData")
 ```
 
-# ODAG Private Results
+# ODAG IO Results
 
 ```{r}
 
@@ -651,12 +651,12 @@ load("./ODAGPRIVATEmodels/mod1_private_V2x_Libdem_lag3.RData")
 library(modelsummary)
 library(tinytable)
 
-mod0_private_summary_V2X_LIBDEM <- modelsummary(
+mod0_IO_summary_V2X_LIBDEM <- modelsummary(
   models = list(
-    "Unlagged" = mod0_private_V2x_Libdem,
-    "One-Year Lag" = mod0_private_V2x_Libdem_lag1,
-    "Two-Year Lag" = mod0_private_V2x_Libdem_lag2,
-    "Three-Year Lag" = mod0_private_V2x_Libdem_lag3
+    "Unlagged" = mod0_IO_V2X_LIBDEM,
+    "One-Year Lag" = mod0_IO_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod0_IO_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod0_IO_V2X_LIBDEM_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -671,7 +671,7 @@ mod0_private_summary_V2X_LIBDEM <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG Private: Reduced Model Summary for V2X_LIBDEM "
+  title = "ODAG IO: Reduced Model Summary for V2X_LIBDEM "
 ) %>%
   style_tt(
     i = "caption",
@@ -681,12 +681,12 @@ mod0_private_summary_V2X_LIBDEM <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod0_private_summary_POLITY2 <- modelsummary(
+mod0_IO_summary_POLITY2 <- modelsummary(
   models = list(
-    "Unlagged" = mod0_private_POLITY2,
-    "One-Year Lag" = mod0_private_POLITY2_lag1,
-    "Two-Year Lag" = mod0_private_POLITY2_lag2,
-    "Three-Year Lag" = mod0_private_POLITY2_lag3
+    "Unlagged" = mod0_IO_POLITY2,
+    "One-Year Lag" = mod0_IO_POLITY2_lag1,
+    "Two-Year Lag" = mod0_IO_POLITY2_lag2,
+    "Three-Year Lag" = mod0_IO_POLITY2_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -701,7 +701,7 @@ mod0_private_summary_POLITY2 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG Private: Reduced Model Summary for POLITY2"
+  title = "ODAG IO: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -711,12 +711,12 @@ mod0_private_summary_POLITY2 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod0_private_summary_TOTLIB1 <- modelsummary(
+mod0_IO_summary_TOTLIB1 <- modelsummary(
   models = list(
-    "Unlagged" = mod0_private_TOTLIB1,
-    "One-Year Lag" = mod0_private_TOTLIB1_lag1,
-    "Two-Year Lag" = mod0_private_TOTLIB1_lag2,
-    "Three-Year Lag" = mod0_private_TOTLIB1_lag3
+    "Unlagged" = mod0_IO_TOTLIB1,
+    "One-Year Lag" = mod0_IO_TOTLIB1_lag1,
+    "Two-Year Lag" = mod0_IO_TOTLIB1_lag2,
+    "Three-Year Lag" = mod0_IO_TOTLIB1_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -731,7 +731,7 @@ mod0_private_summary_TOTLIB1 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG Private: Full Model Summary for TOTLIB1"
+  title = "ODAG IO: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -741,23 +741,23 @@ mod0_private_summary_TOTLIB1 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod0_private_summary_V2X_LIBDEM
-mod0_private_summary_POLITY2
-mod0_private_summary_TOTLIB1
+mod0_IO_summary_V2X_LIBDEM
+mod0_IO_summary_POLITY2
+mod0_IO_summary_TOTLIB1
 ```
 
-Below are the summaries for the full models for ODAG from private organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
+Below are the summaries for the full models for ODAG from IO organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
 
 ```{r}
 
 ## FULL MODEL SUMMARIES
 
-mod1_private_summary_V2X_LIBDEM <- modelsummary(
+mod1_IO_summary_V2X_LIBDEM <- modelsummary(
   models = list(
-    "Unlagged" = mod1_private_V2x_Libdem,
-    "One-Year Lag" = mod1_private_V2x_Libdem_lag1,
-    "Two-Year Lag" = mod1_private_V2x_Libdem_lag2,
-    "Three-Year Lag" = mod1_private_V2x_Libdem_lag3
+    "Unlagged" = mod1_IO_V2X_LIBDEM,
+    "One-Year Lag" = mod1_IO_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod1_IO_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod1_IO_V2X_LIBDEM_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -792,7 +792,7 @@ mod1_private_summary_V2X_LIBDEM <- modelsummary(
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
   ),
-  title = "ODAG Private: Full Model Summary for V2X_LIBDEM"
+  title = "ODAG IO: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -802,12 +802,12 @@ mod1_private_summary_V2X_LIBDEM <- modelsummary(
     bootstrap_class = "table caption-top"
   ) %>%  theme_tinytable(width = 0.5)
 
-mod1_private_summary_POLITY2 <- modelsummary(
+mod1_IO_summary_POLITY2 <- modelsummary(
   models = list(
-    "Unlagged" = mod1_private_POLITY2,
-    "One-Year Lag" = mod1_private_POLITY2_lag1,
-    "Two-Year Lag" = mod1_private_POLITY2_lag2,
-    "Three-Year Lag" = mod1_private_POLITY2_lag3
+    "Unlagged" = mod1_IO_POLITY2,
+    "One-Year Lag" = mod1_IO_POLITY2_lag1,
+    "Two-Year Lag" = mod1_IO_POLITY2_lag2,
+    "Three-Year Lag" = mod1_IO_POLITY2_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -842,7 +842,7 @@ mod1_private_summary_POLITY2 <- modelsummary(
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
   ),
-  title = "ODAG Private: Full Model Summary for POLITY2"
+  title = "ODAG IO: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -852,12 +852,12 @@ mod1_private_summary_POLITY2 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod1_private_summary_TOTLIB1 <- modelsummary(
+mod1_IO_summary_TOTLIB1 <- modelsummary(
   models = list(
-    "Unlagged" = mod1_private_TOTLIB1,
-    "One-Year Lag" = mod1_private_TOTLIB1_lag1,
-    "Two-Year Lag" = mod1_private_TOTLIB1_lag2,
-    "Three-Year Lag" = mod1_private_TOTLIB1_lag3
+    "Unlagged" = mod1_IO_TOTLIB1,
+    "One-Year Lag" = mod1_IO_TOTLIB1_lag1,
+    "Two-Year Lag" = mod1_IO_TOTLIB1_lag2,
+    "Three-Year Lag" = mod1_IO_TOTLIB1_lag3
   ),
   stars = T,
   gof_omit = ".",
@@ -893,7 +893,7 @@ mod1_private_summary_TOTLIB1 <- modelsummary(
     "SD (Observations)" = "SD (Observations)"
   ),
   
-  title = "ODAG Private: Full Model Summary for TOTLIB1"
+  title = "ODAG IO: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -903,8 +903,306 @@ mod1_private_summary_TOTLIB1 <- modelsummary(
     bootstrap_class = "table caption-top"
   )
 
-mod1_private_summary_V2X_LIBDEM
-mod1_private_summary_POLITY2
-mod1_private_summary_TOTLIB1
+mod1_IO_summary_V2X_LIBDEM
+mod1_IO_summary_POLITY2
+mod1_IO_summary_TOTLIB1
+
+```
+
+
+
+```{r}
+load("./ODAG_TOT/mod0_TOT_POLITY2.RData")
+load("./ODAG_TOT/mod0_TOT_POLITY2_lag1.RData")
+load("./ODAG_TOT/mod0_TOT_POLITY2_lag2.RData")
+load("./ODAG_TOT/mod0_TOT_POLITY2_lag3.RData")
+load("./ODAG_TOT/mod1_TOT_POLITY2.RData")
+load("./ODAG_TOT/mod1_TOT_POLITY2_lag1.RData")
+load("./ODAG_TOT/mod1_TOT_POLITY2_lag2.RData")
+load("./ODAG_TOT/mod1_TOT_POLITY2_lag3.RData")
+
+load("./ODAG_TOT/mod0_TOT_TOTLIB1.RData")
+load("./ODAG_TOT/mod0_TOT_TOTLIB1_lag1.RData")
+load("./ODAG_TOT/mod0_TOT_TOTLIB1_lag2.RData")
+load("./ODAG_TOT/mod0_TOT_TOTLIB1_lag3.RData")
+load("./ODAG_TOT/mod1_TOT_TOTLIB1.RData")
+load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag1.RData")
+load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag2.RData")
+load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag3.RData")
+
+load("./ODAG_TOT/mod0_TOT_V2x_Libdem.RData")
+load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag1.RData")
+load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag2.RData")
+load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag3.RData")
+load("./ODAG_TOT/mod1_TOT_V2x_Libdem.RData")
+load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag1.RData")
+load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag2.RData")
+load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag3.RData")
+```
+
+# ODAG Total Results
+
+```{r}
+
+## REDUCED MODEL SUMMARIES
+
+library(modelsummary)
+library(tinytable)
+
+mod0_TOT_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_TOT_V2X_LIBDEM,
+    "One-Year Lag" = mod0_TOT_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod0_TOT_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod0_TOT_V2X_LIBDEM_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "V2x_Libdem",
+    "V2x_Libdem_lag1",
+    "V2x_Libdem_lag2",
+    "V2x_Libdem_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "ODAG T: Reduced Model Summary for V2X_LIBDEM "
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_TOT_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_TOT_POLITY2,
+    "One-Year Lag" = mod0_TOT_POLITY2_lag1,
+    "Two-Year Lag" = mod0_TOT_POLITY2_lag2,
+    "Three-Year Lag" = mod0_TOT_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "POLITY2",
+    "POLITY2_lag1",
+    "POLITY2_lag2",
+    "POLITY2_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "ODAG Total: Reduced Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_TOT_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod0_TOT_TOTLIB1,
+    "One-Year Lag" = mod0_TOT_TOTLIB1_lag1,
+    "Two-Year Lag" = mod0_TOT_TOTLIB1_lag2,
+    "Three-Year Lag" = mod0_TOT_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)",
+    "TOTLIB1",
+    "TOTLIB1_lag1",
+    "TOTLIB1_lag2",
+    "TOTLIB1_lag3",
+    "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)",
+    "SD (Observations)"
+  ),
+  title = "ODAG TOTAL: Full Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod0_TOT_summary_V2X_LIBDEM
+mod0_TOT_summary_POLITY2
+mod0_TOT_summary_TOTLIB1
+```
+
+Below are the summaries for the full models for ODAG from TOT organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
+
+```{r}
+
+## FULL MODEL SUMMARIES
+
+mod1_TOT_summary_V2X_LIBDEM <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_TOT_V2X_LIBDEM,
+    "One-Year Lag" = mod1_TOT_V2X_LIBDEM_lag1,
+    "Two-Year Lag" = mod1_TOT_V2X_LIBDEM_lag2,
+    "Three-Year Lag" = mod1_TOT_V2X_LIBDEM_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "V2x_Libdem" = "V2x_Libdem",
+    "V2x_Libdem_lag1" = "V2x_Libdem_lag1",
+    "V2x_Libdem_lag2" = "V2x_Libdem_lag2",
+    "V2x_Libdem_lag3" = "V2x_Libdem_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  title = "ODAG Total: Full Model Summary for V2X_LIBDEM"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  ) %>%  theme_tinytable(width = 0.5)
+
+mod1_TOT_summary_POLITY2 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_TOT_POLITY2,
+    "One-Year Lag" = mod1_TOT_POLITY2_lag1,
+    "Two-Year Lag" = mod1_TOT_POLITY2_lag2,
+    "Three-Year Lag" = mod1_TOT_POLITY2_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "POLITY2" = "POLITY2",
+    "POLITY2_lag1" = "POLITY2_lag1",
+    "POLITY2_lag2" = "POLITY2_lag2",
+    "POLITY2_lag3" = "POLITY2_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  title = "ODAG Total: Full Model Summary for POLITY2"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod1_TOT_summary_TOTLIB1 <- modelsummary(
+  models = list(
+    "Unlagged" = mod1_TOT_TOTLIB1,
+    "One-Year Lag" = mod1_TOT_TOTLIB1_lag1,
+    "Two-Year Lag" = mod1_TOT_TOTLIB1_lag2,
+    "Three-Year Lag" = mod1_TOT_TOTLIB1_lag3
+  ),
+  stars = T,
+  gof_omit = ".",
+  shape = term ~ model + statistic,
+  coef_map = c(
+    "(Intercept)" = "Intercept",
+    "TOTLIB1" = "TOTLIB1",
+    "TOTLIB1_lag1" = "TOTLIB1_lag1",
+    "TOTLIB1_lag2" = "TOTLIB1_lag2",
+    "TOTLIB1_lag3" = "TOTLIB1_lag3",
+    "logPOP" = "logPOP",
+    "logGNI" = "logGNI",
+    "logTRDIMtot" = "logTRDIMtot",
+    "logTRDEXtot" = "logTRDEXtot",
+    "COLD_WAR" = "COLD_WAR",
+    "COLD_WAR:IDEOLOGY2" = "CW_Socialist",
+    "COLD_WAR:IDEOLOGY3" = "CW_Marxist",
+    "COLPAST12" = "COL_British",
+    "COLPAST13" = "COL_Portuguese",
+    "COLPAST14" = "COL_Spanish",
+    "COLPAST15" = "COL_Italian",
+    "COLPAST16" = "COL_Belgian",
+    "COLPAST17" = "COL_German",
+    "COLPAST18" = "COL_US",
+    "COLPAST19" = "COL_None",
+    "COLPAST110" = "COL_Unique",
+    "REGION2" = "REG_E_Africa",
+    "REGION3" = "REG_S_Africa",
+    "REGION4" = "REG_C_Africa",
+    "REGION5" = "REG_W_Africa",
+    "SD (Intercept YEAR)" = "SD (Intercept YEAR)",
+    "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
+    "SD (Observations)" = "SD (Observations)"
+  ),
+  
+  title = "ODAG Total: Full Model Summary for TOTLIB1"
+) %>%
+  style_tt(
+    i = "caption",
+    bold = TRUE,
+    align = "c",
+    fontsize = 1.5,
+    bootstrap_class = "table caption-top"
+  )
+
+mod1_TOT_summary_V2X_LIBDEM
+mod1_TOT_summary_POLITY2
+mod1_TOT_summary_TOTLIB1
 
 ```
