@@ -69,9 +69,7 @@ HHI <- masterset %>%
   mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
                   ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ pmax(.x, 0))) %>% # No negative numbers
   rowwise() %>% 
-  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
-  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
-  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501)))
 
 odag_countries = odagkey %>%
   filter(Classification == "Countries") %>%
@@ -89,7 +87,15 @@ odag_total = odagkey %>%
 HHI = HHI %>%
   mutate(ODAG_COUNTRIES = rowSums(across(all_of(odag_countries)), na.rm = T),
          ODAG_IO = rowSums(across(all_of(odag_io)), na.rm = T),
-         ODAG_TOT = ODAG_COUNTRIES + ODAG_IO)
+         ODAG_TOT = ODAG_COUNTRIES + ODAG_IO,
+         HHI_COUNTRIES = rowSums((across(all_of(odag_countries)) / rowSums(across(all_of(odag_countries))))^2),
+         HHI_IO = rowSums((across(all_of(odag_io)) / rowSums(across(all_of(odag_io))))^2),
+         HHI_TOT = rowSums((across(all_of(c(odag_countries, odag_io))) / rowSums(across(all_of(c(odag_countries, odag_io)))))^2))
+
+mean(is.na(HHI$HHI))
+mean(is.na(HHI$HHI_COUNTRIES))
+mean(is.na(HHI$HHI_IO))
+mean(is.na(HHI$HHI_TOT))
 
 #Output HHI file
 # HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_501, ODAG201:ODAG501) %>% 
@@ -177,45 +183,42 @@ library(splines)
 
 # Polity2
 
-mod0_COUNTRIES_POLITY2 <- lmer(log(HHI) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_COUNTRIES_POLITY2 <- lmer(log(HHI) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod0_COUNTRIES_POLITY2 <- lmer(log(HHI_COUNTRIES) ~ POLITY2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_COUNTRIES_POLITY2 <- lmer(log(HHI_COUNTRIES) ~  POLITY2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot + COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
-mod0_COUNTRIES_POLITY2_lag1 <- lmer(log(HHI) ~ POLITY2_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_POLITY2_lag2 <- lmer(log(HHI) ~ POLITY2_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_POLITY2_lag3 <- lmer(log(HHI) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_POLITY2_lag1 <- lmer(log(HHI_COUNTRIES) ~ POLITY2_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_POLITY2_lag2 <- lmer(log(HHI_COUNTRIES) ~ POLITY2_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_POLITY2_lag3 <- lmer(log(HHI_COUNTRIES) ~ POLITY2_lag3 + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_COUNTRIES_POLITY2_lag1 <- lmer(log(HHI) ~  POLITY2_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_POLITY2_lag2 <- lmer(log(HHI) ~  POLITY2_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_POLITY2_lag3 <- lmer(log(HHI) ~  POLITY2_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-
-mod0_COUNTRIES_POLITY <- lmer(log(HHI) ~ POLITY  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_COUNTRIES_POLITY <- lmer(log(HHI) ~  POLITY  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_POLITY2_lag1 <- lmer(log(HHI_COUNTRIES) ~  POLITY2_lag1  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_POLITY2_lag2 <- lmer(log(HHI_COUNTRIES) ~  POLITY2_lag2  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2) + logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_POLITY2_lag3 <- lmer(log(HHI_COUNTRIES) ~  POLITY2_lag3  + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI + I(logGNI^2)  + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
 # TOTLIB1
 
-mod0_COUNTRIES_TOTLIB1 <- lmer(log(HHI) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_COUNTRIES_TOTLIB1 <- lmer(log(HHI) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod0_COUNTRIES_TOTLIB1 <- lmer(log(HHI_COUNTRIES) ~ TOTLIB1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_COUNTRIES_TOTLIB1 <- lmer(log(HHI_COUNTRIES) ~  TOTLIB1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
-mod0_COUNTRIES_TOTLIB1_lag1 <- lmer(log(HHI) ~ TOTLIB1_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_TOTLIB1_lag2 <- lmer(log(HHI) ~ TOTLIB1_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_TOTLIB1_lag3 <- lmer(log(HHI) ~ TOTLIB1_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_TOTLIB1_lag1 <- lmer(log(HHI_COUNTRIES) ~ TOTLIB1_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_TOTLIB1_lag2 <- lmer(log(HHI_COUNTRIES) ~ TOTLIB1_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_TOTLIB1_lag3 <- lmer(log(HHI_COUNTRIES) ~ TOTLIB1_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_COUNTRIES_TOTLIB1_lag1 <- lmer(log(HHI) ~  TOTLIB1_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_TOTLIB1_lag2 <- lmer(log(HHI) ~  TOTLIB1_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY+ (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_TOTLIB1_lag3 <- lmer(log(HHI) ~  TOTLIB1_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_TOTLIB1_lag1 <- lmer(log(HHI_COUNTRIES) ~  TOTLIB1_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_TOTLIB1_lag2 <- lmer(log(HHI_COUNTRIES) ~  TOTLIB1_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY+ (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_TOTLIB1_lag3 <- lmer(log(HHI_COUNTRIES) ~  TOTLIB1_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
 # V2X_LIBDEM
 
-mod0_COUNTRIES_V2X_LIBDEM <- lmer(log(HHI) ~ V2X_LIBDEM  + (1|CCODE) + (1|YEAR), data = HHI)
-mod1_COUNTRIES_V2X_LIBDEM <- lmer(log(HHI) ~  V2X_LIBDEM + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod0_COUNTRIES_V2X_LIBDEM <- lmer(log(HHI_COUNTRIES) ~ V2X_LIBDEM  + (1|CCODE) + (1|YEAR), data = HHI)
+mod1_COUNTRIES_V2X_LIBDEM <- lmer(log(HHI_COUNTRIES) ~  V2X_LIBDEM + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
-mod0_COUNTRIES_V2X_LIBDEM_lag1 <- lmer(log(HHI) ~ V2X_LIBDEM_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_V2X_LIBDEM_lag2 <- lmer(log(HHI) ~ V2X_LIBDEM_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
-mod0_COUNTRIES_V2X_LIBDEM_lag3 <- lmer(log(HHI) ~ V2X_LIBDEM_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_V2X_LIBDEM_lag1 <- lmer(log(HHI_COUNTRIES) ~ V2X_LIBDEM_lag1  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_V2X_LIBDEM_lag2 <- lmer(log(HHI_COUNTRIES) ~ V2X_LIBDEM_lag2  + (1|CCODE) + (1|YEAR), data = HHI)
+mod0_COUNTRIES_V2X_LIBDEM_lag3 <- lmer(log(HHI_COUNTRIES) ~ V2X_LIBDEM_lag3  + (1|CCODE) + (1|YEAR), data = HHI)
 
-mod1_COUNTRIES_V2X_LIBDEM_lag1 <- lmer(log(HHI) ~  V2X_LIBDEM_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_V2X_LIBDEM_lag2 <- lmer(log(HHI) ~  V2X_LIBDEM_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
-mod1_COUNTRIES_V2X_LIBDEM_lag3 <- lmer(log(HHI) ~  V2X_LIBDEM_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_V2X_LIBDEM_lag1 <- lmer(log(HHI_COUNTRIES) ~  V2X_LIBDEM_lag1 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_V2X_LIBDEM_lag2 <- lmer(log(HHI_COUNTRIES) ~  V2X_LIBDEM_lag2 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
+mod1_COUNTRIES_V2X_LIBDEM_lag3 <- lmer(log(HHI_COUNTRIES) ~  V2X_LIBDEM_lag3 + logPOP + I(logPOP^2) + I(logPOP^3) + logGNI  + I(logGNI^2) + logODAG_COUNTRIES + I(logODAG_COUNTRIES^2)+ logTRDIMtot + logTRDEXtot+ COLPAST1 + REGION +  COLD_WAR + COLD_WAR:IDEOLOGY + (1|CCODE) + (1|YEAR) , data = HHI)
 
 
 

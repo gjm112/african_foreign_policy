@@ -12,7 +12,7 @@ date: "October 20, 2026"
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and interntional organizations (IO). (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGIO.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and international organizations (IO). (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGIO.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
@@ -66,10 +66,16 @@ $$\gamma_{0t} \sim \text{N}(0, \sigma_{\text{year}}^2)$$
 library(tidyverse)
 library(readxl)
 library(here)
+
+masterset = read_csv(here("data", "MASTER DATASET - 9.10.2026.csv")) %>%
+  rename_with(toupper)
+
+odagkey = read_csv(here("data", "odag_key.csv"), skip = 1) %>%
+  na.omit() %>%
+  mutate(`Variable Name` = str_to_upper(`Variable Name`),
+         `Variable Name` = gsub("[^A-Z0-9]", "", x = `Variable Name`))
+
 ## Cleaning data ##
-
-
-masterset = read_csv(here("data","MASTER DATASET - 9.10.2026.csv"))
 
 masterset = masterset %>%
   mutate(across(where(is.numeric), ~ na_if(., -99)),
@@ -81,7 +87,8 @@ masterset = masterset %>%
                              .default = COUNTRY),
          COLD_WAR = ifelse(YEAR >= 1992, 0, 1), 
          COLPAST1 = as.factor(COLPAST1),
-         REGION = as.factor(REGION))
+         REGION = as.factor(REGION),
+         IDEOLOGY = as.factor(IDEOLOGY))
 
 # Convert commas to periods. 
 # It looks like commas are being used as the decimal.  
@@ -113,67 +120,74 @@ names(masterset)[which(names(masterset) == "TDI321yr")] <- "TRDIM321yr"
 names(masterset)[which(names(masterset) == "TDI316SU")] <- "TRDIM316su"
 
 masterset <- masterset %>% mutate(ODAG404 = as.numeric(ODAG404))
+masterset <- masterset %>% mutate(ODAG600 = as.numeric(ODAG600))
 
-#ODAG Country and HHI
-masterset <- masterset %>%
-  mutate(across(ODAG201:ODAG501, ~ replace_na(.x, 0))) %>% # Replace NA with 0
-  mutate(across(ODAG201:ODAG501, ~ pmax(.x, 0))) %>% # No negative numbers
-  mutate(across(ODAG201:ODAG501, ~ as.numeric(.x))) %>% # Make these variables numeric
-  rowwise() %>% 
-  mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
-  mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
-  mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
-
-#Masterset IO
 masterset <- masterset %>% 
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                                           odagfao:odagwbtot, odagaf:odaggggi), ~ as.numeric(.x))) %>% # Make these variables numeric
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                  odagfao:odagwbtot, odagaf:odaggggi), ~ replace_na(.x, 0))) %>% # Replace NA with 0
-  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, odagrdbtot, 
-                  odagfao:odagwbtot, odagaf:odaggggi), ~ pmax(.x, 0))) %>% # No negative numbers
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ as.numeric(.x))) %>% # Make these variables numeric
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ replace_na(.x, 0))) %>% # Replace NA with 0
+  mutate(across(c(ODAG600, ODAG601, ODAG609, ODAG610, ODAG613:ODAGARBC, ODAGARBA:ODAGIAEA, ODAGRDBTOT, 
+                  ODAGFAO:ODAGWBTOT, ODAGAF:ODAGGGGI), ~ pmax(.x, 0))) %>% # No negative numbers
   rowwise() %>% 
   mutate(ODAGTOT200_501 = rowSums(across(ODAG201:ODAG501))) %>% 
   mutate(HHI = rowSums((across(ODAG201:ODAG501) / rowSums(across(ODAG201:ODAG501)))^2)) %>% 
   mutate(HHI = ifelse(ODAGTOT200_501 == 0, NA, HHI))
+
+odag_countries = odagkey %>%
+  filter(Classification == "Countries") %>%
+  pull(`Variable Name`)
+
+odag_io = odagkey %>%
+  filter(Classification == "IOs") %>%
+  mutate(`Variable Name` = case_when(`Variable Name` == "ODAG615" ~ "ODAG615 IMF", .default = `Variable Name`)) %>%
+  pull(`Variable Name`)
+
+odag_total = odagkey %>%
+  filter(Classification == "Total") %>%
+  pull(`Variable Name`)
+
+masterset = masterset %>%
+  mutate(ODAG_COUNTRIES = rowSums(across(all_of(odag_countries)), na.rm = T),
+         ODAG_IO = rowSums(across(all_of(odag_io)), na.rm = T),
+         ODAG_TOT = ODAG_COUNTRIES + ODAG_IO)
+
+# HHI values over time
+
+# HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_500, ODAG201:ODAG416) %>% write.csv(file = "./HHI.csv", row.names = FALSE)
+
+#HHI %>% ggplot(aes(x = YEAR, y = HHI)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw()
 
 ## Prepare data for analysis
+
 masterset <- masterset %>% mutate(across(TRDEX351:TRDEX203, ~ as.numeric(.x))) %>% 
   mutate(across(TRDIM351:TRDIM203, ~ as.numeric(.x))) %>% 
-  mutate(TRDEXtot = rowSums(pick(TRDEX351:TRDEX250, 
+  mutate(TRDEXTOT = rowSums(pick(TRDEX351:TRDEX250, 
                                  TRDEX300:TRDEX285, 
                                  TRDEX280:TRDEX415,
                                  TRDEX100:TRDEX147,
                                  TRDEX577:TRDEX551,
                                  TRDEX563:TRDEX203),na.rm = TRUE),
-         TRDIMtot = rowSums(pick(TRDIM351:TRDIM250,
+         TRDIMTOT = rowSums(pick(TRDIM351:TRDIM250,
                                  TRDIM300:TRDIM285,
                                  TRDIM280:TRDIM415,
                                  TRDIM100:TRDIM147,
                                  TRDIM577:TRDIM551,
                                  TRDIM563:TRDIM203),na.rm = TRUE)) %>% 
-  mutate(ODAGtot = rowSums(pick(ODAG201:ODAG501), na.rm = T)) %>% mutate(ODAGtot_private = rowSums(pick(
-    c(
-      ODAG600,
-      ODAG601,
-      ODAG609,
-      ODAG610,
-      ODAG613:ODAGARBC,
-      ODAGARBA:ODAGIAEA,
-      odagrdbtot,
-      odagfao:odagwbtot,
-      odagaf:odaggggi
-    )
-  ), na.rm = T)) %>% 
-  filter(ODAGtot >= 0 & ODAGtot_private >= 0) %>% 
+  filter(ODAG_IO >= 0,
+         ODAG_COUNTRIES >= 0,
+         ODAG_TOT >= 0) %>%
   mutate(POPULATN = ifelse(POPULATN == -99, NA, POPULATN),
          logGNI = log(GNI, 10),
          logPOP = log(POPULATN,10),
-         logTRDIMtot = log(TRDIMtot + 1,10),
-         logTRDEXtot = log(TRDEXtot + 1,10), 
-         logODAGtot = log(ODAGtot + 1, 10)) 
+         logTRDIMtot = log(TRDIMTOT + 1,10),
+         logTRDEXtot = log(TRDEXTOT + 1,10),
+         logODAG_COUNTRIES = log(ODAG_COUNTRIES + 1, 10),
+         logODAG_IO = log(ODAG_IO + 1, 10),
+         logODAG_TOT = log(ODAG_TOT + 1, 10)) 
 
 # Now create the lag variables
+
 masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>% 
   mutate(TOTLIB1_lag1 = lag(TOTLIB1,1),
          TOTLIB1_lag2 = lag(TOTLIB1,2),
@@ -184,11 +198,11 @@ masterset <- masterset %>% arrange(CCODE, YEAR) %>% group_by(CCODE) %>%
          POLITY2_lag1 = lag(POLITY2,1),
          POLITY2_lag2 = lag(POLITY2,2),
          POLITY2_lag3 = lag(POLITY2,3),
-         V2x_Libdem_lag1 = lag(V2x_Libdem,1),
-         V2x_Libdem_lag2 = lag(V2x_Libdem,2),
-         V2x_Libdem_lag3 = lag(V2x_Libdem,3)
+         V2X_LIBDEM_lag1 = lag(V2X_LIBDEM,1),
+         V2X_LIBDEM_lag2 = lag(V2X_LIBDEM,2),
+         V2X_LIBDEM_lag3 = lag(V2X_LIBDEM,3)
   ) %>% 
-  ungroup()
+  ungroup() 
 
 ```
 
@@ -260,7 +274,7 @@ masterset %>%
 
 ```{r}
 masterset %>% 
-  ggplot(aes(x = ODAGtot)) + 
+  ggplot(aes(x = ODAG_TOT)) + 
   geom_density(fill = "#7bffff") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
@@ -276,7 +290,7 @@ masterset %>%
 
 ```{r}
 masterset %>% 
-  ggplot(aes(x = logODAGtot)) + 
+  ggplot(aes(x = logODAG_TOT)) + 
   geom_density(fill = "#7bffff") +
   scale_x_continuous(expand = c(0, 0)) +
   scale_y_continuous(expand = c(0, 0)) +
@@ -292,7 +306,7 @@ masterset %>%
 
 ```{r}
 masterset %>%  
-  ggplot(aes(x = logODAGtot, color = as.factor(COLD_WAR))) + geom_density() +
+  ggplot(aes(x = logODAG_TOT, color = as.factor(COLD_WAR))) + geom_density() +
   labs(
     title = "Log ODAG distribution pre- and post-cold war",
     x = "Log-Transformed ODAG"
@@ -305,8 +319,8 @@ masterset %>%
 
 ```{r}
 
-masterset %>% mutate(logODAGtot_private = log(ODAGtot_private +1,10)) %>% 
-  ggplot(aes(x = logODAGtot_private, color = as.factor(COLD_WAR))) + geom_density() +
+masterset %>% mutate(logODAG_IO = log(logODAG_IO +1,10)) %>% 
+  ggplot(aes(x = logODAG_IO, color = as.factor(COLD_WAR))) + geom_density() +
   labs(
     title = "Log ODAG IO distribution pre- and post-cold war",
     x = "Log-Transformed ODAG IO"
@@ -346,9 +360,9 @@ load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag2.RData")
 load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag3.RData")
 ```
 
-Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. each table. Next to each coefficient estimate is their respective standard error.
+Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. Next to each coefficient estimate is their respective standard error.
 
-# ODAG Results
+# ODAG Countries Results
 
 ```{r}
 ## REDUCED MODEL SUMMARIES
@@ -376,7 +390,7 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG: Reduced Model Summary for V2X_LIBDEM"
+  title = "ODAG Countries: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -406,7 +420,7 @@ mod0_summary_POLITY2 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG: Reduced Model Summary for POLITY2"
+  title = "ODAG Countries: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -436,7 +450,7 @@ mod0_summary_TOTLIB1 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG: Reduced Model Summary for TOTLIB1"
+  title = "ODAG Countries: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -451,8 +465,6 @@ mod0_summary_POLITY2
 mod0_summary_TOTLIB1
 
 ```
-
-Below are the summaries for the full models for ODAG from external countries. As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
 
 ```{r}
 
@@ -498,7 +510,7 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
   ),
-  title = "ODAG: Full Model Summary for V2X_LIBDEM"
+  title = "ODAG Countries: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -548,7 +560,7 @@ mod1_summary_POLITY2 <- modelsummary(
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
   ),
-  title = "ODAG: Full Model Summary for POLITY2"
+  title = "ODAG Countries: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
     i = "caption",
@@ -598,7 +610,7 @@ mod1_summary_TOTLIB1 <- modelsummary(
     "SD (Intercept CCODE)" = "SD (Intercept CCODE)",
     "SD (Observations)" = "SD (Observations)"
   ),
-  title = "ODAG: Full Model Summary for TOTLIB1"
+  title = "ODAG Countries: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -663,15 +675,15 @@ mod0_IO_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
-    "V2x_Libdem",
-    "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3",
+    "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3",
     "SD (Intercept YEAR)",
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG IO: Reduced Model Summary for V2X_LIBDEM "
+  title = "ODAG IO: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -731,7 +743,7 @@ mod0_IO_summary_TOTLIB1 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG IO: Full Model Summary for TOTLIB1"
+  title = "ODAG IO: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -764,10 +776,10 @@ mod1_IO_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)" = "Intercept",
-    "V2x_Libdem" = "V2x_Libdem",
-    "V2x_Libdem_lag1" = "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2" = "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3" = "V2x_Libdem_lag3",
+    "V2X_LIBDEM" = "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1" = "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2" = "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3" = "V2X_LIBDEM_lag3",
     "logPOP" = "logPOP",
     "logGNI" = "logGNI",
     "logTRDIMtot" = "logTRDIMtot",
@@ -909,8 +921,6 @@ mod1_IO_summary_TOTLIB1
 
 ```
 
-
-
 ```{r}
 load("./ODAG_TOT/mod0_TOT_POLITY2.RData")
 load("./ODAG_TOT/mod0_TOT_POLITY2_lag1.RData")
@@ -961,15 +971,15 @@ mod0_TOT_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
-    "V2x_Libdem",
-    "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3",
+    "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3",
     "SD (Intercept YEAR)",
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG T: Reduced Model Summary for V2X_LIBDEM "
+  title = "ODAG Total: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
     i = "caption",
@@ -1029,7 +1039,7 @@ mod0_TOT_summary_TOTLIB1 <- modelsummary(
     "SD (Intercept CCODE)",
     "SD (Observations)"
   ),
-  title = "ODAG TOTAL: Full Model Summary for TOTLIB1"
+  title = "ODAG Total: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
     i = "caption",
@@ -1043,8 +1053,6 @@ mod0_TOT_summary_V2X_LIBDEM
 mod0_TOT_summary_POLITY2
 mod0_TOT_summary_TOTLIB1
 ```
-
-Below are the summaries for the full models for ODAG from TOT organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
 
 ```{r}
 
@@ -1062,10 +1070,10 @@ mod1_TOT_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)" = "Intercept",
-    "V2x_Libdem" = "V2x_Libdem",
-    "V2x_Libdem_lag1" = "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2" = "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3" = "V2x_Libdem_lag3",
+    "V2X_LIBDEM" = "V2X_LIBDEM",
+    "V2X_LIBDEM_lag1" = "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2" = "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3" = "V2X_LIBDEM_lag3",
     "logPOP" = "logPOP",
     "logGNI" = "logGNI",
     "logTRDIMtot" = "logTRDIMtot",
