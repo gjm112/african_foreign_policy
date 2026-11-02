@@ -1,7 +1,7 @@
 ---
 title: "HHI Report"
 author: "Gregory J. Matthews and Steven Pappas"
-date: "October 16, 2026"
+date: "November 2, 2026"
 format: pdf
 execute:
   echo: false
@@ -18,15 +18,15 @@ editor: visual
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total. Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's Herfindahl-Hirschman Index (HHI) and their democracy score. The HHI measures the diversity of an African country's official development assistance gross (ODAG) total.  HHI is computed in three separate ways: 1) ODAG received from countries, 2) ODAG received from international organizations (IO), and 3) total ODAG from all sources.   Values near 1 indicate a country receiving nearly all of their aid from a single country whereas smaller values of HHI indicate a more balanced ODAG portfolio. We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
-The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total trade imports, total trade exports,and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis). Additionally, we included categorical variables for colonial past and region, and a cold war indicator. We applied a log transformation to GNI, population, total ODAG, imports, and exports due to their right skew. Quadratic and cubic transformations were added when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
+The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total trade imports, total trade exports, and total ODAG (Note: When ODAG is not observed it is set to 0 in the analysis).  Additionally, we included categorical variables for colonial past and region, and a cold war indicator. We applied a log transformation to GNI, population, total ODAG, imports, and exports due to their right skew. Quadratic and cubic transformations were added when necessary to capture nonlinear relationships. We applied this model framework to current year democracy scores as well as lagged democracy scores of 1, 2, and 3 years.
 
-In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 1-3.
+<!-- In the reduced models, every V2x_Libdem and POLITY2 coefficient is significant at $\alpha$ = 0.05. The negative direction of their coefficients indicate that, as an African country is more democratic, their HHI drops on average meaning that they tend to have more external countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 1-3. -->
 
-In the full models, V2x_Libdem and TOTLIB are significant at the $\alpha$ = 0.05 level for all lags. Conversely, POLITY2 is not significant at any lags. The negative coefficient for V2x_Libdem and the positive direction for TOTLIB1 yield the same conclusion as the the reduced models. That is, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 4-6. In addition to the democracy variables, population, GNI, and ODAG are all highly associated with HHI. The Cold War indicator is significant in the POLITY2 and v2x_Libdem models, but not in TOTLIB1 model. The Cold War indicator is positive indicating that during the Cold War HHI values were generally larger (i.e., less diverse) than after the Cold War ended. Finally, all models see socialist ideology during the cold was has a significant negative association. This means that socialist ideology during the cold war is associated with lower HHI (i.e., more diversity) relative to capitalist ideology.
+<!-- In the full models, V2x_Libdem and TOTLIB are significant at the $\alpha$ = 0.05 level for all lags. Conversely, POLITY2 is not significant at any lags. The negative coefficient for V2x_Libdem and the positive direction for TOTLIB1 yield the same conclusion as the the reduced models. That is, as an African country is more democratic, it tends to have lower HHI scores on average indicating a greater diversity of countries providing development aid and vice versa. Results for the significance of democracy variables in the reduced model are displayed in Tables 4-6. In addition to the democracy variables, population, GNI, and ODAG are all highly associated with HHI. The Cold War indicator is significant in the POLITY2 and v2x_Libdem models, but not in TOTLIB1 model. The Cold War indicator is positive indicating that during the Cold War HHI values were generally larger (i.e., less diverse) than after the Cold War ended. Finally, all models see socialist ideology during the cold was has a significant negative association. This means that socialist ideology during the cold war is associated with lower HHI (i.e., more diversity) relative to capitalist ideology. -->
 
 # Models
 
@@ -153,10 +153,10 @@ HHI = HHI %>%
          HHI_IO = rowSums((across(all_of(odag_io)) / rowSums(across(all_of(odag_io))))^2),
          HHI_TOT = rowSums((across(all_of(c(odag_countries, odag_io))) / rowSums(across(all_of(c(odag_countries, odag_io)))))^2))
 
-mean(is.na(HHI$HHI))
-mean(is.na(HHI$HHI_COUNTRIES))
-mean(is.na(HHI$HHI_IO))
-mean(is.na(HHI$HHI_TOT))
+# mean(is.na(HHI$HHI))
+# mean(is.na(HHI$HHI_COUNTRIES))
+# mean(is.na(HHI$HHI_IO))
+# mean(is.na(HHI$HHI_TOT))
 
 #Output HHI file
 # HHI %>% select(COUNTRY, YEAR, HHI, ODAGTOT200_501, ODAG201:ODAG501) %>% 
@@ -225,10 +225,26 @@ HHI %>% ggplot(aes(x = YEAR, y = HHI_TOT)) + geom_line() +  facet_wrap(~COUNTRY)
   )
 ```
 
-```{r}
-HHI %>% filter(YEAR == 2024) %>% arrange(HHI_TOT) %>% select(COUNTRY, YEAR, HHI_TOT) %>% view()
+```{r fig.height=10, fig.width = 8, echo = FALSE, message = FALSE, warning=FALSE}
+HHI %>% ggplot(aes(x = YEAR, y = HHI_IO)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw() + scale_x_continuous(
+    limits = c(1948,2025),                # Set min and max limits
+    breaks = c(1980, 2020),     # Set manual tick mark placement
+    labels = c(1980,  2020) 
+  )
+```
 
-HHI %>% filter(YEAR >= 1990) %>% group_by(COUNTRY) %>% summarize(mn = mean(HHI_TOT, na.rm = T)) %>% select(COUNTRY,mn) %>% view()
+```{r fig.height=10, fig.width = 8, echo = FALSE, message = FALSE, warning=FALSE}
+HHI %>% ggplot(aes(x = YEAR, y = HHI_COUNTRIES)) + geom_line() +  facet_wrap(~COUNTRY) + theme_bw() + scale_x_continuous(
+    limits = c(1948,2025),                # Set min and max limits
+    breaks = c(1980, 2020),     # Set manual tick mark placement
+    labels = c(1980,  2020) 
+  )
+```
+
+```{r}
+HHI %>% filter(YEAR == 2024) %>% arrange(HHI_TOT) %>% select(COUNTRY, YEAR, HHI_TOT) 
+
+HHI %>% filter(YEAR >= 1990) %>% group_by(COUNTRY) %>% summarize(mn = mean(HHI_TOT, na.rm = T)) %>% select(COUNTRY,mn) 
 ```
 
 The distributions of the full model predictor variables and their log transformations are plotted below. The log-transformed variables all display a noticeably reduced right-skew, improving their performance and interpretation in the full models.
@@ -333,23 +349,44 @@ The relationship between relevant democracy scores and log-transformed HHI, grou
 
 ```{r echo = FALSE}
 #Summary stuff
-
 HHI %>% filter(!is.na(TOTLIB1)) %>% group_by(COUNTRY) %>% reframe(TOTLIB1 = mean(TOTLIB1)) %>% arrange(desc(TOTLIB1))
 HHI %>% filter(!is.na(V2X_LIBDEM)) %>% group_by(COUNTRY) %>% reframe(V2X_LIBDEM = mean(V2X_LIBDEM)) %>% arrange(desc(V2X_LIBDEM))
 HHI %>% filter(!is.na(POLITY2)) %>% group_by(COUNTRY) %>% reframe(POLITY2 = mean(POLITY2)) %>% arrange(desc(POLITY2))
 
-HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI = mean(HHI_TOT, na.rm = T)) 
-HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI = mean(HHI_TOT, na.rm = T)) %>% ggplot(aes(x = YEAR, y = meanHHI)) + geom_point() + geom_line() + theme_bw()
+#HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI = mean(HHI_TOT, na.rm = T)) 
+
+#HHI Totals
+HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI_TOT = mean(HHI_TOT, na.rm = T)) %>% ggplot(aes(x = YEAR, y = meanHHI_TOT)) + geom_point() + geom_line() + theme_bw()
+
 HHI %>% ggplot(aes(x = YEAR, y = log(HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+
 HHI %>% ggplot(aes(x = HHI_TOT)) + geom_density() + theme_bw()
 
-HHI %>% ggplot(aes(x = POLITY2, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = POLITY, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = V2X_LIBDEM, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = logODAG_TOT, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = logGNI, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
-HHI %>% ggplot(aes(x = logPOP, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+#For countries
+HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI_COUNTRIES = mean(HHI_COUNTRIES, na.rm = T)) %>% ggplot(aes(x = YEAR, y = meanHHI_COUNTRIES)) + geom_point() + geom_line() + theme_bw()
+
+HHI %>% ggplot(aes(x = YEAR, y = log(HHI_COUNTRIES))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+
+HHI %>% ggplot(aes(x = HHI_COUNTRIES)) + geom_density() + theme_bw()
+
+#For IO
+HHI %>% filter(YEAR >= 1960) %>% group_by(YEAR) %>% summarize(meanHHI_IO = mean(HHI_IO, na.rm = T)) %>% ggplot(aes(x = YEAR, y = meanHHI_IO)) + geom_point() + geom_line() + theme_bw()
+
+HHI %>% ggplot(aes(x = YEAR, y = log(HHI_IO))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+
+HHI %>% ggplot(aes(x = HHI_IO)) + geom_density() + theme_bw()
+
+
+# HHI %>% ggplot(aes(x = POLITY2, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# 
+# HHI %>% ggplot(aes(x = POLITY, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# 
+# HHI %>% ggplot(aes(x = TOTLIB1, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# 
+# HHI %>% ggplot(aes(x = V2X_LIBDEM, y = log(HHI_TOT), color = YEAR, group = YEAR)) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# HHI %>% ggplot(aes(x = logODAG_TOT, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# HHI %>% ggplot(aes(x = logGNI, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
+# HHI %>% ggplot(aes(x = logPOP, y = (HHI_TOT))) + geom_point() + geom_smooth(se = F)  + theme_bw()
 ```
 
 ```{r echo = FALSE}
@@ -445,6 +482,8 @@ Summaries for the reduced and full models for ODAG are shown with the regression
 
 # HHI Countries Results
 
+
+
 ```{r}
 
 ## REDUCED MODEL SUMMARIES
@@ -475,10 +514,9 @@ mod0_COUNTRIES_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI Countries: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -505,10 +543,10 @@ mod0_COUNTRIES_summary_POLITY2 <- modelsummary(
   title = "HHI Countries: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -535,10 +573,10 @@ mod0_COUNTRIES_summary_TOTLIB1 <- modelsummary(
   title = "HHI Countries: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -599,10 +637,10 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI Countries: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -654,10 +692,10 @@ mod1_summary_POLITY2 <- modelsummary(
   title = "HHI Countries: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -709,10 +747,10 @@ mod1_summary_TOTLIB1 <- modelsummary(
   title = "HHI Countries: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -753,10 +791,10 @@ mod0_IO_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI IO: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -783,10 +821,10 @@ mod0_IO_summary_POLITY2 <- modelsummary(
   title = "HHI IO: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -813,10 +851,10 @@ mod0_IO_summary_TOTLIB1 <- modelsummary(
   title = "HHI IO: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -850,8 +888,8 @@ mod1_IO_summary_V2X_LIBDEM <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_IO" = "logODAG_IO",
+    "I(logODAG_IO^2)" = "logODAG_IO^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -877,10 +915,10 @@ mod1_IO_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI IO: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   ) %>%  theme_tinytable(width = 0.5)
 
@@ -905,8 +943,8 @@ mod1_IO_summary_POLITY2 <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_IO" = "logODAG_IO",
+    "I(logODAG_IO^2)" = "logODAG_IO^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -932,10 +970,10 @@ mod1_IO_summary_POLITY2 <- modelsummary(
   title = "HHI IO: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -960,8 +998,8 @@ mod1_IO_summary_TOTLIB1 <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_IO" = "logODAG_IO",
+    "I(logODAG_IO^2)" = "logODAG_IO^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -988,10 +1026,10 @@ mod1_IO_summary_TOTLIB1 <- modelsummary(
   title = "HHI IO: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1033,10 +1071,10 @@ mod0_TOT_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI Total: Reduced Model Summary for V2X_LIBDEM "
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1063,10 +1101,10 @@ mod0_TOT_summary_POLITY2 <- modelsummary(
   title = "HHI Total: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1093,10 +1131,10 @@ mod0_TOT_summary_TOTLIB1 <- modelsummary(
   title = "HHI Total: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1130,8 +1168,8 @@ mod1_TOT_summary_V2X_LIBDEM <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_TOT" = "logODAG_TOT",
+    "I(logODAG_TOT^2)" = "logODAG_TOT^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -1157,10 +1195,10 @@ mod1_TOT_summary_V2X_LIBDEM <- modelsummary(
   title = "HHI Total: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   ) %>%  theme_tinytable(width = 0.5)
 
@@ -1185,8 +1223,8 @@ mod1_TOT_summary_POLITY2 <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_TOT" = "logODAG_TOT",
+    "I(logODAG_TOT^2)" = "logODAG_TOT^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -1212,10 +1250,10 @@ mod1_TOT_summary_POLITY2 <- modelsummary(
   title = "HHI Total: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1240,8 +1278,8 @@ mod1_TOT_summary_TOTLIB1 <- modelsummary(
     "I(logPOP^3)" = "logPOP^3",
     "logGNI" = "logGNI",
     "I(logGNI^2)" = "logGNI^2",
-    "logODAG_COUNTRIES" = "logODAG_COUNTRIES",
-    "I(logODAG_COUNTRIES^2)" = "logODAG_COUNTRIES^2",
+    "logODAG_TOT" = "logODAG_TOT",
+    "I(logODAG_TOT^2)" = "logODAG_TOT^2",
     "logTRDIMtot" = "logTRDIMtot",
     "logTRDEXtot" = "logTRDEXtot",
     "COLD_WAR" = "COLD_WAR",
@@ -1268,10 +1306,8 @@ mod1_TOT_summary_TOTLIB1 <- modelsummary(
   title = "HHI Total: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1280,4 +1316,3 @@ mod1_TOT_summary_POLITY2
 mod1_TOT_summary_TOTLIB1
 
 ```
-

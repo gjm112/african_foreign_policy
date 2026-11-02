@@ -7,28 +7,34 @@ execute:
   message: false
   warning: false
 editor: visual
-date: "October 20, 2026"
+date: "November 2, 2026"
 ---
 
 # Overview
 
-This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and international organizations (IO). (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGIO.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2x_Libdem). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
+This analysis seeks to evaluate the relationship between an African country's official development assistance gross (ODAG) and their democracy score. ODAG measures the aid received by an African country from external countries and international organizations (IO). (Note: In this report, we refer to ODAG received from other countries as ODAG and ODAG received from entities that are not countries are ODAGIO.) We used democracy scores from Freedom House (TOTLIB1), the POLITY IV database (POLITY2), and the Liberal Democracy Index from the V-Dem Institute (V2X_LIBDEM ). (Note: Here we only analyze POLITY2, whereas in previous reports we have analyzed both POLITY and POLITY2.)
 
 This main analyses were split into a reduced and full model. The reduced model only considers democracy as a fixed effect, while including random intercepts for the African country and year. These random effects account for structural correlation between observations within the data structure.
 
 The full model includes all of the parts of the reduced model while adding the African country's population, gross national income (GNI), total imports, total exports, colonial Past, region, and a cold war indicator variable. We applied a log transformation to GNI, population, imports, and exports due to their right skew.
 
-## ODAG (Countries)
+## ODAG Countries Summary
 
-In the reduced models (Tables 1-3), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
+In the reduced models (Tables 1-3), all V2X_LIBDEM , POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
 
-In the full models (Table 4-6), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. We also see total exports are significant for most of the different lagged models for v2x_Libdem models. Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
+In the full models (Table 4-6), all V2X_LIBDEM , POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. In addition, we see that total population, GNI, total imports, and the cold war indicator are all significant. We also see total exports are significant for most of the different lagged models for v2x_Libdem models. Population and total imports were positively correlated with total ODAG whereas larger GNI was related to lower levels of ODAG. Finally, the cold war (pre-1992) is associated with lower total levels of ODAG.
 
-## ODAG (IO)
+## ODAG IO Summary
 
-In the reduced models (Tables 7-9), once again all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
+In the reduced models (Tables 7-9) all democracy measures across all lags are significant at $\alpha$ = 0.05.   In all cases, higher democracy scores were associated with larger levels of total ODAG IO.
 
-In the full models (Table 10-12), all V2x_Libdem, POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. As before, we see that total population, GNI, total imports, and the cold war indicator are all significant. Total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG. Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG. Also of interest, Italian colonial past is significant in the POLITY2 model, but not in any other models.
+In the full models (Tables 10-12), V2X_LIBDEM and TOTLIB1 are significant, whereas POLITY2 is not significant.  Population, GNI, imports, and exports are all significant.  The cold war indicator is also significant and negative indicating less ODAG IO during the cold war years on average.  In some of these models, we observe some colonial pasts that are significant.  In addition, some of the interactions between cold war and ideology are significant (e.g. CW_Marxist in table 12.)
+
+## ODAG Total Summary
+
+In the reduced models (Tables 13-15), once again all V2X_LIBDEM , POLITY2, and TOTLIB1 coefficients are significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with larger levels of total ODAG.
+
+In the full models (Table 16-18), all V2X_LIBDEM , POLITY2, and TOTLIB1 coefficients are again significant at $\alpha$ = 0.05. In all cases, higher democracy scores were associated with high total ODAG. As before, we see that total population, GNI, total imports, and the cold war indicator are all significant. Total exports in also significant here. Population and total imports were positively correlated with total ODAG whereas larger GNI and total exports was related to lower levels of ODAG. Finally, the cold war indicator (pre-1992) is associated with lower total levels of ODAG.
 
 # Models
 
@@ -350,19 +356,18 @@ load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag1.RData")
 load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag2.RData")
 load("./ODAG_COUNTRIES/mod1_COUNTRIES_TOTLIB1_lag3.RData")
 
-load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem.RData")
-load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag1.RData")
-load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag2.RData")
-load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2x_Libdem_lag3.RData")
-load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem.RData")
-load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag1.RData")
-load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag2.RData")
-load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2x_Libdem_lag3.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2X_LIBDEM.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2X_LIBDEM_lag1.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2X_LIBDEM_lag2.RData")
+load("./ODAG_COUNTRIES/mod0_COUNTRIES_V2X_LIBDEM_lag3.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2X_LIBDEM.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2X_LIBDEM_lag1.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2X_LIBDEM_lag2.RData")
+load("./ODAG_COUNTRIES/mod1_COUNTRIES_V2X_LIBDEM_lag3.RData")
 ```
 
 Summaries for the reduced and full models for ODAG are shown with the regression coefficient estimates in the column labeled "Est." starred by significance as denoted in the legend below. Next to each coefficient estimate is their respective standard error.
 
-# ODAG Countries Results
 
 ```{r}
 ## REDUCED MODEL SUMMARIES
@@ -382,10 +387,10 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
     "(Intercept)",
-    "V2x_Libdem",
-    "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3",
+    "V2X_LIBDEM ",
+    "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3",
     "SD (Intercept YEAR)",
     "SD (Intercept CCODE)",
     "SD (Observations)"
@@ -393,10 +398,10 @@ mod0_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG Countries: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -423,10 +428,10 @@ mod0_summary_POLITY2 <- modelsummary(
   title = "ODAG Countries: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -453,10 +458,10 @@ mod0_summary_TOTLIB1 <- modelsummary(
   title = "ODAG Countries: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -482,10 +487,10 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
   shape = term ~ model + statistic,
   coef_map = c(
      "(Intercept)" = "Intercept",
-    "V2x_Libdem" = "V2x_Libdem",
-    "V2x_Libdem_lag1" = "V2x_Libdem_lag1",
-    "V2x_Libdem_lag2" = "V2x_Libdem_lag2",
-    "V2x_Libdem_lag3" = "V2x_Libdem_lag3",
+    "V2X_LIBDEM " = "V2X_LIBDEM ",
+    "V2X_LIBDEM_lag1" = "V2X_LIBDEM_lag1",
+    "V2X_LIBDEM_lag2" = "V2X_LIBDEM_lag2",
+    "V2X_LIBDEM_lag3" = "V2X_LIBDEM_lag3",
     "logPOP" = "logPOP",
     "logGNI" = "logGNI",
     "logTRDIMtot" = "logTRDIMtot",
@@ -513,10 +518,10 @@ mod1_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG Countries: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -563,10 +568,10 @@ mod1_summary_POLITY2 <- modelsummary(
   title = "ODAG Countries: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -613,10 +618,10 @@ mod1_summary_TOTLIB1 <- modelsummary(
   title = "ODAG Countries: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -644,17 +649,17 @@ load("./ODAG_IO/mod1_IO_TOTLIB1_lag1.RData")
 load("./ODAG_IO/mod1_IO_TOTLIB1_lag2.RData")
 load("./ODAG_IO/mod1_IO_TOTLIB1_lag3.RData")
 
-load("./ODAG_IO/mod0_IO_V2x_Libdem.RData")
-load("./ODAG_IO/mod0_IO_V2x_Libdem_lag1.RData")
-load("./ODAG_IO/mod0_IO_V2x_Libdem_lag2.RData")
-load("./ODAG_IO/mod0_IO_V2x_Libdem_lag3.RData")
-load("./ODAG_IO/mod1_IO_V2x_Libdem.RData")
-load("./ODAG_IO/mod1_IO_V2x_Libdem_lag1.RData")
-load("./ODAG_IO/mod1_IO_V2x_Libdem_lag2.RData")
-load("./ODAG_IO/mod1_IO_V2x_Libdem_lag3.RData")
+load("./ODAG_IO/mod0_IO_V2X_LIBDEM.RData")
+load("./ODAG_IO/mod0_IO_V2X_LIBDEM_lag1.RData")
+load("./ODAG_IO/mod0_IO_V2X_LIBDEM_lag2.RData")
+load("./ODAG_IO/mod0_IO_V2X_LIBDEM_lag3.RData")
+load("./ODAG_IO/mod1_IO_V2X_LIBDEM.RData")
+load("./ODAG_IO/mod1_IO_V2X_LIBDEM_lag1.RData")
+load("./ODAG_IO/mod1_IO_V2X_LIBDEM_lag2.RData")
+load("./ODAG_IO/mod1_IO_V2X_LIBDEM_lag3.RData")
 ```
 
-# ODAG IO Results
+
 
 ```{r}
 
@@ -686,10 +691,10 @@ mod0_IO_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG IO: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -716,10 +721,10 @@ mod0_IO_summary_POLITY2 <- modelsummary(
   title = "ODAG IO: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -746,10 +751,10 @@ mod0_IO_summary_TOTLIB1 <- modelsummary(
   title = "ODAG IO: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -758,7 +763,6 @@ mod0_IO_summary_POLITY2
 mod0_IO_summary_TOTLIB1
 ```
 
-Below are the summaries for the full models for ODAG from IO organizations As with the reduced model summaries, the $\hat{\beta}$ coefficients are starred by significance as denoted in each table, with their respective standard error below.
 
 ```{r}
 
@@ -807,10 +811,10 @@ mod1_IO_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG IO: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   ) %>%  theme_tinytable(width = 0.5)
 
@@ -857,10 +861,10 @@ mod1_IO_summary_POLITY2 <- modelsummary(
   title = "ODAG IO: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -908,10 +912,10 @@ mod1_IO_summary_TOTLIB1 <- modelsummary(
   title = "ODAG IO: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -940,17 +944,17 @@ load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag1.RData")
 load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag2.RData")
 load("./ODAG_TOT/mod1_TOT_TOTLIB1_lag3.RData")
 
-load("./ODAG_TOT/mod0_TOT_V2x_Libdem.RData")
-load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag1.RData")
-load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag2.RData")
-load("./ODAG_TOT/mod0_TOT_V2x_Libdem_lag3.RData")
-load("./ODAG_TOT/mod1_TOT_V2x_Libdem.RData")
-load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag1.RData")
-load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag2.RData")
-load("./ODAG_TOT/mod1_TOT_V2x_Libdem_lag3.RData")
+load("./ODAG_TOT/mod0_TOT_V2X_LIBDEM.RData")
+load("./ODAG_TOT/mod0_TOT_V2X_LIBDEM_lag1.RData")
+load("./ODAG_TOT/mod0_TOT_V2X_LIBDEM_lag2.RData")
+load("./ODAG_TOT/mod0_TOT_V2X_LIBDEM_lag3.RData")
+load("./ODAG_TOT/mod1_TOT_V2X_LIBDEM.RData")
+load("./ODAG_TOT/mod1_TOT_V2X_LIBDEM_lag1.RData")
+load("./ODAG_TOT/mod1_TOT_V2X_LIBDEM_lag2.RData")
+load("./ODAG_TOT/mod1_TOT_V2X_LIBDEM_lag3.RData")
 ```
 
-# ODAG Total Results
+
 
 ```{r}
 
@@ -982,10 +986,10 @@ mod0_TOT_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG Total: Reduced Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1012,10 +1016,10 @@ mod0_TOT_summary_POLITY2 <- modelsummary(
   title = "ODAG Total: Reduced Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1042,10 +1046,10 @@ mod0_TOT_summary_TOTLIB1 <- modelsummary(
   title = "ODAG Total: Reduced Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1101,10 +1105,10 @@ mod1_TOT_summary_V2X_LIBDEM <- modelsummary(
   title = "ODAG Total: Full Model Summary for V2X_LIBDEM"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   ) %>%  theme_tinytable(width = 0.5)
 
@@ -1151,10 +1155,10 @@ mod1_TOT_summary_POLITY2 <- modelsummary(
   title = "ODAG Total: Full Model Summary for POLITY2"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
@@ -1202,10 +1206,9 @@ mod1_TOT_summary_TOTLIB1 <- modelsummary(
   title = "ODAG Total: Full Model Summary for TOTLIB1"
 ) %>%
   style_tt(
-    i = "caption",
-    bold = TRUE,
+    
     align = "c",
-    fontsize = 1.5,
+    fontsize = 0.9,
     bootstrap_class = "table caption-top"
   )
 
