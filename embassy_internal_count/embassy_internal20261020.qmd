@@ -240,6 +240,8 @@ masterset %>% ggplot(aes(x = TOTLIB1_lag2, y = N_EMBASSY)) + facet_wrap(~YEAR) +
 masterset %>% ggplot(aes(x = TOTLIB1_lag3, y = N_EMBASSY)) + facet_wrap(~YEAR) +geom_point() + theme_bw() + geom_smooth()
 ```
 
+Next, yearly pairwise correlations were computed for each democracy score and the number of embassies.  
+
 ```{r echo = T}
 masterset %>% filter(!is.na(POLITY2)) %>% group_by(YEAR) %>% summarize(
   cor = cor(N_EMBASSY, POLITY2, use = "pairwise.complete.obs") ,
