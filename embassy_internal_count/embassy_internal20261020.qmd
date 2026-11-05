@@ -10,7 +10,8 @@ authors: "Steven Pappas and Gregory J. Matthews"
 date: "November 5, 2026"
 ---
 
-#Summary
+
+# Summary
  
 This report explores the relationship betwen the number of embassies and democracy scores using three different measures of democracy: POLITY2, TOTLIB1, and V2X_LIBDEM. The report contains exploratory data analysis visualizations of the democracy variables and their relationships to the number of embassies. This is followed by results from mixed effects multivariate Poisson regression modeling.  Poisson regression was chosen since the response variable was count data and mixed effects were used to account for correlations withint he same country across years.  For each democracy measure, we considered the democracy measure along with lagged version of the democracy measure for 1, 2, and 3 year lags.  We then fit a reduced and a full model for each combination.  The reduced model contains only democracy score as fixed effect with random effects for year and country.  Full models contained all the predictors as the reduced model in addtion to population (log transformed), GNI (log transformed), trade imports (log transformed), trade exports (log transformed), a cold war indicator, and interaction between cold war and ideology, colonial past, and region.  
 
